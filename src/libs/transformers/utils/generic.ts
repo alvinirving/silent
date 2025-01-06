@@ -1,4 +1,4 @@
-export const Callable = /** @type {any} */ class {
+export var Callable = /** @type {any} */ class {
   constructor() {
     let closure = function (this: any, ...args: any[]): any {
       return (closure as any)._call(...args);
