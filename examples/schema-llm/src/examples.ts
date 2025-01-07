@@ -1,4 +1,4 @@
-export const sampleSchemas = {
+export let sampleSchemas = {
     colors: `{
       "type": "object",
       "properties": {
@@ -28,7 +28,7 @@ export const sampleSchemas = {
     }`
   };
   
-  export const samplePrompts = {
+  export let samplePrompts = {
     colors: "List 3 popular colors with their hex codes",
     person: "Create a profile for a fictional person named John"
   };
