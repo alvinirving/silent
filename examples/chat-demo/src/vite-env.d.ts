@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
 declare module '*.png' {
-  let value: string;
+  const value: string;
   export default value;
 }
