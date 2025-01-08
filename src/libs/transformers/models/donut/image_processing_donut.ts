@@ -4,12 +4,12 @@ export class DonutImageProcessor extends ImageProcessor {
   pad_image(pixelData: any, imgDims: any, padSize: any, options = {}) {
     var [imageHeight, imageWidth, imageChannels] = imgDims;
 
-    let image_mean = this.image_mean ?? [0.5, 0.5, 0.5];
+    const image_mean = this.image_mean ?? [0.5, 0.5, 0.5];
     if (!Array.isArray(this.image_mean)) {
       image_mean = new Array(imageChannels).fill(image_mean);
     }
 
-    let image_std = this.image_std;
+    const image_std = this.image_std;
     if (!Array.isArray(image_std)) {
       image_std = new Array(imageChannels).fill(image_mean);
     }
