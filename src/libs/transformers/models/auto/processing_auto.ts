@@ -40,9 +40,9 @@ export class AutoProcessor extends Processor {
   /** @type {typeof Processor.from_pretrained} */
   static async from_pretrained(pretrained_model_name_or_path: string, options = {}): Promise<Processor> {
     // TODO: first check for processor.json
-    var preprocessorConfig = await getModelJSON(pretrained_model_name_or_path, IMAGE_PROCESSOR_NAME, true, options);
+    const preprocessorConfig = await getModelJSON(pretrained_model_name_or_path, IMAGE_PROCESSOR_NAME, true, options);
 
-    var { image_processor_type, feature_extractor_type, processor_class } = preprocessorConfig;
+    const { image_processor_type, feature_extractor_type, processor_class } = preprocessorConfig;
     if (processor_class && AllProcessors[processor_class as keyof typeof AllProcessors]) {
       return AllProcessors[processor_class as keyof typeof AllProcessors].from_pretrained(
         pretrained_model_name_or_path,
@@ -54,9 +54,9 @@ export class AutoProcessor extends Processor {
       throw new Error('No `image_processor_type` or `feature_extractor_type` found in the config.');
     }
 
-    var components: Record<string, any> = {};
+    const components: Record<string, any> = {};
     if (image_processor_type) {
-      var image_processor_class = AllImageProcessors[image_processor_type as keyof typeof AllImageProcessors];
+      const image_processor_class = AllImageProcessors[image_processor_type as keyof typeof AllImageProcessors];
       if (!image_processor_class) {
         throw new Error(`Unknown image_processor_type: '${image_processor_type}'.`);
       }
@@ -64,12 +64,12 @@ export class AutoProcessor extends Processor {
     }
 
     if (feature_extractor_type) {
-      var image_processor_class = AllImageProcessors[feature_extractor_type as keyof typeof AllImageProcessors];
+      const image_processor_class = AllImageProcessors[feature_extractor_type as keyof typeof AllImageProcessors];
       if (image_processor_class) {
         // Handle legacy case where image processors were specified as feature extractors
         components.image_processor = new image_processor_class(preprocessorConfig);
       } else {
-        var feature_extractor_class =
+        const feature_extractor_class =
           AllFeatureExtractors[feature_extractor_type as keyof typeof AllFeatureExtractors];
         if (!feature_extractor_class) {
           throw new Error(`Unknown feature_extractor_type: '${feature_extractor_type}'.`);
@@ -78,7 +78,7 @@ export class AutoProcessor extends Processor {
       }
     }
 
-    var config = {};
+    const config = {};
     return new Processor(config, components);
   }
 }
