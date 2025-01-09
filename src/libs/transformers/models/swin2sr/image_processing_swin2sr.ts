@@ -4,7 +4,7 @@ export class Swin2SRImageProcessor extends ImageProcessor {
   pad_image(pixelData, imgDims, padSize, options = {}) {
     // NOTE: In this case, `padSize` represents the size of the sliding window for the local attention.
     // In other words, the image is padded so that its width and height are multiples of `padSize`.
-    let [imageHeight, imageWidth, imageChannels] = imgDims;
+    const [imageHeight, imageWidth, imageChannels] = imgDims;
 
     return super.pad_image(
       pixelData,
