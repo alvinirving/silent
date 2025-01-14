@@ -3,8 +3,8 @@ import { AutoImageProcessor } from '../auto/image_processing_auto.js';
 import { AutoTokenizer } from '../../tokenizers.js';
 import { RawImage } from '../../utils/image.js';
 
-const IMAGE_TOKEN = '<|image|>';
-const IMAGE_TOKEN_PATTERN = /<\|image_\d+\|>/g;
+var IMAGE_TOKEN = '<|image|>';
+var IMAGE_TOKEN_PATTERN = /<\|image_\d+\|>/g;
 
 export class Phi3VProcessor extends Processor {
   static image_processor_class = AutoImageProcessor;
@@ -25,18 +25,18 @@ export class Phi3VProcessor extends Processor {
     let text_inputs, image_inputs;
     if (images) {
       image_inputs = await this.image_processor(images, { num_crops });
-      const { num_img_tokens } = image_inputs;
+      var { num_img_tokens } = image_inputs;
 
       // The original implementation adds a bos_token before the image tokens
       // TODO: Check if this affects performance, since it looks like a bug in the original implementation
-      const prompt_chunks = text.map((t, i) =>
+      var prompt_chunks = text.map((t, i) =>
         t.split(IMAGE_TOKEN_PATTERN).join(IMAGE_TOKEN.repeat(num_img_tokens[i])),
       );
 
       text_inputs = this.tokenizer(prompt_chunks, { padding, truncation });
 
       // The model expects image tokens to be negative, so we negate the image token ids
-      const image_token_id = this.tokenizer.model.convert_tokens_to_ids([IMAGE_TOKEN])[0];
+      var image_token_id = this.tokenizer.model.convert_tokens_to_ids([IMAGE_TOKEN])[0];
       text_inputs.input_ids.map_((id) => (id == image_token_id ? -id : id));
     } else {
       text_inputs = this.tokenizer(text);
