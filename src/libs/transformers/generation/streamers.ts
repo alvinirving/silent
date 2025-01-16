@@ -23,7 +23,7 @@ export class BaseStreamer {
   }
 }
 
-var stdout_write = apis.IS_PROCESS_AVAILABLE ? (x: string) => process.stdout.write(x) : (x: string) => console.log(x);
+const stdout_write = apis.IS_PROCESS_AVAILABLE ? (x: string) => process.stdout.write(x) : (x: string) => console.log(x);
 
 /**
  * Simple text streamer that prints the token(s) to stdout as soon as entire words are formed.
@@ -87,12 +87,12 @@ export class TextStreamer extends BaseStreamer {
       return;
     }
 
-    var tokens = value[0];
+    const tokens = value[0];
     this.token_callback_function?.(tokens);
 
     // Add the new token to the cache and decodes the entire thing.
     this.token_cache = mergeArrays(this.token_cache, tokens);
-    var text = this.tokenizer.decode(this.token_cache, this.decode_kwargs);
+    const text = this.tokenizer.decode(this.token_cache, this.decode_kwargs);
 
     let printable_text;
     if (text.endsWith('\n')) {
@@ -120,7 +120,7 @@ export class TextStreamer extends BaseStreamer {
   end() {
     let printable_text;
     if (this.token_cache.length > 0) {
-      var text = this.tokenizer.decode(this.token_cache, this.decode_kwargs);
+      const text = this.tokenizer.decode(this.token_cache, this.decode_kwargs);
       printable_text = text.slice(this.print_len);
       this.token_cache = [];
       this.print_len = 0;
@@ -211,13 +211,13 @@ export class WhisperTextStreamer extends TextStreamer {
     if (value.length > 1) {
       throw Error('WhisperTextStreamer only supports batch size of 1');
     }
-    var tokens = value[0];
+    const tokens = value[0];
 
     // Check if the token is a timestamp
     if (tokens.length === 1) {
-      var offset = Number(tokens[0]) - this.timestamp_begin;
+      const offset = Number(tokens[0]) - this.timestamp_begin;
       if (offset >= 0) {
-        var time = offset * this.time_precision;
+        const time = offset * this.time_precision;
         if (this.waiting_for_timestamp) {
           this.on_chunk_end?.(time);
         } else {
