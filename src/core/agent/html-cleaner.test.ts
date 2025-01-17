@@ -8,7 +8,7 @@ describe('HTMLCleaner', () => {
     });
 
     test('cleanForInteractive extracts interactive elements', () => {
-        var html = `
+        const html = `
             <div>
                 <button>Click me</button>
                 <a href="#">Link</a>
@@ -16,7 +16,7 @@ describe('HTMLCleaner', () => {
                 <div role="button">Custom Button</div>
             </div>
         `;
-        var result = cleaner.cleanForInteractive(html);
+        const result = cleaner.cleanForInteractive(html);
         expect(result).toContain('[button] Click me');
         expect(result).toContain('[a] Link');
         expect(result).toContain('[input] Input');
@@ -24,7 +24,7 @@ describe('HTMLCleaner', () => {
     });
 
     test('preserveSemanticHierarchy maintains heading structure', () => {
-        var html = `
+        const html = `
             <div>
                 <h1>Main Title</h1>
                 <h2>Subtitle</h2>
@@ -33,7 +33,7 @@ describe('HTMLCleaner', () => {
                 <p>Paragraph 2</p>
             </div>
         `;
-        var result = cleaner.preserveSemanticHierarchy(html);
+        const result = cleaner.preserveSemanticHierarchy(html);
         expect(result).toContain('h1: Main Title');
         expect(result).toContain('h2: Subtitle');
         expect(result).toContain('Paragraph 1');
