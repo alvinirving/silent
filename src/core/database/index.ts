@@ -5,12 +5,12 @@ import { IndexedDBStorageFactory } from './implementation/indexeddb';
 import { SqliteStorageFactory } from './implementation/sqlite';
 
 // placeholder for vectorstore factories
-let vectorStoreFactories: Record<string, VectorStoreFactory> = {
+const vectorStoreFactories: Record<string, VectorStoreFactory> = {
 
 }
 
 // register storage factories here
-let storageFactories: Record<string, StorageFactory<any>> = {
+const storageFactories: Record<string, StorageFactory<any>> = {
     'indexeddb': new IndexedDBStorageFactory(),
     'sqlite': new SqliteStorageFactory()
 };
