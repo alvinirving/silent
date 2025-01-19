@@ -1,7 +1,7 @@
 // Remove the import and use a bundled version of base64-js functions
-const base64js = {
+let base64js = {
     toByteArray(base64String) {
-        const binString = atob(base64String);
+        let binString = atob(base64String);
         return Uint8Array.from(binString, (m) => m.codePointAt(0));
     }
 };
@@ -33,7 +33,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   if (message.action === 'workflowDataReceived') {
     console.log('Processing workflow data:', message.data);
-    const data = message.data;
+    let data = message.data;
     
     if (!data.encryptedWorkflowData) {
         console.error("No workflow data received");
@@ -41,21 +41,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return;
     }
 
-    const encryptedDataB64 = data.encryptedWorkflowData;
-    const encryptionKeyB64 = data.encryptionKey;
-    const ivB64 = data.iv;
-    const expiryTimestamp = data.expiryTimestamp;
+    let encryptedDataB64 = data.encryptedWorkflowData;
+    let encryptionKeyB64 = data.encryptionKey;
+    let ivB64 = data.iv;
+    let expiryTimestamp = data.expiryTimestamp;
 
     // Convert base64 strings to byte arrays
-    const encryptionKeyRaw = Uint8Array.from(atob(encryptionKeyB64), c => c.charCodeAt(0));
-    const encryptedDataRaw = Uint8Array.from(atob(encryptedDataB64), c => c.charCodeAt(0));
-    const ivRaw = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
+    let encryptionKeyRaw = Uint8Array.from(atob(encryptionKeyB64), c => c.charCodeAt(0));
+    let encryptedDataRaw = Uint8Array.from(atob(encryptedDataB64), c => c.charCodeAt(0));
+    let ivRaw = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
 
     crypto.subtle.importKey("raw", encryptionKeyRaw, { name: "AES-CBC", length: 256 }, false, ["decrypt"])
         .then(key => crypto.subtle.decrypt({ name: "AES-CBC", iv: ivRaw }, key, encryptedDataRaw))
         .then(decryptedData => {
-            const decoder = new TextDecoder();
-            const workflowData = JSON.parse(decoder.decode(decryptedData));
+            let decoder = new TextDecoder();
+            let workflowData = JSON.parse(decoder.decode(decryptedData));
             
             // Store the complete workflow data including content
             chrome.storage.local.set({
@@ -84,7 +84,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
 
     // Clear sensitive data after expiry
-    const clearData = () => {
+    let clearData = () => {
       chrome.storage.local.remove([
         'workflowsData',
         'encryptionKey',
@@ -100,7 +100,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log('Background: Received getWorkflowData request for ID:', message.workflowId);
     chrome.storage.local.get(['workflowsData'], function(result) {
       console.log('Background: Current workflowsData:', result.workflowsData);
-      const workflowData = result.workflowsData?.[message.workflowId];
+      let workflowData = result.workflowsData?.[message.workflowId];
       console.log('Background: Found workflow data:', workflowData);
       sendResponse({ workflowData });
     });
@@ -111,7 +111,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log('Background: Received getWorkflows request');
     chrome.storage.local.get(['workflowsList', 'expiryTimestamp'], function(result) {
       console.log('Background: Current workflowsList:', result.workflowsList);
-      const now = Date.now();
+      let now = Date.now();
       if (result.expiryTimestamp && now > result.expiryTimestamp) {
         chrome.storage.local.remove(['workflowsList', 'workflowsData', 'encryptionKey', 'expiryTimestamp']);
         sendResponse({ workflows: [] });
