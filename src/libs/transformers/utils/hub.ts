@@ -81,12 +81,12 @@ class FileResponse {
       this.status = 200;
       this.statusText = 'OK';
 
-      let stats = fs.statSync(filePath);
+      var stats = fs.statSync(filePath);
       this.headers.set('content-length', stats.size.toString());
 
       this.updateContentType();
 
-      let self = this;
+      var self = this;
       this.body = new ReadableStream({
         start(controller) {
           self.arrayBuffer().then((buffer) => {
@@ -121,7 +121,7 @@ class FileResponse {
    * @returns {FileResponse} A new FileResponse object with the same properties as the current object.
    */
   clone() {
-    let response = new FileResponse(this.filePath);
+    var response = new FileResponse(this.filePath);
     response.exists = this.exists;
     response.status = this.status;
     response.statusText = this.statusText;
@@ -182,7 +182,7 @@ class FileResponse {
  * @returns {boolean} True if the string is a valid URL, false otherwise.
  */
 function isValidUrl(string: string, protocols: string[] | null = null, validHosts: string[] | null = null) {
-  let url;
+  var url;
   try {
     url = new URL(string);
   } catch (_) {
@@ -286,8 +286,8 @@ class FileCache {
    * @returns {Promise<FileResponse | undefined>}
    */
   async match(request: string) {
-    let filePath = path.join(this.path, request);
-    let file = new FileResponse(filePath);
+    var filePath = path.join(this.path, request);
+    var file = new FileResponse(filePath);
 
     if (file.exists) {
       return file;
@@ -305,7 +305,7 @@ class FileCache {
   async put(request: string, response: Response | FileResponse) {
     const buffer = Buffer.from(await response.arrayBuffer());
 
-    let outputPath = path.join(this.path, request);
+    var outputPath = path.join(this.path, request);
 
     try {
       await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
@@ -330,9 +330,9 @@ class FileCache {
  * @returns {Promise<FileResponse|Response|undefined>} The item from the cache, or undefined if not found.
  */
 async function tryCache(cache: FileCache | Cache, ...names: string[]) {
-  for (let name of names) {
+  for (var name of names) {
     try {
-      let result = await cache.match(name);
+      var result = await cache.match(name);
       if (result) return result;
     } catch (e) {
       continue;
@@ -385,7 +385,7 @@ export async function getModelFile(
 
   // First, check if the a caching backend is available
   // If no caching mechanism available, will download the file every time
-  let cache;
+  var cache;
   if (!cache && env.useBrowserCache) {
     if (typeof caches === 'undefined') {
       throw Error('Browser cache is not available in this environment.');
@@ -427,10 +427,10 @@ export async function getModelFile(
 
   const revision = options.revision ?? 'main';
 
-  let requestURL = pathJoin(path_or_repo_id, filename);
-  let localPath = pathJoin(env.localModelPath, requestURL);
+  var requestURL = pathJoin(path_or_repo_id, filename);
+  var localPath = pathJoin(env.localModelPath, requestURL);
 
-  let remoteURL = pathJoin(
+  var remoteURL = pathJoin(
     env.remoteHost,
     env.remotePathTemplate
       .replaceAll('{model}', path_or_repo_id)
@@ -441,17 +441,17 @@ export async function getModelFile(
   // Choose cache key for filesystem cache
   // When using the main revision (default), we use the request URL as the cache key.
   // If a specific revision is requested, we account for this in the cache key.
-  let fsCacheKey = revision === 'main' ? requestURL : pathJoin(path_or_repo_id, revision, filename);
+  var fsCacheKey = revision === 'main' ? requestURL : pathJoin(path_or_repo_id, revision, filename);
 
   /** @type {string} */
-  let cacheKey;
-  let proposedCacheKey = cache instanceof FileCache ? fsCacheKey : remoteURL;
+  var cacheKey;
+  var proposedCacheKey = cache instanceof FileCache ? fsCacheKey : remoteURL;
 
   // Whether to cache the final response in the end.
-  let toCacheResponse = false;
+  var toCacheResponse = false;
 
   /** @type {Response|FileResponse|undefined} */
-  let response;
+  var response;
 
   if (cache) {
     // A caching system is available, so we try to get the file from it.
@@ -531,7 +531,7 @@ export async function getModelFile(
   });
 
   /** @type {Uint8Array} */
-  let buffer;
+  var buffer;
 
   if (!options.progress_callback) {
     // If no progress callback is specified, we can use the `.arrayBuffer()`
@@ -612,14 +612,14 @@ export async function getModelFile(
  * @throws Will throw an error if the file is not found and `fatal` is true.
  */
 export async function getModelJSON(modelPath: string, fileName: string, fatal = true, options = {}) {
-  let buffer = await getModelFile(modelPath, fileName, fatal, options);
+  var buffer = await getModelFile(modelPath, fileName, fatal, options);
   if (buffer === null) {
     // Return empty object
     return {};
   }
 
-  let decoder = new TextDecoder('utf-8');
-  let jsonData = decoder.decode(buffer);
+  var decoder = new TextDecoder('utf-8');
+  var jsonData = decoder.decode(buffer);
 
   return JSON.parse(jsonData);
 }
@@ -638,9 +638,9 @@ export async function readResponse(
   if (contentLength === null) {
     console.warn('Unable to determine content-length from response headers. Will expand buffer when needed.');
   }
-  let total = parseInt(contentLength ?? '0');
-  let buffer = new Uint8Array(total);
-  let loaded = 0;
+  var total = parseInt(contentLength ?? '0');
+  var buffer = new Uint8Array(total);
+  var loaded = 0;
 
   const reader = response.body?.getReader();
   if (!reader) throw new Error('Response body reader is undefined');
@@ -649,13 +649,13 @@ export async function readResponse(
     const { done, value } = await reader?.read()!;
     if (done) return;
 
-    let newLoaded = loaded + value.length;
+    var newLoaded = loaded + value.length;
     if (newLoaded > total) {
       total = newLoaded;
 
       // Adding the new data will overflow buffer.
       // In this case, we extend the buffer
-      let newBuffer = new Uint8Array(total);
+      var newBuffer = new Uint8Array(total);
 
       // copy contents
       newBuffer.set(buffer);
