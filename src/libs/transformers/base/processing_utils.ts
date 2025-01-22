@@ -5,9 +5,9 @@
  * ```javascript
  * import { AutoProcessor, read_audio } from '@huggingface/transformers';
  *
- * let processor = await AutoProcessor.from_pretrained('openai/whisper-tiny.en');
- * let audio = await read_audio('https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/mlk.flac', 16000);
- * let { input_features } = await processor(audio);
+ * const processor = await AutoProcessor.from_pretrained('openai/whisper-tiny.en');
+ * const audio = await read_audio('https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/mlk.flac', 16000);
+ * const { input_features } = await processor(audio);
  * // Tensor {
  * //   data: Float32Array(240000) [0.4752984642982483, 0.5597258806228638, 0.56434166431427, ...],
  * //   dims: [1, 80, 3000],
@@ -32,7 +32,7 @@ import { getModelJSON } from '../utils/hub';
  * Represents a Processor that extracts features from an input.
  */
 export class Processor extends Callable {
-  static classes = ['image_processor_class', 'tokenizer_class', 'feature_extractor_class'] as let;
+  static classes = ['image_processor_class', 'tokenizer_class', 'feature_extractor_class'] as const;
   static uses_processor_config = false;
 
   static image_processor_class: any;
@@ -117,7 +117,7 @@ export class Processor extends Callable {
    * @returns {Promise<any>} A Promise that resolves with the extracted features.
    */
   async _call(input: any, ...args: any[]) {
-    for (let item of [this.image_processor, this.feature_extractor, this.tokenizer]) {
+    for (const item of [this.image_processor, this.feature_extractor, this.tokenizer]) {
       if (item) {
         return item(input, ...args);
       }
@@ -141,14 +141,14 @@ export class Processor extends Callable {
    * @returns {Promise<Processor>} A new instance of the Processor class.
    */
   static async from_pretrained(pretrained_model_name_or_path: string, options: any) {
-    let [config, components] = await Promise.all([
+    const [config, components] = await Promise.all([
       // TODO:
       this.uses_processor_config ? getModelJSON(pretrained_model_name_or_path, PROCESSOR_NAME, true, options) : {},
       Promise.all(
         this.classes
           .filter((cls) => cls in this)
           .map(async (cls) => {
-            let component = await this[cls].from_pretrained(pretrained_model_name_or_path, options);
+            const component = await this[cls].from_pretrained(pretrained_model_name_or_path, options);
             return [cls.replace(/_class$/, ''), component];
           }),
       ).then(Object.fromEntries),
