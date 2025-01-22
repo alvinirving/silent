@@ -2,7 +2,7 @@ import { Processor } from '../../base/processing_utils.js';
 import { AutoImageProcessor } from '../auto/image_processing_auto.js';
 import { AutoTokenizer } from '../../tokenizers.js';
 
-var IMAGE_TOKEN = '<image>';
+const IMAGE_TOKEN = '<image>';
 
 function build_string_from_input(prompt, bos_token, image_seq_len, image_token, num_images) {
   return `${image_token.repeat(image_seq_len * num_images)}${bos_token}${prompt}\n`;
@@ -32,15 +32,15 @@ export class PaliGemmaProcessor extends Processor {
       text = [text];
     }
 
-    var bos_token = this.tokenizer.bos_token;
+    const bos_token = this.tokenizer.bos_token;
     // @ts-expect-error TS2339
-    var image_seq_length = this.image_processor.config.image_seq_length;
+    const image_seq_length = this.image_processor.config.image_seq_length;
     let input_strings;
     if (text.some((t) => t.includes(IMAGE_TOKEN))) {
       input_strings = text.map((sample) => {
-        var expanded_sample = sample.replaceAll(IMAGE_TOKEN, IMAGE_TOKEN.repeat(image_seq_length));
-        var bos_rfind_index = expanded_sample.lastIndexOf(IMAGE_TOKEN);
-        var bos_index = bos_rfind_index === -1 ? 0 : bos_rfind_index + IMAGE_TOKEN.length;
+        const expanded_sample = sample.replaceAll(IMAGE_TOKEN, IMAGE_TOKEN.repeat(image_seq_length));
+        const bos_rfind_index = expanded_sample.lastIndexOf(IMAGE_TOKEN);
+        const bos_index = bos_rfind_index === -1 ? 0 : bos_rfind_index + IMAGE_TOKEN.length;
         return expanded_sample.slice(0, bos_index) + bos_token + expanded_sample.slice(bos_index) + '\n';
       });
     } else {
@@ -56,8 +56,8 @@ export class PaliGemmaProcessor extends Processor {
       );
     }
 
-    var text_inputs = this.tokenizer(input_strings, kwargs);
-    var image_inputs = await this.image_processor(images, kwargs);
+    const text_inputs = this.tokenizer(input_strings, kwargs);
+    const image_inputs = await this.image_processor(images, kwargs);
 
     return {
       ...image_inputs,
