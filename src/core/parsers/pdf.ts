@@ -38,7 +38,7 @@ function getPdfLib(): PDFJSStatic {
     throw new Error('PDF.js can only be used in browser environments');
   }
   
-  var pdfjsLib = (window as any).pdfjsLib;
+  const pdfjsLib = (window as any).pdfjsLib;
   
   if (!pdfjsLib) {
     throw new Error('PDF.js library not found. Make sure to include it in your project.');
@@ -63,7 +63,7 @@ function getPdfLib(): PDFJSStatic {
 }
 
 // Declare PDF.js as a global variable that will be loaded externally
-declare var pdfjsLib: PDFJSStatic;
+declare const pdfjsLib: PDFJSStatic;
 
 /**
  * Options for PDF parsing
@@ -132,28 +132,28 @@ export class PDFParser {
    * @returns Promise resolving to the parsed PDF content
    */
   static async parseFromUrl(url: string, options: PDFParseOptions = {}): Promise<PDFParseResult> {
-    var debugInfo: string[] = [];
+    const debugInfo: string[] = [];
     if (options.debug) debugInfo.push(`Starting URL parsing: ${url}`);
     console.log(`Starting URL parsing: ${url}`);
     
     try {
       // Get PDF.js library
-      var pdfjsLib = getPdfLib();
+      const pdfjsLib = getPdfLib();
       if (options.debug) debugInfo.push('PDF.js library found');
       
       // Load the PDF document
       if (options.debug) debugInfo.push('Loading PDF document from URL...');
       console.log('Loading PDF document from URL...');
       
-      var loadingTask = pdfjsLib.getDocument({ url });
-      var pdf = await loadingTask.promise;
+      const loadingTask = pdfjsLib.getDocument({ url });
+      const pdf = await loadingTask.promise;
       
       if (options.debug) debugInfo.push(`PDF loaded successfully. Pages: ${pdf.numPages}`);
       console.log(`PDF loaded successfully. Pages: ${pdf.numPages}`);
       
       return this.extractTextFromPdf(pdf, options, debugInfo);
     } catch (error) {
-      var errorMessage = (error as Error).message;
+      const errorMessage = (error as Error).message;
       if (options.debug) debugInfo.push(`Error: ${errorMessage}`);
       console.error('PDF parsing error:', error);
       
@@ -175,17 +175,17 @@ export class PDFParser {
    * @returns Promise resolving to the parsed PDF content
    */
   static async parseFromData(data: ArrayBuffer, options: PDFParseOptions = {}): Promise<PDFParseResult> {
-    var debugInfo: string[] = [];
+    const debugInfo: string[] = [];
     if (options.debug) debugInfo.push(`Starting ArrayBuffer parsing. Size: ${data.byteLength} bytes`);
     console.log(`Starting ArrayBuffer parsing. Size: ${data.byteLength} bytes`);
     
     try {
       // Get PDF.js library
-      var pdfjsLib = getPdfLib();
+      const pdfjsLib = getPdfLib();
       if (options.debug) debugInfo.push('PDF.js library found');
       
       // Convert ArrayBuffer to Uint8Array
-      var uint8Array = new Uint8Array(data);
+      const uint8Array = new Uint8Array(data);
       if (options.debug) debugInfo.push(`Converted to Uint8Array. Length: ${uint8Array.length}`);
       console.log(`Converted to Uint8Array. Length: ${uint8Array.length}`);
       
@@ -194,10 +194,10 @@ export class PDFParser {
       console.log('Loading PDF document from data...');
       
       try {
-        var loadingTask = pdfjsLib.getDocument(uint8Array);
+        const loadingTask = pdfjsLib.getDocument(uint8Array);
         console.log('Loading task created:', loadingTask);
         
-        var pdf = await loadingTask.promise;
+        const pdf = await loadingTask.promise;
         console.log('PDF loaded successfully:', pdf);
         console.log('Number of pages:', pdf.numPages);
         
@@ -209,7 +209,7 @@ export class PDFParser {
         throw loadError;
       }
     } catch (error) {
-      var errorMessage = (error as Error).message;
+      const errorMessage = (error as Error).message;
       if (options.debug) debugInfo.push(`Error: ${errorMessage}`);
       console.error('PDF parsing error:', error);
       
@@ -235,23 +235,23 @@ export class PDFParser {
     options: PDFParseOptions,
     debugInfo: string[]
   ): Promise<PDFParseResult> {
-    var { 
+    const { 
       maxPages = pdf.numPages,
       includePageNumbers = false,
       pageSeparator = '\n\n'
     } = options;
     
-    var pageTexts: string[] = [];
-    var errors: string[] = [];
+    const pageTexts: string[] = [];
+    const errors: string[] = [];
     
     // Determine how many pages to process
-    var pagesToProcess = Math.min(maxPages, pdf.numPages);
+    const pagesToProcess = Math.min(maxPages, pdf.numPages);
     
     // Process each page
     for (let i = 1; i <= pagesToProcess; i++) {
       try {
-        var page = await pdf.getPage(i);
-        var textContent = await page.getTextContent();
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
         
         let pageText = textContent.items.map(item => item.str).join(' ');
         
@@ -267,7 +267,7 @@ export class PDFParser {
     }
     
     // Combine all page texts
-    var fullText = pageTexts.join(pageSeparator);
+    const fullText = pageTexts.join(pageSeparator);
     
     return {
       text: fullText,
@@ -293,7 +293,7 @@ export class PDFParser {
     }
 
     // Check if we're in a browser extension environment
-    var isExtension = typeof window !== 'undefined' && 
+    const isExtension = typeof window !== 'undefined' && 
                        typeof (window as any).chrome !== 'undefined' && 
                        (window as any).chrome.runtime && 
                        (window as any).chrome.runtime.id;
@@ -315,7 +315,7 @@ export class PDFParser {
         
         // Set up worker
         if (pdfjs.GlobalWorkerOptions && !pdfjs.GlobalWorkerOptions.workerSrc) {
-          var chrome = (window as any).chrome;
+          const chrome = (window as any).chrome;
           if (chrome && chrome.runtime && chrome.runtime.getURL) {
             pdfjs.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.min.js');
           } else {
@@ -332,7 +332,7 @@ export class PDFParser {
     } else {
       // For non-extension environments, load from CDN
       return new Promise((resolve, reject) => {
-        var script = document.createElement('script');
+        const script = document.createElement('script');
         script.src = pdfJsPath;
         script.onload = () => {
           (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc = workerPath;
@@ -422,17 +422,17 @@ export function pdfToText(
   } = {}
 ): string {
   // Default options
-  var includePageNumbers = options.includePageNumbers !== false;
-  var includeSummary = options.includeSummary !== false;
-  var pagePrefix = options.pagePrefix || '--- Page ';
-  var pageSuffix = options.pageSuffix || ' ---';
+  const includePageNumbers = options.includePageNumbers !== false;
+  const includeSummary = options.includeSummary !== false;
+  const pagePrefix = options.pagePrefix || '--- Page ';
+  const pageSuffix = options.pageSuffix || ' ---';
   
-  var lines: string[] = [];
+  const lines: string[] = [];
   
   // Add each page with optional page numbers
   if (includePageNumbers) {
     for (let i = 0; i < result.pages.length; i++) {
-      var pageNum = i + 1;
+      const pageNum = i + 1;
       lines.push(`${pagePrefix}${pageNum}${pageSuffix}`);
       lines.push(result.pages[i]);
       lines.push(''); // Empty line between pages
@@ -482,7 +482,7 @@ export async function processPdfFile(
   formattedText: string; // New property for AI-friendly text
   debugInfo: string[];
 }> {
-  var debugInfo: string[] = [];
+  const debugInfo: string[] = [];
   
   // Validate file
   if (!file || file.type !== 'application/pdf') {
@@ -493,12 +493,12 @@ export async function processPdfFile(
   
   try {
     // Read the file as ArrayBuffer
-    var fileBuffer = await file.arrayBuffer();
+    const fileBuffer = await file.arrayBuffer();
     debugInfo.push('File loaded as ArrayBuffer');
     
     // Create copies to prevent detachment issues
-    var textBuffer = fileBuffer.slice(0);
-    var structuredBuffer = fileBuffer.slice(0);
+    const textBuffer = fileBuffer.slice(0);
+    const structuredBuffer = fileBuffer.slice(0);
     
     // Ensure PDF.js is available
     if (!PDFParser.isPdfJsAvailable()) {
@@ -509,17 +509,17 @@ export async function processPdfFile(
     
     // Extract text
     debugInfo.push('Extracting text from PDF...');
-    var text = await extractTextFromPdf(textBuffer, options);
+    const text = await extractTextFromPdf(textBuffer, options);
     debugInfo.push(`Text extracted successfully (${text.length} characters)`);
     
     // Extract structured data
     debugInfo.push('Extracting structured data...');
-    var structured = await extractStructuredTextFromPdf(structuredBuffer, options);
+    const structured = await extractStructuredTextFromPdf(structuredBuffer, options);
     debugInfo.push(`Structured data extracted (${structured.numPages} pages)`);
     
     // Create AI-friendly formatted text
     debugInfo.push('Creating formatted text for AI...');
-    var formattedText = pdfToText(structured, options.textFormatting);
+    const formattedText = pdfToText(structured, options.textFormatting);
     debugInfo.push(`Formatted text created (${formattedText.length} characters)`);
     
     return {
