@@ -12,22 +12,22 @@ import { Tensor } from '../utils/tensor';
  * @returns {Promise<function(Record<string, Tensor>): Promise<T extends string ? Tensor : T extends string[] ? { [K in keyof T]: Tensor } : never>>}
  * The wrapper function for running the ONNX inference session.
  */
-var wrap = async (
+const wrap = async (
   session_bytes: number[],
   session_options: import('onnxruntime-common').InferenceSession.SessionOptions,
   names: string | string[],
 ) => {
-  var session = await createInferenceSession(new Uint8Array(session_bytes), session_options, {});
+  const session = await createInferenceSession(new Uint8Array(session_bytes), session_options, {});
 
   let chain = Promise.resolve();
 
   return /** @type {any} */ async (/** @type {Record<string, Tensor>} */ inputs: Record<string, Tensor>) => {
-    var proxied = isONNXProxy();
-    var ortFeed = Object.fromEntries(
+    const proxied = isONNXProxy();
+    const ortFeed = Object.fromEntries(
       Object.entries(inputs).map(([k, v]) => [k, (proxied ? v.clone() : v).ort_tensor]),
     );
     // When running in-browser via WASM, we need to chain calls to session.run to avoid "Error: Session already started"
-    var outputs = await (chain.then(() => session.run(ortFeed as any)));
+    const outputs = await (chain.then(() => session.run(ortFeed as any)));
 
     if (Array.isArray(names)) {
       return names.map((n) => new Tensor(outputs[n]));
