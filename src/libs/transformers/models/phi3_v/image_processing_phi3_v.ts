@@ -1,9 +1,9 @@
 import { ImageProcessor } from '../../base/image_processors_utils.js';
 import { cat, interpolate_4d, slice, stack, Tensor } from '../../utils/tensor.js';
 
-var IMAGE_SIZE = 336;
-var SLICE_AXES = [2, 3]; // axes to slice on
-var { ceil, floor, sqrt } = Math;
+const IMAGE_SIZE = 336;
+const SLICE_AXES = [2, 3]; // axes to slice on
+const { ceil, floor, sqrt } = Math;
 
 export class Phi3VImageProcessor extends ImageProcessor {
   constructor(config) {
@@ -20,7 +20,7 @@ export class Phi3VImageProcessor extends ImageProcessor {
   }
   calc_num_image_tokens_from_image_size(width, height) {
     // @ts-expect-error
-    var { num_img_tokens } = this.config;
+    const { num_img_tokens } = this.config;
     return floor(
       (floor(height / IMAGE_SIZE) * floor(width / IMAGE_SIZE) + 1) * num_img_tokens +
         1 +
@@ -30,8 +30,8 @@ export class Phi3VImageProcessor extends ImageProcessor {
 
   /** @type {ImageProcessor['get_resize_output_image_size']} */
   get_resize_output_image_size(image, size) {
-    var hd_num = this._num_crops;
-    var [width, height] = image.size;
+    const hd_num = this._num_crops;
+    const [width, height] = image.size;
 
     let ratio = width / height;
     let scale = 1;
@@ -43,8 +43,8 @@ export class Phi3VImageProcessor extends ImageProcessor {
     scale -= 1;
 
     // Compute the new dimensions
-    var new_w = Math.floor(scale * 336);
-    var new_h = Math.floor(new_w / ratio);
+    const new_w = Math.floor(scale * 336);
+    const new_h = Math.floor(new_w / ratio);
 
     return [new_w, new_h];
   }
@@ -54,12 +54,12 @@ export class Phi3VImageProcessor extends ImageProcessor {
     // Phi3V uses a custom padding strategy:
     // - Pad to a multiple of 336
     // - Pad with white pixels
-    var [imageHeight, imageWidth] = imgDims;
-    var height = IMAGE_SIZE * ceil(imageHeight / IMAGE_SIZE);
-    var width = IMAGE_SIZE * ceil(imageWidth / IMAGE_SIZE);
+    const [imageHeight, imageWidth] = imgDims;
+    const height = IMAGE_SIZE * ceil(imageHeight / IMAGE_SIZE);
+    const width = IMAGE_SIZE * ceil(imageWidth / IMAGE_SIZE);
 
     // NOTE: Since padding is done after normalization, we need to fill with the normalized values
-    var constant_values = [1, 1, 1].map((x, i) => (x - this.image_mean[i]) / this.image_std[i]);
+    const constant_values = [1, 1, 1].map((x, i) => (x - this.image_mean[i]) / this.image_std[i]);
     return super.pad_image(
       pixelData,
       imgDims,
@@ -83,30 +83,30 @@ export class Phi3VImageProcessor extends ImageProcessor {
       images = [images];
     }
 
-    var num_images = images.length;
-    var imageData = await Promise.all(images.map((x) => this.preprocess(x)));
+    const num_images = images.length;
+    const imageData = await Promise.all(images.map((x) => this.preprocess(x)));
 
-    var original_sizes = imageData.map((x) => x.original_size);
-    var reshaped_input_sizes = imageData.map((x) => x.reshaped_input_size);
+    const original_sizes = imageData.map((x) => x.original_size);
+    const reshaped_input_sizes = imageData.map((x) => x.reshaped_input_size);
 
     // Process each image in batch
-    var all_pixel_values = [];
-    for (var { pixel_values } of imageData) {
+    const all_pixel_values = [];
+    for (const { pixel_values } of imageData) {
       pixel_values.unsqueeze_(0); // Easier processing as 4D tensor
 
-      var [height, width] = pixel_values.dims.slice(-2);
+      const [height, width] = pixel_values.dims.slice(-2);
 
       // Global image (Tensor of shape [num_channels, height, width])
-      var batch_pixel_values = await interpolate_4d(pixel_values, {
+      const batch_pixel_values = await interpolate_4d(pixel_values, {
         size: [IMAGE_SIZE, IMAGE_SIZE],
         mode: 'bicubic',
       });
 
       if (num_crops > 0) {
-        var patches = [];
-        var sqrt_patches = sqrt(num_crops);
-        var patch_width = floor(width / sqrt_patches);
-        var patch_height = floor(height / sqrt_patches);
+        const patches = [];
+        const sqrt_patches = sqrt(num_crops);
+        const patch_width = floor(width / sqrt_patches);
+        const patch_height = floor(height / sqrt_patches);
         for (let y = 0; y < sqrt_patches; ++y) {
           for (let x = 0; x < sqrt_patches; ++x) {
             let start_x, start_y, end_x, end_y;
@@ -127,14 +127,14 @@ export class Phi3VImageProcessor extends ImageProcessor {
               end_x = (x + 1) * patch_width;
             }
 
-            var starts = [start_y, start_x];
-            var ends = [end_y, end_x];
-            var patch = await slice(pixel_values, starts, ends, SLICE_AXES);
+            const starts = [start_y, start_x];
+            const ends = [end_y, end_x];
+            const patch = await slice(pixel_values, starts, ends, SLICE_AXES);
             patches.push(patch);
           }
         }
 
-        var resized_tensors = await interpolate_4d(cat(patches, 0), {
+        const resized_tensors = await interpolate_4d(cat(patches, 0), {
           size: [IMAGE_SIZE, IMAGE_SIZE],
           mode: 'bicubic',
         }); // [num_crops, 3, 336, 336]
@@ -149,14 +149,14 @@ export class Phi3VImageProcessor extends ImageProcessor {
     }
 
     // [num_images, 1 + num_crops, num_channels=3, height, width]
-    var pixel_values = stack(all_pixel_values, 0);
+    const pixel_values = stack(all_pixel_values, 0);
 
     // Calculate padded image sizes
-    var sizes = reshaped_input_sizes.map((x) => x.map((y) => IMAGE_SIZE * ceil(y / IMAGE_SIZE)));
+    const sizes = reshaped_input_sizes.map((x) => x.map((y) => IMAGE_SIZE * ceil(y / IMAGE_SIZE)));
 
-    var image_sizes = new Tensor('int64', sizes.flat(), [num_images, 2]);
+    const image_sizes = new Tensor('int64', sizes.flat(), [num_images, 2]);
 
-    var num_img_tokens = sizes.map(([height, width]) => this.calc_num_image_tokens_from_image_size(width, height));
+    const num_img_tokens = sizes.map(([height, width]) => this.calc_num_image_tokens_from_image_size(width, height));
 
     return { pixel_values, original_sizes, reshaped_input_sizes, image_sizes, num_img_tokens };
   }
