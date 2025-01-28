@@ -33,7 +33,7 @@ export async function executeBrowserAction(
 }
 
 // Convenience methods for common actions
-export let browserActions = {
+export const browserActions = {
   /**
    * Click on an element matching the provided selector
    */
