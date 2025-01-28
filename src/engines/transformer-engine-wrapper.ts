@@ -48,7 +48,7 @@ export class TransformersEngineWrapper {
       options.device = 'webgpu';
 
       // Configure pipeline options with proper worker settings
-      const pipelineOptions = {
+      var pipelineOptions = {
         progress_callback: options.onProgress || (() => {}),
         ...options
       };
@@ -74,12 +74,12 @@ export class TransformersEngineWrapper {
       }
 
       // For non-TTS models, create the appropriate pipeline
-      const pipelineType = modelConfig.pipeline as PipelineType;
+      var pipelineType = modelConfig.pipeline as PipelineType;
       this.transformersPipeline = await pipeline(pipelineType, modelConfig.repo, pipelineOptions);
 
     } catch (error) {
       console.error('Error loading Transformers model:', error);
-      const message = error instanceof Error ? error.message : String(error);
+      var message = error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to load Transformers model "${modelConfig.modelName}": ${message}`);
     }
   }
@@ -101,9 +101,9 @@ export class TransformersEngineWrapper {
     }
 
     // Convert messages array to text format
-    const prompt = messages.map((m) => `${m.role}: ${m.content}`).join('\n');
+    var prompt = messages.map((m) => `${m.role}: ${m.content}`).join('\n');
 
-    const result = await (this.transformersPipeline as any)(prompt, {
+    var result = await (this.transformersPipeline as any)(prompt, {
       temperature: options.temperature ?? 0.1,
       max_new_tokens: options.max_new_tokens ?? 300,
       repetition_penalty: options.repetition_penalty,
@@ -133,9 +133,9 @@ export class TransformersEngineWrapper {
       throw new Error('Speech recognition pipeline not initialized.');
     }
 
-    const input = audioInput instanceof Blob ? new Float32Array(await audioInput.arrayBuffer()) : (audioInput as any);
+    var input = audioInput instanceof Blob ? new Float32Array(await audioInput.arrayBuffer()) : (audioInput as any);
 
-    const result = await (this.transformersPipeline as any)(input, {
+    var result = await (this.transformersPipeline as any)(input, {
       language: options.language,
       task: options.task,
       return_timestamps: options.return_timestamps,
@@ -154,7 +154,7 @@ export class TransformersEngineWrapper {
     
     try {
       // Find the selected voice's language from options or fallback
-      const stream = this.ttsEngine.generateSpeechStream(text, options);
+      var stream = this.ttsEngine.generateSpeechStream(text, options);
       
       // Return both the stream and the sample rate needed for playback
       return {
@@ -200,18 +200,18 @@ export class TransformersEngineWrapper {
     }
 
     try {
-      const conversation = [{ 'role': 'user', 'content': input.text }];
+      var conversation = [{ 'role': 'user', 'content': input.text }];
       
       // Process the input text with the image processor
-      const inputs = await this.imageProcessor(conversation, {
+      var inputs = await this.imageProcessor(conversation, {
         chat_template: "text_to_image",
         ...options
       });
 
       // Generate the image
-      const num_image_tokens = this.imageProcessor.num_image_tokens;
+      var num_image_tokens = this.imageProcessor.num_image_tokens;
 
-      const outputs = await this.multimodalModel.generate({
+      var outputs = await this.multimodalModel.generate({
         ...inputs,
         min_new_tokens: num_image_tokens,
         max_new_tokens: num_image_tokens,
