@@ -6,8 +6,8 @@ export class SeamlessM4TFeatureExtractor extends FeatureExtractor {
   constructor(config) {
     super(config);
 
-    const sampling_rate = this.config.sampling_rate;
-    const mel_filters = mel_filter_bank(
+    var sampling_rate = this.config.sampling_rate;
+    var mel_filters = mel_filter_bank(
       256, // num_frequency_bins
       this.config.num_mel_bins, // num_mel_filters
       20, // min_frequency
@@ -83,15 +83,15 @@ export class SeamlessM4TFeatureExtractor extends FeatureExtractor {
     let features = await this._extract_fbank_features(audio, this.config.max_length);
 
     if (do_normalize_per_mel_bins) {
-      const [num_features, feature_size] = features.dims;
-      const data = features.data;
+      var [num_features, feature_size] = features.dims;
+      var data = features.data;
       for (let i = 0; i < feature_size; ++i) {
         let sum = 0;
         for (let j = 0; j < num_features; ++j) {
           sum += data[j * feature_size + i];
         }
 
-        const mean = sum / num_features;
+        var mean = sum / num_features;
 
         let variance = 0;
         for (let j = 0; j < num_features; ++j) {
@@ -99,9 +99,9 @@ export class SeamlessM4TFeatureExtractor extends FeatureExtractor {
         }
         variance /= num_features - 1; // NOTE: We use ddof=1
 
-        const std = Math.sqrt(variance + 1e-7);
+        var std = Math.sqrt(variance + 1e-7);
         for (let j = 0; j < num_features; ++j) {
-          const index = j * feature_size + i;
+          var index = j * feature_size + i;
           data[index] = (data[index] - mean) / std;
         }
       }
@@ -109,16 +109,16 @@ export class SeamlessM4TFeatureExtractor extends FeatureExtractor {
 
     let padded_attention_mask;
     if (padding) {
-      const [num_frames, num_channels] = features.dims;
-      const data = /** @type {Float32Array} */ features.data;
+      var [num_frames, num_channels] = features.dims;
+      var data = /** @type {Float32Array} */ features.data;
 
-      const pad_size = num_frames % pad_to_multiple_of;
+      var pad_size = num_frames % pad_to_multiple_of;
       if (pad_size > 0) {
-        const padded_data = new Float32Array(num_channels * (num_frames + pad_size));
+        var padded_data = new Float32Array(num_channels * (num_frames + pad_size));
         padded_data.set(data);
         padded_data.fill(this.config.padding_value, data.length);
 
-        const numPaddedFrames = num_frames + pad_size;
+        var numPaddedFrames = num_frames + pad_size;
         features = new Tensor(features.type, padded_data, [numPaddedFrames, num_channels]);
 
         if (return_attention_mask) {
@@ -128,25 +128,25 @@ export class SeamlessM4TFeatureExtractor extends FeatureExtractor {
       }
     }
 
-    const [num_frames, num_channels] = features.dims;
+    var [num_frames, num_channels] = features.dims;
 
-    const stride = this.config.stride;
-    const remainder = num_frames % stride;
+    var stride = this.config.stride;
+    var remainder = num_frames % stride;
     if (remainder !== 0) {
       throw new Error(`The number of frames (${num_frames}) must be a multiple of the stride (${stride}).`);
     }
 
-    const input_features = features.view(1, Math.floor(num_frames / stride), num_channels * stride);
+    var input_features = features.view(1, Math.floor(num_frames / stride), num_channels * stride);
 
-    const result = { input_features };
+    var result = { input_features };
 
     if (return_attention_mask) {
-      const reshapedNumFrames = input_features.dims[1];
+      var reshapedNumFrames = input_features.dims[1];
 
-      const attention_mask_data = new BigInt64Array(reshapedNumFrames);
+      var attention_mask_data = new BigInt64Array(reshapedNumFrames);
 
       if (padded_attention_mask) {
-        const padded_attention_mask_data = padded_attention_mask.data;
+        var padded_attention_mask_data = padded_attention_mask.data;
         for (let i = 1, j = 0; i < num_frames; i += stride, ++j) {
           attention_mask_data[j] = padded_attention_mask_data[i];
         }
