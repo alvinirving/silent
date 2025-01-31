@@ -14,7 +14,7 @@ export class MoonshineFeatureExtractor extends FeatureExtractor {
       audio = new Float32Array(audio);
     }
 
-    let shape = [1 /* batch_size */, audio.length /* num_samples */];
+    const shape = [1 /* batch_size */, audio.length /* num_samples */];
     return {
       input_values: new Tensor('float32', audio, shape),
     };
