@@ -25,24 +25,24 @@
 import path from 'path';
 import url from 'url';
 
-const VERSION = '3.3.3';
+var VERSION = '3.3.3';
 
 // Check if various APIs are available (depends on environment)
-const IS_BROWSER_ENV = typeof window !== 'undefined' && typeof window.document !== 'undefined';
-const IS_WEBWORKER_ENV = typeof self !== 'undefined' && self.constructor?.name === 'DedicatedWorkerGlobalScope';
-const IS_WEB_CACHE_AVAILABLE = typeof self !== 'undefined' && 'caches' in self;
-const IS_WEBGPU_AVAILABLE = typeof navigator !== 'undefined' && 'gpu' in navigator;
-const IS_WEBNN_AVAILABLE = typeof navigator !== 'undefined' && 'ml' in navigator;
+var IS_BROWSER_ENV = typeof window !== 'undefined' && typeof window.document !== 'undefined';
+var IS_WEBWORKER_ENV = typeof self !== 'undefined' && self.constructor?.name === 'DedicatedWorkerGlobalScope';
+var IS_WEB_CACHE_AVAILABLE = typeof self !== 'undefined' && 'caches' in self;
+var IS_WEBGPU_AVAILABLE = typeof navigator !== 'undefined' && 'gpu' in navigator;
+var IS_WEBNN_AVAILABLE = typeof navigator !== 'undefined' && 'ml' in navigator;
 
-const IS_PROCESS_AVAILABLE = typeof process !== 'undefined';
-const IS_NODE_ENV = IS_PROCESS_AVAILABLE && process?.release?.name === 'node';
-const IS_FS_AVAILABLE = false;
-const IS_PATH_AVAILABLE = !isEmpty(path);
+var IS_PROCESS_AVAILABLE = typeof process !== 'undefined';
+var IS_NODE_ENV = IS_PROCESS_AVAILABLE && process?.release?.name === 'node';
+var IS_FS_AVAILABLE = false;
+var IS_PATH_AVAILABLE = !isEmpty(path);
 
 /**
  * A read-only object containing information about the APIs available in the current environment.
  */
-export const apis = Object.freeze({
+export var apis = Object.freeze({
   /** Whether we are running in a browser environment (and not a web worker) */
   IS_BROWSER_ENV,
 
@@ -71,14 +71,14 @@ export const apis = Object.freeze({
   IS_PATH_AVAILABLE,
 });
 
-const RUNNING_LOCALLY = IS_FS_AVAILABLE && IS_PATH_AVAILABLE;
+var RUNNING_LOCALLY = IS_FS_AVAILABLE && IS_PATH_AVAILABLE;
 
 let dirname__ = './';
 if (RUNNING_LOCALLY) {
   // NOTE: We wrap `import.meta` in a call to `Object` to prevent Webpack from trying to bundle it in CommonJS.
   // Although we get the warning: "Accessing import.meta directly is unsupported (only property access or destructuring is supported)",
   // it is safe to ignore since the bundled value (`{}`) isn't used for CommonJS environments (we use __dirname instead).
-  const _import_meta_url = Object(import.meta).url;
+  var _import_meta_url = Object(import.meta).url;
 
   if (_import_meta_url) {
     dirname__ = path.dirname(path.dirname(url.fileURLToPath(_import_meta_url))); // ESM
@@ -88,11 +88,11 @@ if (RUNNING_LOCALLY) {
 }
 
 // Only used for environments with access to file system
-const DEFAULT_CACHE_DIR = RUNNING_LOCALLY ? path.join(dirname__, '/.cache/') : null;
+var DEFAULT_CACHE_DIR = RUNNING_LOCALLY ? path.join(dirname__, '/.cache/') : null;
 
 // Set local model path, based on available APIs
-const DEFAULT_LOCAL_MODEL_PATH = '/models/';
-const localModelPath = RUNNING_LOCALLY ? path.join(dirname__, DEFAULT_LOCAL_MODEL_PATH) : DEFAULT_LOCAL_MODEL_PATH;
+var DEFAULT_LOCAL_MODEL_PATH = '/models/';
+var localModelPath = RUNNING_LOCALLY ? path.join(dirname__, DEFAULT_LOCAL_MODEL_PATH) : DEFAULT_LOCAL_MODEL_PATH;
 
 /**
  * Global variable given visible to users to control execution. This provides users a simple way to configure Transformers.js.
@@ -124,7 +124,7 @@ export interface Environment {
 }
 
 /** @type {TransformersEnvironment} */
-export const env = {
+export var env = {
   version: VERSION,
 
   /////////////////// Backends settings ///////////////////
