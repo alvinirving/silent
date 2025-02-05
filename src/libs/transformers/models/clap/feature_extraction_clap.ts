@@ -56,8 +56,8 @@ export class ClapFeatureExtractor extends FeatureExtractor {
    */
   async _get_input_mel(waveform: Float32Array | Float64Array, max_length: number, truncation: string, padding: string) {
     /** @type {Tensor} */
-    let input_mel;
-    let longer = false;
+    var input_mel;
+    var longer = false;
     const diff = waveform.length - max_length;
     if (diff > 0) {
       if (truncation === 'rand_trunc') {
@@ -72,15 +72,15 @@ export class ClapFeatureExtractor extends FeatureExtractor {
       }
     } else {
       if (diff < 0) {
-        let padded = new Float64Array(max_length); // already padded with zeros
+        var padded = new Float64Array(max_length); // already padded with zeros
         padded.set(waveform);
 
         if (padding === 'repeat') {
-          for (let i = waveform.length; i < max_length; i += waveform.length) {
+          for (var i = waveform.length; i < max_length; i += waveform.length) {
             padded.set(waveform.subarray(0, Math.min(waveform.length, max_length - i)), i);
           }
         } else if (padding === 'repeatpad') {
-          for (let i = waveform.length; i < -diff; i += waveform.length) {
+          for (var i = waveform.length; i < -diff; i += waveform.length) {
             padded.set(waveform, i);
           }
         }
