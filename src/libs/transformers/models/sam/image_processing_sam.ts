@@ -24,7 +24,7 @@ export class SamImageProcessor extends ImageProcessor {
   reshape_input_points(input_points, original_sizes, reshaped_input_sizes, is_bounding_box = false) {
     // Make deep copy to avoid altering user's input
     input_points = structuredClone(input_points);
-    var shape = calculateDimensions(input_points);
+    let shape = calculateDimensions(input_points);
 
     // TODO: add support for 2D input_points
     if (shape.length === 3) {
@@ -40,18 +40,18 @@ export class SamImageProcessor extends ImageProcessor {
     }
 
     // Reshape input points
-    for (var i = 0; i < input_points.length; ++i) {
+    for (let i = 0; i < input_points.length; ++i) {
       // batch_size
-      var originalImageSize = original_sizes[i];
-      var reshapedImageSize = reshaped_input_sizes[i];
+      let originalImageSize = original_sizes[i];
+      let reshapedImageSize = reshaped_input_sizes[i];
 
-      var resizeFactors = [reshapedImageSize[0] / originalImageSize[0], reshapedImageSize[1] / originalImageSize[1]];
+      let resizeFactors = [reshapedImageSize[0] / originalImageSize[0], reshapedImageSize[1] / originalImageSize[1]];
 
-      for (var j = 0; j < input_points[i].length; ++j) {
+      for (let j = 0; j < input_points[i].length; ++j) {
         // point_batch_size
-        for (var k = 0; k < input_points[i][j].length; ++k) {
+        for (let k = 0; k < input_points[i][j].length; ++k) {
           // nb_points_per_image
-          for (var w = 0; w < input_points[i][j][k].length; ++w) {
+          for (let w = 0; w < input_points[i][j][k].length; ++w) {
             // 2 or 4
             input_points[i][j][k][w] *= resizeFactors[w % 2];
           }
@@ -69,7 +69,7 @@ export class SamImageProcessor extends ImageProcessor {
    * @returns {Tensor}
    */
   add_input_labels(input_labels, input_points) {
-    var shape = calculateDimensions(input_labels);
+    let shape = calculateDimensions(input_labels);
     if (shape.length === 2) {
       // Correct user's input
       shape = [1, ...shape];
@@ -165,12 +165,12 @@ export class SamImageProcessor extends ImageProcessor {
     /** @type {[number, number]} */
     const target_image_size = [pad_size.height, pad_size.width];
 
-    for (var i = 0; i < original_sizes.length; ++i) {
+    for (let i = 0; i < original_sizes.length; ++i) {
       const original_size = original_sizes[i];
       const reshaped_input_size = reshaped_input_sizes[i];
 
       // Upscale mask to padded size
-      var interpolated_mask = await interpolate_4d(masks[i], { mode: 'bilinear', size: target_image_size });
+      let interpolated_mask = await interpolate_4d(masks[i], { mode: 'bilinear', size: target_image_size });
 
       // Crop mask
       interpolated_mask = interpolated_mask.slice(null, null, [0, reshaped_input_size[0]], [0, reshaped_input_size[1]]);
@@ -181,7 +181,7 @@ export class SamImageProcessor extends ImageProcessor {
       if (binarize) {
         const data = interpolated_mask.data;
         const binarizedMaskData = new Uint8Array(data.length);
-        for (var i = 0; i < data.length; ++i) {
+        for (let i = 0; i < data.length; ++i) {
           if (data[i] > mask_threshold) {
             binarizedMaskData[i] = 1;
           }
