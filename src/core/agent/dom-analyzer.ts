@@ -32,7 +32,7 @@ export interface AnalyzerOptions {
 }
 
 // Default options
-const DEFAULT_OPTIONS: AnalyzerOptions = {
+var DEFAULT_OPTIONS: AnalyzerOptions = {
   highlightColors: {
     'navigation': 'rgba(255, 0, 0, 0.2)',
     'header': 'rgba(0, 255, 0, 0.2)',
@@ -71,11 +71,11 @@ export class DOMStructureAnalyzer {
     this.removeHighlights();
 
     // Get all elements that might be structural sections
-    const potentialSections = this.getPotentialSections(root);
+    var potentialSections = this.getPotentialSections(root);
     
     // Analyze each potential section
     potentialSections.forEach(element => {
-      const elementResults: Record<SectionType, number> = {
+      var elementResults: Record<SectionType, number> = {
         'navigation': 0,
         'header': 0,
         'footer': 0,
@@ -92,7 +92,7 @@ export class DOMStructureAnalyzer {
 
       // Run enabled analyzers
       this.options.enabledAnalyzers?.forEach(analyzerName => {
-        const analyzerResults = analyzers[analyzerName](element);
+        var analyzerResults = analyzers[analyzerName](element);
         
         // Combine results
         Object.keys(analyzerResults).forEach(type => {
@@ -112,7 +112,7 @@ export class DOMStructureAnalyzer {
       let highestConfidence = 0;
 
       (Object.keys(elementResults) as SectionType[]).forEach(type => {
-        const confidence = elementResults[type] / totalScore;
+        var confidence = elementResults[type] / totalScore;
         if (confidence > highestConfidence) {
           highestConfidence = confidence;
           highestType = type;
@@ -140,13 +140,13 @@ export class DOMStructureAnalyzer {
     this.removeHighlights();
 
     this.results.forEach(result => {
-      const highlightEl = document.createElement('div');
+      var highlightEl = document.createElement('div');
       highlightEl.classList.add('dom-analyzer-highlight');
       
       // Set position and dimensions
-      const rect = result.element.getBoundingClientRect();
-      const scrollX = window.scrollX || document.documentElement.scrollLeft;
-      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      var rect = result.element.getBoundingClientRect();
+      var scrollX = window.scrollX || document.documentElement.scrollLeft;
+      var scrollY = window.scrollY || document.documentElement.scrollTop;
       
       Object.assign(highlightEl.style, {
         position: 'absolute',
@@ -163,7 +163,7 @@ export class DOMStructureAnalyzer {
       });
 
       // Add a label
-      const label = document.createElement('div');
+      var label = document.createElement('div');
       Object.assign(label.style, {
         position: 'absolute',
         top: '0',
@@ -199,7 +199,7 @@ export class DOMStructureAnalyzer {
    * Get section mapping (for use in other applications)
    */
   public getSectionMap(): Record<SectionType, HTMLElement[]> {
-    const map: Record<SectionType, HTMLElement[]> = {
+    var map: Record<SectionType, HTMLElement[]> = {
       'navigation': [],
       'header': [],
       'footer': [],
@@ -226,7 +226,7 @@ export class DOMStructureAnalyzer {
    */
   private getPotentialSections(root: HTMLElement): HTMLElement[] {
     // First look for semantic elements
-    const semanticSelectors = [
+    var semanticSelectors = [
       'nav', 'header', 'footer', 'aside', 'main', 'article', 
       'section', 'form', 'div.sidebar', 'div.main', 'div.content',
       'div.navigation', 'div.menu', 'div.header', 'div.footer',
@@ -235,7 +235,7 @@ export class DOMStructureAnalyzer {
     ];
 
     // Get all matching elements
-    const elements = Array.from(
+    var elements = Array.from(
       root.querySelectorAll(semanticSelectors.join(', '))
     ) as HTMLElement[];
 
@@ -267,11 +267,11 @@ export class DOMStructureAnalyzer {
     });
 
     // Keep track of which elements to include
-    const filtered: HTMLElement[] = [];
+    var filtered: HTMLElement[] = [];
     
     elements.forEach(element => {
       // Check if this element is contained within an already included element
-      const isNested = filtered.some(parent => parent.contains(element) && parent !== element);
+      var isNested = filtered.some(parent => parent.contains(element) && parent !== element);
       
       // Only include if not nested and has minimum size
       if (!isNested && this.hasMinimumSize(element)) {
@@ -286,7 +286,7 @@ export class DOMStructureAnalyzer {
    * Check if an element has minimum size to be considered a section
    */
   private hasMinimumSize(element: HTMLElement): boolean {
-    const rect = element.getBoundingClientRect();
+    var rect = element.getBoundingClientRect();
     return rect.width > 50 && rect.height > 50;
   }
 }
@@ -294,17 +294,17 @@ export class DOMStructureAnalyzer {
 /**
  * Individual analyzers that assign scores to different section types
  */
-const analyzers = {
+var analyzers = {
   /**
    * Analyzes semantic HTML tags
    */
   semantic(element: HTMLElement): Record<SectionType, number> {
-    const scores: Record<SectionType, number> = { } as Record<SectionType, number>;
+    var scores: Record<SectionType, number> = { } as Record<SectionType, number>;
     Object.keys(DEFAULT_OPTIONS.highlightColors || {}).forEach(key => {
       scores[key as SectionType] = 0;
     });
 
-    const tagName = element.tagName.toLowerCase();
+    var tagName = element.tagName.toLowerCase();
     
     switch (tagName) {
       case 'nav':
@@ -330,9 +330,9 @@ const analyzers = {
         break;
       case 'section':
         // Need more info to categorize sections
-        const sectionHeading = element.querySelector('h1, h2, h3, h4, h5, h6');
+        var sectionHeading = element.querySelector('h1, h2, h3, h4, h5, h6');
         if (sectionHeading) {
-          const headingText = sectionHeading.textContent?.toLowerCase() || '';
+          var headingText = sectionHeading.textContent?.toLowerCase() || '';
           if (headingText.includes('comment')) scores.comments = 5;
           else if (headingText.includes('related')) scores['main-content'] = 3;
           else scores.article = 3;
@@ -347,13 +347,13 @@ const analyzers = {
    * Analyzes class and ID attributes
    */
   classId(element: HTMLElement): Record<SectionType, number> {
-    const scores: Record<SectionType, number> = { } as Record<SectionType, number>;
+    var scores: Record<SectionType, number> = { } as Record<SectionType, number>;
     Object.keys(DEFAULT_OPTIONS.highlightColors || {}).forEach(key => {
       scores[key as SectionType] = 0;
     });
 
-    const className = element.className.toLowerCase();
-    const id = element.id.toLowerCase();
+    var className = element.className.toLowerCase();
+    var id = element.id.toLowerCase();
     
     // Navigation indicators
     if (className.match(/nav|menu|navbar|navigation/) || id.match(/nav|menu|navbar|navigation/)) {
@@ -412,14 +412,14 @@ const analyzers = {
    * Analyzes element position on the page
    */
   position(element: HTMLElement): Record<SectionType, number> {
-    const scores: Record<SectionType, number> = { } as Record<SectionType, number>;
+    var scores: Record<SectionType, number> = { } as Record<SectionType, number>;
     Object.keys(DEFAULT_OPTIONS.highlightColors || {}).forEach(key => {
       scores[key as SectionType] = 0;
     });
 
-    const rect = element.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const windowWidth = window.innerWidth;
+    var rect = element.getBoundingClientRect();
+    var windowHeight = window.innerHeight;
+    var windowWidth = window.innerWidth;
     
     // Top position suggests header or navigation
     if (rect.top < windowHeight * 0.2) {
@@ -462,20 +462,20 @@ const analyzers = {
    * Analyzes content characteristics
    */
   content(element: HTMLElement): Record<SectionType, number> {
-    const scores: Record<SectionType, number> = { } as Record<SectionType, number>;
+    var scores: Record<SectionType, number> = { } as Record<SectionType, number>;
     Object.keys(DEFAULT_OPTIONS.highlightColors || {}).forEach(key => {
       scores[key as SectionType] = 0;
     });
 
     // Count different types of elements
-    const links = element.querySelectorAll('a');
-    const paragraphs = element.querySelectorAll('p');
-    const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    const images = element.querySelectorAll('img');
-    const forms = element.querySelectorAll('form');
-    const inputs = element.querySelectorAll('input');
-    // const buttons = element.querySelectorAll('button');
-    // const lists = element.querySelectorAll('ul, ol');
+    var links = element.querySelectorAll('a');
+    var paragraphs = element.querySelectorAll('p');
+    var headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    var images = element.querySelectorAll('img');
+    var forms = element.querySelectorAll('form');
+    var inputs = element.querySelectorAll('input');
+    // var buttons = element.querySelectorAll('button');
+    // var lists = element.querySelectorAll('ul, ol');
     
     // Navigation usually has many links, often in lists
     if (links.length > 5 && links.length / element.textContent!.length > 0.1) {
@@ -496,7 +496,7 @@ const analyzers = {
     // Search usually has a form with inputs
     if (forms.length >= 1 && inputs.length >= 1) {
       // Specifically look for search input types or placeholder text
-      const searchInputs = Array.from(inputs).filter(input => 
+      var searchInputs = Array.from(inputs).filter(input => 
         input.getAttribute('type') === 'search' || 
         input.getAttribute('placeholder')?.toLowerCase().includes('search')
       );
@@ -509,15 +509,15 @@ const analyzers = {
     }
     
     // Comments sections often have repeated similar structures
-    const commentPatterns = element.querySelectorAll('.comment, .response, [id^="comment-"]');
+    var commentPatterns = element.querySelectorAll('.comment, .response, [id^="comment-"]');
     if (commentPatterns.length > 1) {
       scores.comments += 4;
     }
     
     // Social links often have recognizable icons or text
-    const socialPatterns = Array.from(links).filter(link => {
-      const href = link.getAttribute('href') || '';
-      const text = link.textContent?.toLowerCase() || '';
+    var socialPatterns = Array.from(links).filter(link => {
+      var href = link.getAttribute('href') || '';
+      var text = link.textContent?.toLowerCase() || '';
       return href.match(/facebook|twitter|instagram|linkedin|youtube/) || 
              text.match(/facebook|twitter|instagram|linkedin|youtube|share|follow/);
     });
@@ -538,12 +538,12 @@ const analyzers = {
    * Analyzes ARIA roles and landmarks
    */
   aria(element: HTMLElement): Record<SectionType, number> {
-    const scores: Record<SectionType, number> = { } as Record<SectionType, number>;
+    var scores: Record<SectionType, number> = { } as Record<SectionType, number>;
     Object.keys(DEFAULT_OPTIONS.highlightColors || {}).forEach(key => {
       scores[key as SectionType] = 0;
     });
 
-    const role = element.getAttribute('role');
+    var role = element.getAttribute('role');
     
     if (role) {
       switch (role) {
@@ -582,7 +582,7 @@ const analyzers = {
  * Usage example
  */
 export function analyzeAndHighlightPage(): void {
-  const analyzer = new DOMStructureAnalyzer();
+  var analyzer = new DOMStructureAnalyzer();
   analyzer.analyze();
   analyzer.highlight();
   
