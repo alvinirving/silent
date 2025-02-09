@@ -18,8 +18,8 @@ export class VitMatteImageProcessor extends ImageProcessor {
       trimaps = [trimaps];
     }
 
-    let imageData = await Promise.all(images.map((x) => this.preprocess(x)));
-    let trimapData = await Promise.all(
+    const imageData = await Promise.all(images.map((x) => this.preprocess(x)));
+    const trimapData = await Promise.all(
       trimaps.map((x) =>
         this.preprocess(x, {
           do_normalize: false,
@@ -30,7 +30,7 @@ export class VitMatteImageProcessor extends ImageProcessor {
     );
 
     // Stack pixel values
-    let pixel_values = stack(
+    const pixel_values = stack(
       imageData.map(
         // Concatenate images and trimaps
         (x, i) => cat([x.pixel_values, trimapData[i].pixel_values], 0),
