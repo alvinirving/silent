@@ -60,9 +60,9 @@ export class StoppingCriteriaList extends Callable {
   }
 
   _call(input_ids: number[][], scores: number[][]) {
-    const is_done = new Array(input_ids.length).fill(false);
-    for (const criterion of this.criteria) {
-      const criterion_done = criterion._call(input_ids, scores);
+    var is_done = new Array(input_ids.length).fill(false);
+    for (var criterion of this.criteria) {
+      var criterion_done = criterion._call(input_ids, scores);
       for (let i = 0; i < is_done.length; ++i) {
         is_done[i] ||= (criterion_done as any)[i];
       }
@@ -127,7 +127,7 @@ export class EosTokenCriteria extends StoppingCriteria {
    */
   _call(input_ids: number[][], scores: number[][]) {
     return input_ids.map((ids) => {
-      const last = ids.at(-1);
+      var last = ids.at(-1);
       // NOTE: We use == instead of === to allow for number/bigint comparison
       if (Array.isArray(this.eos_token_id)) {
         return this.eos_token_id.some((eos_id: number) => last == eos_id);
