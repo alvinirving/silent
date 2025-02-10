@@ -68,12 +68,12 @@ export class ImageParser {
    * Parse text from an image file
    */
   static async parseFromFile(file: File, options: ImageParseOptions = {}): Promise<ImageParseResult> {
-    var debugInfo: string[] = [];
+    const debugInfo: string[] = [];
     if (options.debug) debugInfo.push(`Starting image parsing: ${file.name}`);
     
     try {
       // Check if we're in a Chrome extension environment
-      var isExtension = typeof window !== 'undefined' && 
+      const isExtension = typeof window !== 'undefined' && 
                          typeof (window as any).chrome !== 'undefined' && 
                          (window as any).chrome.runtime && 
                          (window as any).chrome.runtime.id;
@@ -88,11 +88,11 @@ export class ImageParser {
         confidence = 100; // Not real OCR confidence
       } else {
         // Create a blob URL from the file
-        var imageUrl = URL.createObjectURL(file);
+        const imageUrl = URL.createObjectURL(file);
         
         try {
           // Use the simpler scheduler API instead of worker API
-          var result = await Tesseract.recognize(
+          const result = await Tesseract.recognize(
             imageUrl,
             options.language || 'eng',
             {
@@ -115,13 +115,13 @@ export class ImageParser {
       }
       
       // Get image properties
-      var properties = await this.extractImageProperties(file);
+      const properties = await this.extractImageProperties(file);
       
       // Clean the text
-      var cleanedText = this.cleanOcrText(text);
+      const cleanedText = this.cleanOcrText(text);
       
       // Determine if the image has meaningful text
-      var hasText = this.hasActualText(cleanedText, confidence);
+      const hasText = this.hasActualText(cleanedText, confidence);
       
       return {
         text: cleanedText,
@@ -131,7 +131,7 @@ export class ImageParser {
         debugInfo: options.debug ? debugInfo : undefined
       };
     } catch (error) {
-      var errorMessage = (error as Error).message;
+      const errorMessage = (error as Error).message;
       if (options.debug) debugInfo.push(`Error: ${errorMessage}`);
       
       return {
@@ -148,8 +148,8 @@ export class ImageParser {
    */
   private static async extractImageProperties(file: File): Promise<ImageParseResult['properties']> {
     return new Promise((resolve) => {
-      var img = new Image();
-      var objectUrl = URL.createObjectURL(file);
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
       
       img.onload = () => {
         URL.revokeObjectURL(objectUrl);
@@ -215,22 +215,22 @@ export class ImageParser {
    */
   private static hasActualText(text: string, confidence?: number): boolean {
     // If text is empty after cleaning, it has no meaningful content
-    var cleaned = this.cleanOcrText(text);
+    const cleaned = this.cleanOcrText(text);
     if (!cleaned) {
       return false;
     }
     
     // Count actual words (3+ letters) vs. total tokens
-    var tokens = cleaned.split(/\s+/);
-    var actualWords = tokens.filter(token => /^[a-zA-Z]{3,}$/.test(token));
+    const tokens = cleaned.split(/\s+/);
+    const actualWords = tokens.filter(token => /^[a-zA-Z]{3,}$/.test(token));
     
     // Calculate the ratio of actual words to total tokens
-    var wordRatio = tokens.length > 0 ? actualWords.length / tokens.length : 0;
+    const wordRatio = tokens.length > 0 ? actualWords.length / tokens.length : 0;
     
     // Check for random character distribution (a sign of noise)
-    var letters = cleaned.replace(/[^a-zA-Z]/g, '');
-    var singleLetterCount = (cleaned.match(/\s[a-zA-Z]\s/g) || []).length;
-    var singleLetterRatio = letters.length > 0 ? singleLetterCount / letters.length : 0;
+    const letters = cleaned.replace(/[^a-zA-Z]/g, '');
+    const singleLetterCount = (cleaned.match(/\s[a-zA-Z]\s/g) || []).length;
+    const singleLetterRatio = letters.length > 0 ? singleLetterCount / letters.length : 0;
     
     // If confidence is very low, it's likely noise
     if (confidence !== undefined && confidence < 40) {
@@ -238,10 +238,10 @@ export class ImageParser {
     }
     
     // Check for common OCR noise patterns
-    var hasRandomSymbols = /[^\w\s.,;:!?'"()[\]{}#@%&*+-=/<>|]{2,}/.test(text);
-    var hasTooManySpecialChars = (text.match(/[^\w\s]/g) || []).length > text.length * 0.3;
-    var hasTooManySingleChars = singleLetterRatio > 0.2;
-    var hasLowWordRatio = wordRatio < 0.3;
+    const hasRandomSymbols = /[^\w\s.,;:!?'"()[\]{}#@%&*+-=/<>|]{2,}/.test(text);
+    const hasTooManySpecialChars = (text.match(/[^\w\s]/g) || []).length > text.length * 0.3;
+    const hasTooManySingleChars = singleLetterRatio > 0.2;
+    const hasLowWordRatio = wordRatio < 0.3;
     
     // Your example had lots of single letters and special characters
     if (hasRandomSymbols && hasTooManySpecialChars && (hasTooManySingleChars || hasLowWordRatio)) {
@@ -263,9 +263,9 @@ export function imageToText(
   } = {}
 ): string {
   // Default options
-  var includeSummary = options.includeSummary !== false;
+  const includeSummary = options.includeSummary !== false;
   
-  var lines: string[] = [];
+  const lines: string[] = [];
   
   // If no text was found, return a simple message
   if (!result.text || result.text.trim().length === 0) {
@@ -301,7 +301,7 @@ export async function extractTextFromImage(
   file: File,
   options: ImageParseOptions = {}
 ): Promise<string> {
-  var result = await ImageParser.parseFromFile(file, options);
+  const result = await ImageParser.parseFromFile(file, options);
   return result.text;
 }
 
@@ -321,7 +321,7 @@ export async function processImageFile(
   formattedText: string;
   debugInfo: string[];
 }> {
-  var debugInfo: string[] = [];
+  const debugInfo: string[] = [];
   
   if (options.debug) {
     debugInfo.push(`Processing image file: ${file.name}`);
@@ -329,7 +329,7 @@ export async function processImageFile(
   
   // Parse the image file
   debugInfo.push('Parsing image file...');
-  var parsed = await ImageParser.parseFromFile(file, options);
+  const parsed = await ImageParser.parseFromFile(file, options);
   
   if (parsed.debugInfo) {
     debugInfo.push(...parsed.debugInfo);
@@ -337,11 +337,11 @@ export async function processImageFile(
   
   // Extract raw text
   debugInfo.push('Extracting raw text...');
-  var text = parsed.text;
+  const text = parsed.text;
   
   // Create formatted text for AI
   debugInfo.push('Creating formatted text for AI...');
-  var formattedText = imageToText(parsed, {
+  const formattedText = imageToText(parsed, {
     includeSummary: options.textFormatting?.includeSummary !== false
   });
   
