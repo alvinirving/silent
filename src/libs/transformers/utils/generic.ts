@@ -1,6 +1,6 @@
 export var Callable = /** @type {any} */ class {
   constructor() {
-    let closure = function (this: any, ...args: any[]): any {
+    const closure = function (this: any, ...args: any[]): any {
       return (closure as any)._call(...args);
     };
     return Object.setPrototypeOf(closure, new.target.prototype);
