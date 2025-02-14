@@ -29,12 +29,12 @@ export async function read_audio(url: string | URL, sampling_rate: number) {
     );
   }
 
-  const response = await (await getFile(url)).arrayBuffer();
-  const audioCTX = new AudioContext({ sampleRate: sampling_rate });
+  var response = await (await getFile(url)).arrayBuffer();
+  var audioCTX = new AudioContext({ sampleRate: sampling_rate });
   if (typeof sampling_rate === 'undefined') {
     console.warn(`No sampling rate provided, using default of ${audioCTX.sampleRate}Hz.`);
   }
-  const decoded = await audioCTX.decodeAudioData(response);
+  var decoded = await audioCTX.decodeAudioData(response);
 
   /** @type {Float32Array} */
   let audio;
@@ -56,10 +56,10 @@ export async function read_audio(url: string | URL, sampling_rate: number) {
     // only applied when downmixing stereo audio to mono using the -ac 1 option in FFmpeg.
     // If you're using a different downmixing method, or if you're not downmixing the
     // audio at all, this scaling factor may not be needed.
-    const SCALING_FACTOR = Math.sqrt(2);
+    var SCALING_FACTOR = Math.sqrt(2);
 
-    const left = decoded.getChannelData(0);
-    const right = decoded.getChannelData(1);
+    var left = decoded.getChannelData(0);
+    var right = decoded.getChannelData(1);
 
     audio = new Float32Array(left.length);
     for (let i = 0; i < decoded.length; ++i) {
@@ -88,10 +88,10 @@ function generalized_cosine_window(M: number, a_0: number) {
     return new Float64Array([1]);
   }
 
-  const a_1 = 1 - a_0;
-  const factor = (2 * Math.PI) / (M - 1);
+  var a_1 = 1 - a_0;
+  var factor = (2 * Math.PI) / (M - 1);
 
-  const cos_vals = new Float64Array(M);
+  var cos_vals = new Float64Array(M);
   for (let i = 0; i < M; ++i) {
     cos_vals[i] = a_0 - a_1 * Math.cos(i * factor);
   }
@@ -120,7 +120,7 @@ export function hamming(M: number) {
   return generalized_cosine_window(M, 0.54);
 }
 
-const HERTZ_TO_MEL_MAPPING: { [key: string]: (freq: number) => number } = {
+var HERTZ_TO_MEL_MAPPING: { [key: string]: (freq: number) => number } = {
   htk: (freq: number) => 2595.0 * Math.log10(1.0 + freq / 700.0),
   kaldi: (freq: number) => 1127.0 * Math.log(1.0 + freq / 700.0),
   slaney: (freq: number, min_log_hertz = 1000.0, min_log_mel = 15.0, logstep = 27.0 / Math.log(6.4)) =>
@@ -134,7 +134,7 @@ const HERTZ_TO_MEL_MAPPING: { [key: string]: (freq: number) => number } = {
  * @returns {T}
  */
 function hertz_to_mel<T extends Float32Array | Float64Array | number>(freq: T, mel_scale = 'htk') {
-  const fn = HERTZ_TO_MEL_MAPPING[mel_scale];
+  var fn = HERTZ_TO_MEL_MAPPING[mel_scale];
   if (!fn) {
     throw new Error('mel_scale should be one of "htk", "slaney" or "kaldi".');
   }
@@ -142,7 +142,7 @@ function hertz_to_mel<T extends Float32Array | Float64Array | number>(freq: T, m
   return typeof freq === 'number' ? fn(freq) : freq.map((x: number) => fn(x));
 }
 
-const MEL_TO_HERTZ_MAPPING: { [key: string]: (mels: number) => number } = {
+var MEL_TO_HERTZ_MAPPING: { [key: string]: (mels: number) => number } = {
   htk: (mels: number) => 700.0 * (10.0 ** (mels / 2595.0) - 1.0),
   kaldi: (mels: number) => 700.0 * (Math.exp(mels / 1127.0) - 1.0),
   slaney: (mels: number, min_log_hertz = 1000.0, min_log_mel = 15.0, logstep = Math.log(6.4) / 27.0) =>
@@ -156,7 +156,7 @@ const MEL_TO_HERTZ_MAPPING: { [key: string]: (mels: number) => number } = {
  * @returns {T}
  */
 function mel_to_hertz<T extends Float32Array | Float64Array | number>(mels: T, mel_scale = 'htk') {
-  const fn = MEL_TO_HERTZ_MAPPING[mel_scale];
+  var fn = MEL_TO_HERTZ_MAPPING[mel_scale];
   if (!fn) {
     throw new Error('mel_scale should be one of "htk", "slaney" or "kaldi".');
   }
@@ -174,12 +174,12 @@ function mel_to_hertz<T extends Float32Array | Float64Array | number>(mels: T, m
  * @returns {number[][]} of shape `(num_frequency_bins, num_mel_filters)`.
  */
 function _create_triangular_filter_bank(fft_freqs: Float64Array, filter_freqs: Float64Array) {
-  const filter_diff = Float64Array.from(
+  var filter_diff = Float64Array.from(
     { length: filter_freqs.length - 1 },
     (_, i) => filter_freqs[i + 1] - filter_freqs[i],
   );
 
-  const slopes = Array.from(
+  var slopes = Array.from(
     {
       length: fft_freqs.length,
     },
@@ -187,22 +187,22 @@ function _create_triangular_filter_bank(fft_freqs: Float64Array, filter_freqs: F
   );
 
   for (let j = 0; j < fft_freqs.length; ++j) {
-    const slope = slopes[j];
+    var slope = slopes[j];
     for (let i = 0; i < filter_freqs.length; ++i) {
       slope[i] = filter_freqs[i] - fft_freqs[j];
     }
   }
 
-  const numFreqs = filter_freqs.length - 2;
-  const ret = Array.from({ length: numFreqs }, () => new Array(fft_freqs.length));
+  var numFreqs = filter_freqs.length - 2;
+  var ret = Array.from({ length: numFreqs }, () => new Array(fft_freqs.length));
 
   for (let j = 0; j < fft_freqs.length; ++j) {
     // 201
-    const slope = slopes[j];
+    var slope = slopes[j];
     for (let i = 0; i < numFreqs; ++i) {
       // 80
-      const down = -slope[i] / filter_diff[i];
-      const up = slope[i + 2] / filter_diff[i + 1];
+      var down = -slope[i] / filter_diff[i];
+      var up = slope[i + 2] / filter_diff[i + 1];
       ret[i][j] = Math.max(0, Math.min(down, up));
     }
   }
@@ -217,7 +217,7 @@ function _create_triangular_filter_bank(fft_freqs: Float64Array, filter_freqs: F
  * @returns `num` evenly spaced samples, calculated over the interval `[start, stop]`.
  */
 function linspace(start: number, end: number, num: number) {
-  const step = (end - start) / (num - 1);
+  var step = (end - start) / (num - 1);
   return Float64Array.from({ length: num }, (_, i) => start + step * i);
 }
 
@@ -252,15 +252,15 @@ export function mel_filter_bank(
     throw new Error('norm must be one of null or "slaney"');
   }
 
-  const mel_min: any = hertz_to_mel(min_frequency, mel_scale);
-  const mel_max: any = hertz_to_mel(max_frequency, mel_scale);
-  const mel_freqs: any = linspace(mel_min, mel_max, num_mel_filters + 2);
+  var mel_min: any = hertz_to_mel(min_frequency, mel_scale);
+  var mel_max: any = hertz_to_mel(max_frequency, mel_scale);
+  var mel_freqs: any = linspace(mel_min, mel_max, num_mel_filters + 2);
 
   let filter_freqs: any = mel_to_hertz(mel_freqs, mel_scale);
   let fft_freqs: any; // frequencies of FFT bins in Hz
 
   if (triangularize_in_mel_space) {
-    const fft_bin_width = sampling_rate / (num_frequency_bins * 2);
+    var fft_bin_width = sampling_rate / (num_frequency_bins * 2);
     fft_freqs = hertz_to_mel(
       Float64Array.from({ length: num_frequency_bins }, (_, i) => i * fft_bin_width),
       mel_scale,
@@ -270,13 +270,13 @@ export function mel_filter_bank(
     fft_freqs = linspace(0, Math.floor(sampling_rate / 2), num_frequency_bins);
   }
 
-  const mel_filters = _create_triangular_filter_bank(fft_freqs, filter_freqs);
+  var mel_filters = _create_triangular_filter_bank(fft_freqs, filter_freqs);
 
   if (norm !== null && norm === 'slaney') {
     // Slaney-style mel is scaled to be approx constant energy per channel
     for (let i = 0; i < num_mel_filters; ++i) {
-      const filter = mel_filters[i];
-      const enorm = 2.0 / (filter_freqs[i + 2] - filter_freqs[i]);
+      var filter = mel_filters[i];
+      var enorm = 2.0 / (filter_freqs[i + 2] - filter_freqs[i]);
       for (let j = 0; j < num_frequency_bins; ++j) {
         // Apply this enorm to all frequency bins
         filter[j] *= enorm;
@@ -299,8 +299,8 @@ export function mel_filter_bank(
  */
 function padReflect<T extends Float32Array | Float64Array>(array: T, left: number, right: number) {
   // @ts-ignore
-  const padded = new array.constructor(array.length + left + right);
-  const w = array.length - 1;
+  var padded = new array.constructor(array.length + left + right);
+  var w = array.length - 1;
 
   for (let i = 0; i < array.length; ++i) {
     padded[left + i] = array[i];
@@ -344,7 +344,7 @@ function _db_conversion_helper<T extends Float32Array | Float64Array>(
 
   reference = Math.max(min_value, reference);
 
-  const logReference = Math.log10(reference);
+  var logReference = Math.log10(reference);
   for (let i = 0; i < spectrogram.length; ++i) {
     spectrogram[i] = factor * Math.log10(Math.max(min_value, spectrogram[i]) - logReference);
   }
@@ -353,7 +353,7 @@ function _db_conversion_helper<T extends Float32Array | Float64Array>(
     if (db_range <= 0) {
       throw new Error('db_range must be greater than zero');
     }
-    const maxValue = Number(max(spectrogram)[0]) - db_range;
+    var maxValue = Number(max(spectrogram)[0]) - db_range;
     for (let i = 0; i < spectrogram.length; ++i) {
       spectrogram[i] = Math.max(spectrogram[i], maxValue);
     }
@@ -494,7 +494,7 @@ export async function spectrogram(
     transpose = false,
   } = {},
 ) {
-  const window_length = window.length;
+  var window_length = window.length;
   if (fft_length === null) {
     fft_length = frame_length;
   }
@@ -521,7 +521,7 @@ export async function spectrogram(
     if (pad_mode !== 'reflect') {
       throw new Error(`pad_mode="${pad_mode}" not implemented yet.`);
     }
-    const half_window = Math.floor((fft_length - 1) / 2) + 1;
+    var half_window = Math.floor((fft_length - 1) / 2) + 1;
     waveform = padReflect(waveform, half_window, half_window);
   }
 
@@ -530,7 +530,7 @@ export async function spectrogram(
   if (min_num_frames !== null && num_frames < min_num_frames) {
     num_frames = min_num_frames;
   }
-  const num_frequency_bins = onesided ? Math.floor(fft_length / 2) + 1 : fft_length;
+  var num_frequency_bins = onesided ? Math.floor(fft_length / 2) + 1 : fft_length;
 
   let d1 = num_frames;
   let d1Max = num_frames;
@@ -549,15 +549,15 @@ export async function spectrogram(
   }
 
   // Preallocate arrays to store output.
-  const fft = new FFT(fft_length);
-  const inputBuffer = new Float64Array(fft_length);
-  const outputBuffer = new Float64Array(fft.outputBufferSize);
-  const transposedMagnitudeData = new Float32Array(num_frequency_bins * d1Max);
+  var fft = new FFT(fft_length);
+  var inputBuffer = new Float64Array(fft_length);
+  var outputBuffer = new Float64Array(fft.outputBufferSize);
+  var transposedMagnitudeData = new Float32Array(num_frequency_bins * d1Max);
 
   for (let i = 0; i < d1; ++i) {
     // Populate buffer with waveform data
-    const offset = i * hop_length;
-    const buffer_size = Math.min(waveform.length - offset, frame_length);
+    var offset = i * hop_length;
+    var buffer_size = Math.min(waveform.length - offset, frame_length);
     if (buffer_size !== frame_length) {
       // The full buffer is not needed, so we need to reset it (avoid overflow from previous iterations)
       // NOTE: We don't need to reset the buffer if it's full since we overwrite the first
@@ -574,7 +574,7 @@ export async function spectrogram(
       for (let j = 0; j < buffer_size; ++j) {
         sum += inputBuffer[j];
       }
-      const mean = sum / buffer_size;
+      var mean = sum / buffer_size;
       for (let j = 0; j < buffer_size; ++j) {
         inputBuffer[j] -= mean;
       }
@@ -597,7 +597,7 @@ export async function spectrogram(
 
     // compute magnitudes
     for (let j = 0; j < num_frequency_bins; ++j) {
-      const j2 = j << 1;
+      var j2 = j << 1;
 
       // NOTE: We transpose the data here to avoid doing it later
       transposedMagnitudeData[j * d1Max + i] = outputBuffer[j2] ** 2 + outputBuffer[j2 + 1] ** 2;
@@ -606,7 +606,7 @@ export async function spectrogram(
 
   if (power !== null && power !== 2) {
     // slight optimization to not sqrt
-    const pow = 2 / power; // we use 2 since we already squared
+    var pow = 2 / power; // we use 2 since we already squared
     for (let i = 0; i < transposedMagnitudeData.length; ++i) {
       transposedMagnitudeData[i] **= pow;
     }
@@ -615,7 +615,7 @@ export async function spectrogram(
   if (!mel_filters) {
     throw new Error('mel_filters must be provided');
   }
-  const num_mel_filters = mel_filters.length;
+  var num_mel_filters = mel_filters.length;
 
   // Perform matrix multiplication:
   // mel_spec = mel_filters @ magnitudes.T
@@ -631,13 +631,13 @@ export async function spectrogram(
     mel_spec = mel_spec.transpose(1, 0);
   }
 
-  const mel_spec_data = /** @type {Float32Array} */ mel_spec.data;
+  var mel_spec_data = /** @type {Float32Array} */ mel_spec.data;
   for (let i = 0; i < mel_spec_data.length; ++i) {
     mel_spec_data[i] = Math.max(mel_floor, mel_spec_data[i]);
   }
 
   if (power !== null && log_mel !== null) {
-    const o = Math.min(mel_spec_data.length, d1 * num_mel_filters);
+    var o = Math.min(mel_spec_data.length, d1 * num_mel_filters);
     // NOTE: operates in-place
     switch (log_mel) {
       case 'log':
@@ -683,7 +683,7 @@ export function window_function(
   name: string,
   { periodic = true, frame_length = null, center = true } = {},
 ) {
-  const length = periodic ? window_length + 1 : window_length;
+  var length = periodic ? window_length + 1 : window_length;
   let window;
   switch (name) {
     case 'boxcar':
@@ -726,8 +726,8 @@ export function window_function(
  */
 function encodeWAV(samples: Float32Array, rate: number) {
   let offset = 44;
-  const buffer = new ArrayBuffer(offset + samples.length * 4);
-  const view = new DataView(buffer);
+  var buffer = new ArrayBuffer(offset + samples.length * 4);
+  var view = new DataView(buffer);
 
   /* RIFF identifier */
   writeString(view, 0, "RIFF");
@@ -798,8 +798,8 @@ export class RawAudio {
    * @returns {Blob}
    */
   toBlob() {
-      const wav = this.toWav();
-      const blob = new Blob([wav], { type: 'audio/wav' });
+      var wav = this.toWav();
+      var blob = new Blob([wav], { type: 'audio/wav' });
       return blob;
   }
 
