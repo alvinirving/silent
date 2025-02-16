@@ -23,7 +23,7 @@ class IndexedDBStorage<T extends Storable> implements Storage<T> {
                 return;
             }
 
-          const request = indexedDB.open(this.dbName, this.version);
+          let request = indexedDB.open(this.dbName, this.version);
 
           request.onerror = (event) => {
             reject(`Database error: ${(event.target as IDBRequest).error}`);
@@ -35,7 +35,7 @@ class IndexedDBStorage<T extends Storable> implements Storage<T> {
           };
 
            request.onupgradeneeded = (event) => {
-            const db = (event.target as IDBRequest).result;
+            let db = (event.target as IDBRequest).result;
 
             if (!db.objectStoreNames.contains(this.storeName)) {
               db.createObjectStore(this.storeName, { keyPath: 'id' });
@@ -46,11 +46,11 @@ class IndexedDBStorage<T extends Storable> implements Storage<T> {
 
 
     async store(data: T): Promise<void> {
-         const db = await this.openDatabase();
+         let db = await this.openDatabase();
         return new Promise((resolve, reject) => {
-          const transaction = db.transaction([this.storeName], 'readwrite');
-          const store = transaction.objectStore(this.storeName);
-          const request = store.add(data);
+          let transaction = db.transaction([this.storeName], 'readwrite');
+          let store = transaction.objectStore(this.storeName);
+          let request = store.add(data);
 
           request.onsuccess = () => resolve();
           request.onerror = (event) => reject(`Error storing data: ${(event.target as IDBRequest).error}`);
@@ -58,11 +58,11 @@ class IndexedDBStorage<T extends Storable> implements Storage<T> {
       }
 
       async get(id: string): Promise<T | undefined> {
-        const db = await this.openDatabase();
+        let db = await this.openDatabase();
         return new Promise((resolve, reject) => {
-          const transaction = db.transaction([this.storeName], 'readonly');
-          const store = transaction.objectStore(this.storeName);
-          const request = store.get(id);
+          let transaction = db.transaction([this.storeName], 'readonly');
+          let store = transaction.objectStore(this.storeName);
+          let request = store.get(id);
 
           request.onsuccess = (event) => resolve((event.target as IDBRequest).result as T);
           request.onerror = (event) => reject(`Error getting data: ${(event.target as IDBRequest).error}`);
@@ -70,11 +70,11 @@ class IndexedDBStorage<T extends Storable> implements Storage<T> {
       }
 
      async getAll(): Promise<T[]> {
-         const db = await this.openDatabase();
+         let db = await this.openDatabase();
         return new Promise((resolve, reject) => {
-          const transaction = db.transaction([this.storeName], 'readonly');
-          const store = transaction.objectStore(this.storeName);
-          const request = store.getAll();
+          let transaction = db.transaction([this.storeName], 'readonly');
+          let store = transaction.objectStore(this.storeName);
+          let request = store.getAll();
 
           request.onsuccess = (event) => resolve((event.target as IDBRequest).result as T[]);
           request.onerror = (event) => reject(`Error getting data: ${(event.target as IDBRequest).error}`);
@@ -83,11 +83,11 @@ class IndexedDBStorage<T extends Storable> implements Storage<T> {
 
 
     async update(data: T): Promise<void> {
-        const db = await this.openDatabase();
+        let db = await this.openDatabase();
         return new Promise((resolve, reject) => {
-          const transaction = db.transaction([this.storeName], 'readwrite');
-          const store = transaction.objectStore(this.storeName);
-          const request = store.put(data);
+          let transaction = db.transaction([this.storeName], 'readwrite');
+          let store = transaction.objectStore(this.storeName);
+          let request = store.put(data);
 
           request.onsuccess = () => resolve();
           request.onerror = (event) => reject(`Error updating data: ${(event.target as IDBRequest).error}`);
@@ -95,11 +95,11 @@ class IndexedDBStorage<T extends Storable> implements Storage<T> {
       }
 
     async delete(id: string): Promise<void> {
-        const db = await this.openDatabase();
+        let db = await this.openDatabase();
         return new Promise((resolve, reject) => {
-          const transaction = db.transaction([this.storeName], 'readwrite');
-          const store = transaction.objectStore(this.storeName);
-          const request = store.delete(id);
+          let transaction = db.transaction([this.storeName], 'readwrite');
+          let store = transaction.objectStore(this.storeName);
+          let request = store.delete(id);
 
           request.onsuccess = () => resolve();
           request.onerror = (event) => reject(`Error deleting data: ${(event.target as IDBRequest).error}`);
@@ -107,11 +107,11 @@ class IndexedDBStorage<T extends Storable> implements Storage<T> {
       }
 
      async clear(): Promise<void> {
-        const db = await this.openDatabase();
+        let db = await this.openDatabase();
          return new Promise((resolve, reject) => {
-          const transaction = db.transaction([this.storeName], 'readwrite');
-          const store = transaction.objectStore(this.storeName);
-          const request = store.clear();
+          let transaction = db.transaction([this.storeName], 'readwrite');
+          let store = transaction.objectStore(this.storeName);
+          let request = store.clear();
 
           request.onsuccess = () => resolve();
           request.onerror = (event) => reject(`Error clearing data: ${(event.target as IDBRequest).error}`);
