@@ -69,13 +69,13 @@ export class PriorityQueue {
    * @returns {number} The new size of the queue.
    */
   extend(values: any[]) {
-    for (const value of values) {
+    for (var value of values) {
       if (this.size < this._maxSize) {
         this._heap.push(value);
         this._siftUp();
       } else {
         // Get index of value with the lowest priority
-        const smallest = this._smallest();
+        var smallest = this._smallest();
 
         // If the new value has higher priority than the smallest value in the heap
         // then replace the smallest value with the new value and update the heap
@@ -93,8 +93,8 @@ export class PriorityQueue {
    * @returns {any} The element with the highest priority in the queue.
    */
   pop() {
-    const poppedValue = this.peek();
-    const bottom = this.size - 1;
+    var poppedValue = this.peek();
+    var bottom = this.size - 1;
     if (bottom > 0) {
       this._swap(0, bottom);
     }
@@ -109,7 +109,7 @@ export class PriorityQueue {
    * @returns {*} The replaced value.
    */
   replace(value: any) {
-    const replacedValue = this.peek();
+    var replacedValue = this.peek();
     this._heap[0] = value;
     this._siftDown();
     return replacedValue;
@@ -163,7 +163,7 @@ export class PriorityQueue {
    * @private
    */
   _swap(i: number, j: number) {
-    const temp = this._heap[i];
+    var temp = this._heap[i];
     this._heap[i] = this._heap[j];
     this._heap[j] = temp;
   }
@@ -199,7 +199,7 @@ export class PriorityQueue {
       (this._left(node) < this.size && this._greater(this._left(node), node)) ||
       (this._right(node) < this.size && this._greater(this._right(node), node))
     ) {
-      const maxChild =
+      var maxChild =
         this._right(node) < this.size && this._greater(this._right(node), this._left(node))
           ? this._right(node)
           : this._left(node);
@@ -233,7 +233,7 @@ export class CharTrie {
    * @param {string[]} texts The strings to add to the trie.
    */
   extend(texts: string[]) {
-    for (const text of texts) {
+    for (var text of texts) {
       this.push(text);
     }
   }
@@ -244,7 +244,7 @@ export class CharTrie {
    */
   push(text: string) {
     let node = this._root;
-    for (const ch of text) {
+    for (var ch of text) {
       let child = node.children.get(ch);
       if (child === undefined) {
         child = CharTrieNode.default();
@@ -265,9 +265,9 @@ export class CharTrie {
     if (node === undefined) return;
 
     let prefix = '';
-    for (const ch of text) {
+    for (var ch of text) {
       prefix += ch;
-      const nextNode = node.children.get(ch);
+      var nextNode = node.children.get(ch);
       if (nextNode === undefined) return;
       node = nextNode;
       if (node.isLeaf) {
@@ -333,8 +333,8 @@ export class TokenLattice {
     this.beginNodes = Array.from({ length: this._len + 1 }, () => []);
     this.endNodes = Array.from({ length: this._len + 1 }, () => []);
 
-    const bos = new TokenLatticeNode(this._bosTokenId, 0, 0, 0, 0.0);
-    const eos = new TokenLatticeNode(this._eosTokenId, 1, this._len, 0, 0.0);
+    var bos = new TokenLatticeNode(this._bosTokenId, 0, 0, 0, 0.0);
+    var eos = new TokenLatticeNode(this._eosTokenId, 1, this._len, 0, 0.0);
     this._nodes.push(bos.clone());
     this._nodes.push(eos.clone());
     this.beginNodes[this._len].push(eos);
@@ -350,8 +350,8 @@ export class TokenLattice {
    * @param {number} tokenId The token ID of the token.
    */
   insert(pos: number, length: number, score: number, tokenId: number) {
-    const nodeId = this._nodes.length;
-    const node = new TokenLatticeNode(tokenId, nodeId, pos, length, score);
+    var nodeId = this._nodes.length;
+    var node = new TokenLatticeNode(tokenId, nodeId, pos, length, score);
     this.beginNodes[pos].push(node);
     this.endNodes[pos + length].push(node);
     this._nodes.push(node);
@@ -363,7 +363,7 @@ export class TokenLattice {
    * @returns {TokenLatticeNode[]} The most likely sequence of tokens.
    */
   viterbi() {
-    const len = this._len;
+    var len = this._len;
     let pos = 0;
     while (pos <= len) {
       if (this.beginNodes[pos].length == 0) {
@@ -374,7 +374,7 @@ export class TokenLattice {
         let bestScore = 0.0;
         let bestNode = null;
         for (let lnode of this.endNodes[pos]) {
-          const score = lnode.backtraceScore + rnode.score;
+          var score = lnode.backtraceScore + rnode.score;
           if (bestNode === null || score > bestScore) {
             bestNode = lnode.clone();
             bestScore = score;
@@ -391,9 +391,9 @@ export class TokenLattice {
       ++pos;
     }
 
-    const results = [];
-    const root = this.beginNodes[len][0];
-    const prev = root.prev;
+    var results = [];
+    var root = this.beginNodes[len][0];
+    var prev = root.prev;
     if (prev === null) {
       return [];
     }
@@ -401,7 +401,7 @@ export class TokenLattice {
     let node = prev.clone();
     while (node.prev !== null) {
       results.push(node.clone());
-      const n = node.clone();
+      var n = node.clone();
       if (!n.prev) break;
       node = n.prev.clone();
     }
@@ -422,7 +422,7 @@ export class TokenLattice {
    * @returns {string[]} The most likely sequence of tokens.
    */
   tokens() {
-    const nodes = this.viterbi();
+    var nodes = this.viterbi();
     return nodes.map((x) => this.piece(x));
   }
 
@@ -430,7 +430,7 @@ export class TokenLattice {
    * @returns {number[]} The most likely sequence of token ids.
    */
   tokenIds() {
-    const nodes = this.viterbi();
+    var nodes = this.viterbi();
     return nodes.map((x) => x.tokenId);
   }
 }
@@ -466,7 +466,7 @@ class TokenLatticeNode {
    * @returns {TokenLatticeNode} A clone of this node.
    */
   clone() {
-    const n = new TokenLatticeNode(this.tokenId, this.nodeId, this.pos, this.length, this.score);
+    var n = new TokenLatticeNode(this.tokenId, this.nodeId, this.pos, this.length, this.score);
     n.prev = this.prev;
     n.backtraceScore = this.backtraceScore;
     return n;
