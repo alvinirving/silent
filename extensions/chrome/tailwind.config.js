@@ -9,12 +9,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        border: "hsl(const(--border))",
-        background: "hsl(const(--background))",
-        foreground: "hsl(const(--foreground))",
+        border: "hsl(let(--border))",
+        background: "hsl(let(--background))",
+        foreground: "hsl(let(--foreground))",
         muted: {
-          DEFAULT: "hsl(const(--muted))",
-          foreground: "hsl(const(--muted-foreground))",
+          DEFAULT: "hsl(let(--muted))",
+          foreground: "hsl(let(--muted-foreground))",
         },
         'input-dark': 'hsl(240 10% 4% / 1)',
       },
