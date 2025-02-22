@@ -52,23 +52,23 @@ export class VLChatProcessor extends Processor {
       images = [images];
     }
 
-    var tokenizer = this.tokenizer;
-    var result = tokenizer.apply_chat_template(conversation, {
+    const tokenizer = this.tokenizer;
+    const result = tokenizer.apply_chat_template(conversation, {
       tokenize: false,
       add_generation_prompt: true,
       chat_template,
     });
 
-    var encode = (text) => tokenizer.encode(text, { add_special_tokens: false });
-    var parts = /** @type {string} */ result.split(this.image_tag);
-    var num_images = parts.length - 1;
+    const encode = (text) => tokenizer.encode(text, { add_special_tokens: false });
+    const parts = /** @type {string} */ result.split(this.image_tag);
+    const num_images = parts.length - 1;
     if (images.length !== num_images) {
       throw new Error(
         `Number of images provided (${images.length}) does not match number of "${this.image_tag}" image tags (${num_images})`,
       );
     }
 
-    var [image_placeholder_tag_id, image_start_tag_id, image_end_tag_id] = tokenizer.model.convert_tokens_to_ids([
+    const [image_placeholder_tag_id, image_start_tag_id, image_end_tag_id] = tokenizer.model.convert_tokens_to_ids([
       this.image_tag,
       this.image_start_tag,
       this.image_end_tag,
@@ -77,10 +77,10 @@ export class VLChatProcessor extends Processor {
     let input_ids = encode(parts[0]);
     let images_seq_mask = new Array(input_ids.length).fill(false);
     for (let i = 1; i < parts.length; ++i) {
-      var placeholder_image_tokens = new Array(this.num_image_tokens).fill(image_placeholder_tag_id);
-      var tokens = encode(parts[i]);
+      const placeholder_image_tokens = new Array(this.num_image_tokens).fill(image_placeholder_tag_id);
+      const tokens = encode(parts[i]);
       input_ids = mergeArrays(input_ids, [image_start_tag_id], placeholder_image_tokens, [image_end_tag_id], tokens);
-      var image_mask = new Array(this.num_image_tokens).fill(true);
+      const image_mask = new Array(this.num_image_tokens).fill(true);
       images_seq_mask = mergeArrays(
         images_seq_mask,
         [false],
@@ -90,8 +90,8 @@ export class VLChatProcessor extends Processor {
       );
     }
 
-    var dims = [1, input_ids.length];
-    var final = {
+    const dims = [1, input_ids.length];
+    const final = {
       input_ids: new Tensor('int64', input_ids, dims),
       attention_mask: new Tensor('int64', new Array(input_ids.length).fill(1), dims),
       images_seq_mask: new Tensor('bool', images_seq_mask, dims),
@@ -103,7 +103,7 @@ export class VLChatProcessor extends Processor {
     };
 
     if (images && images.length > 0) {
-      var image_inputs = await this.image_processor(images);
+      const image_inputs = await this.image_processor(images);
       // Set the batch_size dimension to 1
       image_inputs.pixel_values.unsqueeze_(0);
       return { ...final, ...image_inputs };
