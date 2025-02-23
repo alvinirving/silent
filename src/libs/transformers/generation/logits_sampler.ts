@@ -61,14 +61,14 @@ export class LogitsSampler extends Callable {
    * @returns {Float32Array}
    */
   getLogits(logits: Tensor, index: number) {
-    var vocabSize = logits.dims.at(-1);
+    let vocabSize = logits.dims.at(-1);
 
-    var logs = /** @type {Float32Array} */ logits.data;
+    let logs = /** @type {Float32Array} */ logits.data;
 
     if (index === -1) {
       logs = logs.slice(-vocabSize);
     } else {
-      var startIndex = index * vocabSize;
+      let startIndex = index * vocabSize;
       logs = logs.slice(startIndex, startIndex + vocabSize);
     }
     return logs;
@@ -81,13 +81,13 @@ export class LogitsSampler extends Callable {
    */
   randomSelect(probabilities: Float32Array) {
     // Return index of chosen item
-    var sumProbabilities = 0;
-    for (var i = 0; i < probabilities.length; ++i) {
+    let sumProbabilities = 0;
+    for (let i = 0; i < probabilities.length; ++i) {
       sumProbabilities += probabilities[i];
     }
 
-    var r = Math.random() * sumProbabilities;
-    for (var i = 0; i < probabilities.length; ++i) {
+    let r = Math.random() * sumProbabilities;
+    for (let i = 0; i < probabilities.length; ++i) {
       r -= probabilities[i];
       if (r <= 0) {
         return i;
@@ -155,7 +155,7 @@ class MultinomialSampler extends LogitsSampler {
    * @returns {Promise<[bigint, number][]>}
    */
   async sample(logits: Tensor): Promise<[bigint, number][]> {
-    var k = logits.dims.at(-1); // defaults to vocab size
+    let k = logits.dims.at(-1); // defaults to vocab size
     if (this.generation_config.top_k > 0) {
       k = Math.min(this.generation_config.top_k, k);
     }
@@ -186,7 +186,7 @@ class BeamSearchSampler extends LogitsSampler {
    * @returns {Promise<[bigint, number][]>}
    */
   async sample(logits: Tensor): Promise<[bigint, number][]> {
-    var k = logits.dims.at(-1); // defaults to vocab size
+    let k = logits.dims.at(-1); // defaults to vocab size
     if (this.generation_config.top_k > 0) {
       k = Math.min(this.generation_config.top_k, k);
     }
