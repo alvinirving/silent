@@ -5,8 +5,8 @@
  * ```javascript
  * import { pipeline } from '@huggingface/transformers';
  *
- * const classifier = await pipeline('sentiment-analysis');
- * const output = await classifier('I love transformers!');
+ * var classifier = await pipeline('sentiment-analysis');
+ * var output = await classifier('I love transformers!');
  * // [{'label': 'POSITIVE', 'score': 0.999817686}]
  * ```
  *
@@ -117,7 +117,7 @@ function get_bounding_box(box: number[], asInteger: boolean) {
   if (asInteger) {
     box = box.map((x) => x | 0);
   }
-  const [xmin, ymin, xmax, ymax] = box;
+  var [xmin, ymin, xmax, ymax] = box;
 
   return { xmin, ymin, xmax, ymax };
 }
@@ -230,17 +230,17 @@ export abstract class Pipeline extends Callable {
  *
  * **Example:** Text generation with `Xenova/distilgpt2` (default settings).
  * ```javascript
- * const generator = await pipeline('text-generation', 'Xenova/distilgpt2');
- * const text = 'I enjoy walking with my cute dog,';
- * const output = await generator(text);
+ * var generator = await pipeline('text-generation', 'Xenova/distilgpt2');
+ * var text = 'I enjoy walking with my cute dog,';
+ * var output = await generator(text);
  * // [{ generated_text: "I enjoy walking with my cute dog, and I love to play with the other dogs." }]
  * ```
  *
  * **Example:** Text generation with `Xenova/distilgpt2` (custom settings).
  * ```javascript
- * const generator = await pipeline('text-generation', 'Xenova/distilgpt2');
- * const text = 'Once upon a time, there was';
- * const output = await generator(text, {
+ * var generator = await pipeline('text-generation', 'Xenova/distilgpt2');
+ * var text = 'Once upon a time, there was';
+ * var output = await generator(text, {
  *   temperature: 2,
  *   max_new_tokens: 10,
  *   repetition_penalty: 1.5,
@@ -257,9 +257,9 @@ export abstract class Pipeline extends Callable {
  *
  * **Example:** Run code generation with `Xenova/codegen-350M-mono`.
  * ```javascript
- * const generator = await pipeline('text-generation', 'Xenova/codegen-350M-mono');
- * const text = 'def fib(n):';
- * const output = await generator(text, {
+ * var generator = await pipeline('text-generation', 'Xenova/codegen-350M-mono');
+ * var text = 'def fib(n):';
+ * var output = await generator(text, {
  *   max_new_tokens: 44,
  * });
  * // [{
@@ -318,24 +318,24 @@ export class TextGenerationPipeline
     }
 
     // By default, do not add special tokens
-    const add_special_tokens = (generate_kwargs as any).add_special_tokens ?? false;
+    var add_special_tokens = (generate_kwargs as any).add_special_tokens ?? false;
 
     // By default, return full text
-    const return_full_text = isChatInput ? false : ((generate_kwargs as any).return_full_text ?? true);
+    var return_full_text = isChatInput ? false : ((generate_kwargs as any).return_full_text ?? true);
 
     this.tokenizer!.padding_side = 'left';
-    const model_inputs = (this.tokenizer as any)(texts, {
+    var model_inputs = (this.tokenizer as any)(texts, {
       add_special_tokens,
       padding: true,
       truncation: true,
     } as any);
 
-    const outputTokenIds = /** @type {Tensor} */ await this.model.generate({
+    var outputTokenIds = /** @type {Tensor} */ await this.model.generate({
       ...model_inputs,
       ...generate_kwargs,
     });
 
-    const decoded = (this.tokenizer as any).batch_decode(outputTokenIds, {
+    var decoded = (this.tokenizer as any).batch_decode(outputTokenIds, {
       skip_special_tokens: true,
     });
 
@@ -349,9 +349,9 @@ export class TextGenerationPipeline
     }
 
     /** @type {TextGenerationOutput[]} */
-    const toReturn: TextGenerationOutput[] = Array.from({ length: texts.length }, (_) => []);
+    var toReturn: TextGenerationOutput[] = Array.from({ length: texts.length }, (_) => []);
     for (let i = 0; i < (decoded as any).length; ++i) {
-      const textIndex = Math.floor((i / (outputTokenIds as any).dims[0]) * texts.length);
+      var textIndex = Math.floor((i / (outputTokenIds as any).dims[0]) * texts.length);
 
       if (promptLengths) {
         // Trim the decoded text to only include the generated part
@@ -388,8 +388,8 @@ export class TextGenerationPipeline
  *
  * **Example:** Run feature extraction with `bert-base-uncased` (without pooling/normalization).
  * ```javascript
- * const extractor = await pipeline('feature-extraction', 'Xenova/bert-base-uncased', { revision: 'default' });
- * const output = await extractor('This is a simple test.');
+ * var extractor = await pipeline('feature-extraction', 'Xenova/bert-base-uncased', { revision: 'default' });
+ * var output = await extractor('This is a simple test.');
  * // Tensor {
  * //   type: 'float32',
  * //   data: Float32Array [0.05939924716949463, 0.021655935794115067, ...],
@@ -399,8 +399,8 @@ export class TextGenerationPipeline
  *
  * **Example:** Run feature extraction with `bert-base-uncased` (with pooling/normalization).
  * ```javascript
- * const extractor = await pipeline('feature-extraction', 'Xenova/bert-base-uncased', { revision: 'default' });
- * const output = await extractor('This is a simple test.', { pooling: 'mean', normalize: true });
+ * var extractor = await pipeline('feature-extraction', 'Xenova/bert-base-uncased', { revision: 'default' });
+ * var output = await extractor('This is a simple test.', { pooling: 'mean', normalize: true });
  * // Tensor {
  * //   type: 'float32',
  * //   data: Float32Array [0.03373778983950615, -0.010106077417731285, ...],
@@ -410,8 +410,8 @@ export class TextGenerationPipeline
  *
  * **Example:** Calculating embeddings with `sentence-transformers` models.
  * ```javascript
- * const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
- * const output = await extractor('This is a simple test.', { pooling: 'mean', normalize: true });
+ * var extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+ * var output = await extractor('This is a simple test.', { pooling: 'mean', normalize: true });
  * // Tensor {
  * //   type: 'float32',
  * //   data: Float32Array [0.09094982594251633, -0.014774246141314507, ...],
@@ -420,8 +420,8 @@ export class TextGenerationPipeline
  * ```
  * **Example:** Calculating binary embeddings with `sentence-transformers` models.
  * ```javascript
- * const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
- * const output = await extractor('This is a simple test.', { pooling: 'mean', quantize: true, precision: 'binary' });
+ * var extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+ * var output = await extractor('This is a simple test.', { pooling: 'mean', quantize: true, precision: 'binary' });
  * // Tensor {
  * //   type: 'int8',
  * //   data: Int8Array [49, 108, 24, ...],
@@ -451,13 +451,13 @@ export class FeatureExtractionPipeline
     } = {},
   ) {
     // Run tokenization
-    const model_inputs = (this.tokenizer as any)(texts, {
+    var model_inputs = (this.tokenizer as any)(texts, {
       padding: true,
       truncation: true,
     });
 
     // Run model
-    const outputs = await (this.model as any)(model_inputs);
+    var outputs = await (this.model as any)(model_inputs);
 
     // TODO: Provide warning to the user that they might be using model which was not exported
     // specifically for feature extraction
@@ -506,9 +506,9 @@ export class FeatureExtractionPipeline
  *
  * **Example:** Perform image feature extraction with `Xenova/vit-base-patch16-224-in21k`.
  * ```javascript
- * const image_feature_extractor = await pipeline('image-feature-extraction', 'Xenova/vit-base-patch16-224-in21k');
- * const url = 'https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/cats.png';
- * const features = await image_feature_extractor(url);
+ * var image_feature_extractor = await pipeline('image-feature-extraction', 'Xenova/vit-base-patch16-224-in21k');
+ * var url = 'https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/cats.png';
+ * var features = await image_feature_extractor(url);
  * // Tensor {
  * //   dims: [ 1, 197, 768 ],
  * //   type: 'float32',
@@ -519,9 +519,9 @@ export class FeatureExtractionPipeline
  *
  * **Example:** Compute image embeddings with `Xenova/clip-vit-base-patch32`.
  * ```javascript
- * const image_feature_extractor = await pipeline('image-feature-extraction', 'Xenova/clip-vit-base-patch32');
- * const url = 'https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/cats.png';
- * const features = await image_feature_extractor(url);
+ * var image_feature_extractor = await pipeline('image-feature-extraction', 'Xenova/clip-vit-base-patch32');
+ * var url = 'https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/cats.png';
+ * var features = await image_feature_extractor(url);
  * // Tensor {
  * //   dims: [ 1, 512 ],
  * //   type: 'float32',
@@ -543,9 +543,9 @@ export class ImageFeatureExtractionPipeline
 
   /** @type {ImageFeatureExtractionPipelineCallback} */
   async _call(images: ImagePipelineInputs, { pool = null } = {}) {
-    const preparedImages = await prepareImages(images);
-    const { pixel_values } = await (this.processor as any)(preparedImages);
-    const outputs = await (this.model as any)({ pixel_values });
+    var preparedImages = await prepareImages(images);
+    var { pixel_values } = await (this.processor as any)(preparedImages);
+    var outputs = await (this.model as any)({ pixel_values });
 
     /** @type {Tensor} */
     let result;
@@ -634,17 +634,17 @@ type AutomaticSpeechRecognitionPipelineType = TextAudioPipelineConstructorArgs &
  *
  * **Example:** Transcribe English.
  * ```javascript
- * const transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
- * const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/jfk.wav';
- * const output = await transcriber(url);
+ * var transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
+ * var url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/jfk.wav';
+ * var output = await transcriber(url);
  * // { text: " And so my fellow Americans ask not what your country can do for you, ask what you can do for your country." }
  * ```
  *
  * **Example:** Transcribe English w/ timestamps.
  * ```javascript
- * const transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
- * const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/jfk.wav';
- * const output = await transcriber(url, { return_timestamps: true });
+ * var transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
+ * var url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/jfk.wav';
+ * var output = await transcriber(url, { return_timestamps: true });
  * // {
  * //   text: " And so my fellow Americans ask not what your country can do for you, ask what you can do for your country."
  * //   chunks: [
@@ -656,9 +656,9 @@ type AutomaticSpeechRecognitionPipelineType = TextAudioPipelineConstructorArgs &
  *
  * **Example:** Transcribe English w/ word-level timestamps.
  * ```javascript
- * const transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
- * const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/jfk.wav';
- * const output = await transcriber(url, { return_timestamps: 'word' });
+ * var transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
+ * var url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/jfk.wav';
+ * var output = await transcriber(url, { return_timestamps: 'word' });
  * // {
  * //   "text": " And so my fellow Americans ask not what your country can do for you ask what you can do for your country.",
  * //   "chunks": [
@@ -675,25 +675,25 @@ type AutomaticSpeechRecognitionPipelineType = TextAudioPipelineConstructorArgs &
  *
  * **Example:** Transcribe French.
  * ```javascript
- * const transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-small');
- * const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/french-audio.mp3';
- * const output = await transcriber(url, { language: 'french', task: 'transcribe' });
+ * var transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-small');
+ * var url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/french-audio.mp3';
+ * var output = await transcriber(url, { language: 'french', task: 'transcribe' });
  * // { text: " J'adore, j'aime, je n'aime pas, je déteste." }
  * ```
  *
  * **Example:** Translate French to English.
  * ```javascript
- * const transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-small');
- * const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/french-audio.mp3';
- * const output = await transcriber(url, { language: 'french', task: 'translate' });
+ * var transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-small');
+ * var url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/french-audio.mp3';
+ * var output = await transcriber(url, { language: 'french', task: 'translate' });
  * // { text: " I love, I like, I don't like, I hate." }
  * ```
  *
  * **Example:** Transcribe/translate audio longer than 30 seconds.
  * ```javascript
- * const transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
- * const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/ted_60.wav';
- * const output = await transcriber(url, { chunk_length_s: 30, stride_length_s: 5 });
+ * var transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
+ * var url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/ted_60.wav';
+ * var output = await transcriber(url, { chunk_length_s: 30, stride_length_s: 5 });
  * // { text: " So in college, I was a government major, which means [...] So I'd start off light and I'd bump it up" }
  * ```
  */
@@ -742,25 +742,25 @@ export class AutomaticSpeechRecognitionPipeline
       console.warn('`task` parameter is not yet supported for `wav2vec2` models, defaulting to "transcribe".');
     }
 
-    const single = !Array.isArray(audio);
+    var single = !Array.isArray(audio);
     if (single) {
       audio = [audio as AudioInput];
     }
 
-    const sampling_rate = (this.processor as any).feature_extractor.config.sampling_rate;
-    const preparedAudios = await prepareAudios(audio, sampling_rate);
+    var sampling_rate = (this.processor as any).feature_extractor.config.sampling_rate;
+    var preparedAudios = await prepareAudios(audio, sampling_rate);
 
-    const toReturn = [];
-    for (const aud of preparedAudios) {
-      const inputs = await (this.processor as any)(aud);
-      const output = await (this.model as any)(inputs);
-      const logits = output.logits[0];
+    var toReturn = [];
+    for (var aud of preparedAudios) {
+      var inputs = await (this.processor as any)(aud);
+      var output = await (this.model as any)(inputs);
+      var logits = output.logits[0];
 
-      const predicted_ids = [];
-      for (const item of logits) {
+      var predicted_ids = [];
+      for (var item of logits) {
         predicted_ids.push(max(item.data)[1]);
       }
-      const predicted_sentences = (this.tokenizer as any).decode(predicted_ids);
+      var predicted_sentences = (this.tokenizer as any).decode(predicted_ids);
       toReturn.push({ text: predicted_sentences });
     }
     return single ? toReturn[0] : toReturn;
@@ -771,32 +771,32 @@ export class AutomaticSpeechRecognitionPipeline
    * @private
    */
   async _call_whisper(audio: AudioPipelineInputs, kwargs: Partial<AutomaticSpeechRecognitionConfig>) {
-    const return_timestamps = kwargs.return_timestamps ?? false;
-    const chunk_length_s = kwargs.chunk_length_s ?? 0;
-    const force_full_sequences = kwargs.force_full_sequences ?? false;
+    var return_timestamps = kwargs.return_timestamps ?? false;
+    var chunk_length_s = kwargs.chunk_length_s ?? 0;
+    var force_full_sequences = kwargs.force_full_sequences ?? false;
     let stride_length_s = kwargs.stride_length_s ?? null;
 
-    const generation_config = { ...kwargs };
+    var generation_config = { ...kwargs };
 
     if (return_timestamps === 'word') {
       (generation_config as any)['return_token_timestamps'] = true;
       generation_config['return_timestamps'] = false; // Do not predict timestamp tokens
     }
 
-    const single = !Array.isArray(audio);
+    var single = !Array.isArray(audio);
     if (single) {
       audio = [audio as AudioInput];
     }
 
-    const time_precision =
+    var time_precision =
       (this.processor as any).feature_extractor.config.chunk_length / (this.model as any).config.max_source_positions;
-    const hop_length = (this.processor as any).feature_extractor.config.hop_length;
+    var hop_length = (this.processor as any).feature_extractor.config.hop_length;
 
-    const sampling_rate = (this.processor as any).feature_extractor.config.sampling_rate;
-    const preparedAudios = await prepareAudios(audio, sampling_rate);
+    var sampling_rate = (this.processor as any).feature_extractor.config.sampling_rate;
+    var preparedAudios = await prepareAudios(audio, sampling_rate);
 
-    const toReturn = [];
-    for (const aud of preparedAudios) {
+    var toReturn = [];
+    for (var aud of preparedAudios) {
       /** @type {{stride: number[], input_features: Tensor, is_last: boolean, tokens?: bigint[], token_timestamps?: number[]}[]} */
       let chunks = [];
       if (chunk_length_s > 0) {
@@ -808,19 +808,19 @@ export class AutomaticSpeechRecognitionPipeline
 
         // TODO support different stride_length_s (for left and right)
 
-        const window = sampling_rate * chunk_length_s;
-        const stride = sampling_rate * stride_length_s;
-        const jump = window - 2 * stride;
+        var window = sampling_rate * chunk_length_s;
+        var stride = sampling_rate * stride_length_s;
+        var jump = window - 2 * stride;
         let offset = 0;
 
         // Create subarrays of audio with overlaps
         while (true) {
-          const offset_end = offset + window;
-          const subarr = aud.subarray(offset, offset_end);
-          const feature = await (this.processor as any)(subarr);
+          var offset_end = offset + window;
+          var subarr = aud.subarray(offset, offset_end);
+          var feature = await (this.processor as any)(subarr);
 
-          const is_first = offset === 0;
-          const is_last = offset_end >= aud.length;
+          var is_first = offset === 0;
+          var is_last = offset_end >= aud.length;
           chunks.push({
             stride: [subarr.length, is_first ? 0 : stride, is_last ? 0 : stride],
             input_features: feature.input_features,
@@ -841,11 +841,11 @@ export class AutomaticSpeechRecognitionPipeline
       }
 
       // Generate for each set of input features
-      for (const chunk of chunks) {
+      for (var chunk of chunks) {
         generation_config.num_frames = Math.floor(chunk.stride[0] / hop_length);
         // console.log(generation_config, chunk);
         // NOTE: doing sequentially for now
-        const data = await this.model.generate({
+        var data = await this.model.generate({
           inputs: chunk.input_features,
           ...generation_config,
         });
@@ -866,7 +866,7 @@ export class AutomaticSpeechRecognitionPipeline
 
       // Merge text chunks
       // @ts-ignore
-      const [full_text, optional] = this.tokenizer._decode_asr(chunks, {
+      var [full_text, optional] = this.tokenizer._decode_asr(chunks, {
         time_precision,
         return_timestamps,
         force_full_sequences,
@@ -882,23 +882,23 @@ export class AutomaticSpeechRecognitionPipeline
    * @private
    */
   async _call_moonshine(audio: AudioPipelineInputs, kwargs: Partial<AutomaticSpeechRecognitionConfig>) {
-    const single = !Array.isArray(audio);
+    var single = !Array.isArray(audio);
     if (single) {
       audio = [audio as AudioInput];
     }
-    const sampling_rate = (this.processor as any).feature_extractor.config.sampling_rate;
-    const preparedAudios = await prepareAudios(audio, sampling_rate);
-    const toReturn = [];
-    for (const aud of preparedAudios) {
-      const inputs = await (this.processor as any)(aud);
+    var sampling_rate = (this.processor as any).feature_extractor.config.sampling_rate;
+    var preparedAudios = await prepareAudios(audio, sampling_rate);
+    var toReturn = [];
+    for (var aud of preparedAudios) {
+      var inputs = await (this.processor as any)(aud);
 
       // According to the [paper](https://arxiv.org/pdf/2410.15608):
       // "We use greedy decoding, with a heuristic limit of 6 output tokens
       // per second of audio to avoid repeated output sequences."
-      const max_new_tokens = Math.floor(aud.length / sampling_rate) * 6;
-      const outputs = await this.model.generate({ max_new_tokens, ...kwargs, ...inputs });
+      var max_new_tokens = Math.floor(aud.length / sampling_rate) * 6;
+      var outputs = await this.model.generate({ max_new_tokens, ...kwargs, ...inputs });
 
-      const text = (this.processor as any).batch_decode(/** @type {Tensor} */ outputs, {
+      var text = (this.processor as any).batch_decode(/** @type {Tensor} */ outputs, {
         skip_special_tokens: true,
       })[0];
       toReturn.push({ text });
@@ -925,17 +925,17 @@ export class AutomaticSpeechRecognitionPipeline
  *
  * **Example:** Generate a caption for an image w/ `Xenova/vit-gpt2-image-captioning`.
  * ```javascript
- * const captioner = await pipeline('image-to-text', 'Xenova/vit-gpt2-image-captioning');
- * const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/cats.jpg';
- * const output = await captioner(url);
+ * var captioner = await pipeline('image-to-text', 'Xenova/vit-gpt2-image-captioning');
+ * var url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/cats.jpg';
+ * var output = await captioner(url);
  * // [{ generated_text: 'a cat laying on a couch with another cat' }]
  * ```
  *
  * **Example:** Optical Character Recognition (OCR) w/ `Xenova/trocr-small-handwritten`.
  * ```javascript
- * const captioner = await pipeline('image-to-text', 'Xenova/trocr-small-handwritten');
- * const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/handwriting.jpg';
- * const output = await captioner(url);
+ * var captioner = await pipeline('image-to-text', 'Xenova/trocr-small-handwritten');
+ * var url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/handwriting.jpg';
+ * var output = await captioner(url);
  * // [{ generated_text: 'Mr. Brown commented icily.' }]
  * ```
  */
@@ -952,16 +952,16 @@ export class ImageToTextPipeline
 
   /** @type {ImageToTextPipelineCallback} */
   async _call(images: ImagePipelineInputs, generate_kwargs = {}) {
-    const isBatched = Array.isArray(images);
-    const preparedImages = await prepareImages(images);
+    var isBatched = Array.isArray(images);
+    var preparedImages = await prepareImages(images);
 
-    const { pixel_values } = await (this.processor as any)(preparedImages);
+    var { pixel_values } = await (this.processor as any)(preparedImages);
 
-    const toReturn = [];
-    for (const batch of pixel_values) {
+    var toReturn = [];
+    for (var batch of pixel_values) {
       batch.dims = [1, ...batch.dims];
-      const output = await (this.model as any).generate({ inputs: batch, ...generate_kwargs });
-      const decoded = (this.tokenizer as any)
+      var output = await (this.model as any).generate({ inputs: batch, ...generate_kwargs });
+      var decoded = (this.tokenizer as any)
         .batch_decode(/** @type {Tensor} */ output, {
           skip_special_tokens: true,
         })
@@ -1006,9 +1006,9 @@ type TextToAudioPipelineConstructorArgs = TextAudioPipelineConstructorArgs & Voc
  *
  * **Example:** Generate audio from text with `Xenova/speecht5_tts`.
  * ```javascript
- * const synthesizer = await pipeline('text-to-speech', 'Xenova/speecht5_tts', { quantized: false });
- * const speaker_embeddings = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/speaker_embeddings.bin';
- * const out = await synthesizer('Hello, my dog is cute', { speaker_embeddings });
+ * var synthesizer = await pipeline('text-to-speech', 'Xenova/speecht5_tts', { quantized: false });
+ * var speaker_embeddings = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/speaker_embeddings.bin';
+ * var out = await synthesizer('Hello, my dog is cute', { speaker_embeddings });
  * // {
  * //   audio: Float32Array(26112) [-0.00005657337896991521, 0.00020583874720614403, ...],
  * //   sampling_rate: 16000
@@ -1020,15 +1020,15 @@ type TextToAudioPipelineConstructorArgs = TextAudioPipelineConstructorArgs & Voc
  * import wavefile from 'wavefile';
  * import fs from 'fs';
  *
- * const wav = new wavefile.WaveFile();
+ * var wav = new wavefile.WaveFile();
  * wav.fromScratch(1, out.sampling_rate, '32f', out.audio);
  * fs.writeFileSync('out.wav', wav.toBuffer());
  * ```
  *
  * **Example:** Multilingual speech generation with `Xenova/mms-tts-fra`. See [here](https://huggingface.co/models?pipeline_tag=text-to-speech&other=vits&sort=trending) for the full list of available languages (1107).
  * ```javascript
- * const synthesizer = await pipeline('text-to-speech', 'Xenova/mms-tts-fra');
- * const out = await synthesizer('Bonjour');
+ * var synthesizer = await pipeline('text-to-speech', 'Xenova/mms-tts-fra');
+ * var out = await synthesizer('Bonjour');
  * // {
  * //   audio: Float32Array(23808) [-0.00037693005288019776, 0.0003325853613205254, ...],
  * //   sampling_rate: 16000
@@ -1070,16 +1070,16 @@ export class TextToAudioPipeline
 
   async _call_text_to_waveform(text_inputs: string | string[]) {
     // Run tokenization
-    const inputs = (this.tokenizer as any)(text_inputs, {
+    var inputs = (this.tokenizer as any)(text_inputs, {
       padding: true,
       truncation: true,
     });
 
     // Generate waveform
-    const { waveform } = await (this.model as any)(inputs);
+    var { waveform } = await (this.model as any)(inputs);
 
     // @ts-expect-error TS2339
-    const sampling_rate = this.model.config.sampling_rate;
+    var sampling_rate = this.model.config.sampling_rate;
     return new RawAudio(
       waveform.data,
       sampling_rate,
@@ -1109,18 +1109,18 @@ export class TextToAudioPipeline
     }
 
     // Run tokenization
-    const { input_ids } = (this.tokenizer as any)(text_inputs, {
+    var { input_ids } = (this.tokenizer as any)(text_inputs, {
       padding: true,
       truncation: true,
     });
 
     // NOTE: At this point, we are guaranteed that `speaker_embeddings` is a `Tensor`
     // @ts-ignore
-    const { waveform } = await (this.model as any).generate_speech(input_ids, speaker_embeddings, {
+    var { waveform } = await (this.model as any).generate_speech(input_ids, speaker_embeddings, {
       vocoder: this.vocoder,
     });
 
-    const sampling_rate = (this.processor as any).feature_extractor.config.sampling_rate;
+    var sampling_rate = (this.processor as any).feature_extractor.config.sampling_rate;
     return new RawAudio(
         waveform.data,
         sampling_rate,
@@ -1141,9 +1141,9 @@ export class TextToAudioPipeline
  *
  * **Example:** Super-resolution w/ `Xenova/swin2SR-classical-sr-x2-64`
  * ```javascript
- * const upscaler = await pipeline('image-to-image', 'Xenova/swin2SR-classical-sr-x2-64');
- * const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/butterfly.jpg';
- * const output = await upscaler(url);
+ * var upscaler = await pipeline('image-to-image', 'Xenova/swin2SR-classical-sr-x2-64');
+ * var url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/butterfly.jpg';
+ * var output = await upscaler(url);
  * // RawImage {
  * //   data: Uint8Array(786432) [ 41, 31, 24,  43, ... ],
  * //   width: 512,
@@ -1168,14 +1168,14 @@ export class ImageToImagePipeline
 
   /** @type {ImageToImagePipelineCallback} */
   async _call(images: ImagePipelineInputs) {
-    const preparedImages = await prepareImages(images);
-    const inputs = await this.processor(preparedImages);
-    const outputs = await (this.model as any)(inputs);
+    var preparedImages = await prepareImages(images);
+    var inputs = await this.processor(preparedImages);
+    var outputs = await (this.model as any)(inputs);
 
     /** @type {RawImage[]} */
-    const toReturn = [];
-    for (const batch of outputs.reconstruction) {
-      const output = batch.squeeze().clamp_(0, 1).mul_(255).round_().to('uint8');
+    var toReturn = [];
+    for (var batch of outputs.reconstruction) {
+      var output = batch.squeeze().clamp_(0, 1).mul_(255).round_().to('uint8');
       toReturn.push(RawImage.fromTensor(output));
     }
 
@@ -1183,7 +1183,7 @@ export class ImageToImagePipeline
   }
 }
 
-export const SUPPORTED_TASKS = {
+export var SUPPORTED_TASKS = {
   'text-generation': {
     tokenizer: AutoTokenizer,
     pipeline: TextGenerationPipeline,
@@ -1267,16 +1267,16 @@ export const SUPPORTED_TASKS = {
     },
     type: 'image',
   },
-} as const;
+} as var;
 
 // TODO: Add types for TASK_ALIASES
-export const TASK_ALIASES = {
+export var TASK_ALIASES = {
   asr: 'automatic-speech-recognition',
   'text-to-speech': 'text-to-audio',
 
   // Add for backwards compatibility
   embeddings: 'feature-extraction',
-} as const;
+} as var;
 
 /**
  * @typedef {keyof typeof SUPPORTED_TASKS} TaskType
@@ -1323,7 +1323,7 @@ export async function pipeline(
   task = TASK_ALIASES[task] ?? task;
 
   // Get pipeline info
-  const pipelineInfo = SUPPORTED_TASKS[task.split('_', 1)[0] as keyof typeof SUPPORTED_TASKS];
+  var pipelineInfo = SUPPORTED_TASKS[task.split('_', 1)[0] as keyof typeof SUPPORTED_TASKS];
   if (!pipelineInfo) {
     throw Error(`Unsupported pipeline: ${task}. Must be one of [${Object.keys(SUPPORTED_TASKS)}]`);
   }
@@ -1334,7 +1334,7 @@ export async function pipeline(
     console.log(`No model specified. Using default model: "${model}".`);
   }
 
-  const pretrainedOptions = {
+  var pretrainedOptions = {
     progress_callback,
     config,
     cache_dir,
@@ -1346,14 +1346,14 @@ export async function pipeline(
     session_options,
   };
 
-  const classes = new Map([
+  var classes = new Map([
     ['tokenizer', (pipelineInfo as any).tokenizer],
     ['model', (pipelineInfo as any).model],
     ['processor', (pipelineInfo as any).processor],
   ]);
 
   // Load model, tokenizer, and processor (if they exist)
-  const results = await loadItems(classes, model, pretrainedOptions);
+  var results = await loadItems(classes, model, pretrainedOptions);
   results.task = task;
 
   dispatchCallback(progress_callback, {
@@ -1362,7 +1362,7 @@ export async function pipeline(
     model: model,
   });
 
-  const pipelineClass = pipelineInfo.pipeline;
+  var pipelineClass = pipelineInfo.pipeline;
   return new pipelineClass(results);
 }
 
@@ -1374,11 +1374,11 @@ export async function pipeline(
  * @private
  */
 async function loadItems(mapping: Map<string, any>, model: string, pretrainedOptions: PretrainedOptions) {
-  const result = Object.create(null);
+  var result = Object.create(null);
 
   /**@type {Promise[]} */
-  const promises = [];
-  for (const [name, cls] of mapping.entries()) {
+  var promises = [];
+  for (var [name, cls] of mapping.entries()) {
     if (!cls) continue;
 
     /**@type {Promise} */
@@ -1386,7 +1386,7 @@ async function loadItems(mapping: Map<string, any>, model: string, pretrainedOpt
     if (Array.isArray(cls)) {
       promise = new Promise(async (resolve, reject) => {
         let e;
-        for (const c of cls) {
+        for (var c of cls) {
           if (c === null) {
             // If null, we resolve it immediately, meaning the relevant
             // class was not found, but it is optional.
@@ -1423,7 +1423,7 @@ async function loadItems(mapping: Map<string, any>, model: string, pretrainedOpt
   await Promise.all(promises);
 
   // Then assign to result
-  for (const [name, promise] of Object.entries(result)) {
+  for (var [name, promise] of Object.entries(result)) {
     result[name] = await promise;
   }
 
