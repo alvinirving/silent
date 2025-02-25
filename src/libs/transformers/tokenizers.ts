@@ -31,7 +31,7 @@ type PretrainedTokenizerOptions = PretrainedOptions & TokenizerProperties;
  * @returns {Promise<any[]>} A promise that resolves with information about the loaded tokenizer.
  */
 async function loadTokenizer(pretrained_model_name_or_path: string, options: PretrainedTokenizerOptions) {
-    var info = await Promise.all([
+    const info = await Promise.all([
         getModelJSON(pretrained_model_name_or_path, 'tokenizer.json', true, options),
         getModelJSON(pretrained_model_name_or_path, 'tokenizer_config.json', true, options),
     ]);
@@ -52,10 +52,10 @@ async function loadTokenizer(pretrained_model_name_or_path: string, options: Pre
  * @returns {string[]} The split string.
  */
 function regexSplit(text: string, regex: RegExp) {
-    var result = [];
+    const result = [];
     let prev = 0;
-    for (var match of text.matchAll(regex)) {
-        var fullMatch = match[0];
+    for (const match of text.matchAll(regex)) {
+        const fullMatch = match[0];
         if (prev < match.index) {
             result.push(text.slice(prev, match.index));
         }
@@ -86,13 +86,13 @@ function createPattern(pattern: { Regex: string; String: string }, invert = true
         let regex = pattern.Regex.replace(/\\([#&~])/g, '$1'); // TODO: add more characters to this list if necessary
 
         // We also handle special cases where the regex contains invalid (non-JS compatible) syntax.
-        for (var [key, value] of PROBLEMATIC_REGEX_MAP) {
+        for (const [key, value] of PROBLEMATIC_REGEX_MAP) {
             regex = regex.replaceAll(key, value);
         }
 
         return new RegExp(regex, 'gu');
     } else if (pattern.String !== undefined) {
-        var escaped = escapeRegExp(pattern.String);
+        const escaped = escapeRegExp(pattern.String);
         // NOTE: if invert is true, we wrap the pattern in a group so that it is kept when performing .split()
         return new RegExp(invert ? escaped : `(${escaped})`, 'gu');
     } else {
@@ -116,7 +116,7 @@ function objectToMap(obj: object) {
  * @returns {number[]} The tensor as a list.
  */
 function prepareTensorForDecode(tensor: Tensor) {
-    var dims = tensor.dims;
+    const dims = tensor.dims;
     switch (dims.length) {
         case 1:
             return tensor.tolist();
@@ -206,7 +206,7 @@ export function is_chinese_char(cp: number | bigint) {
  * @private
  */
 function fuse_unk(arr: string[], tokens_to_ids: Map<string, any>, unk_token_id: number) {
-    var fused = [];
+    const fused = [];
     let i = 0;
     while (i < arr.length) {
         fused.push(arr[i]);
@@ -234,12 +234,12 @@ function whitespace_split(text: string) {
     return text.match(/\S+/g) || [];
 }
 
-var PUNCTUATION_REGEX = '\\p{P}\\u0021-\\u002F\\u003A-\\u0040\\u005B-\\u0060\\u007B-\\u007E';
-var PUNCTUATION_ONLY_REGEX = new RegExp(`^[${PUNCTUATION_REGEX}]+$`, 'gu');
-var BLOOM_SPLIT_CHARS = '.,!?\u2026\u3002\uff0c\u3001\u0964\u06d4\u060c';
+const PUNCTUATION_REGEX = '\\p{P}\\u0021-\\u002F\\u003A-\\u0040\\u005B-\\u0060\\u007B-\\u007E';
+const PUNCTUATION_ONLY_REGEX = new RegExp(`^[${PUNCTUATION_REGEX}]+$`, 'gu');
+const BLOOM_SPLIT_CHARS = '.,!?\u2026\u3002\uff0c\u3001\u0964\u06d4\u060c';
 
 // A mapping of regex patterns to their equivalent (but possibly longer) JS-compatible versions.
-var PROBLEMATIC_REGEX_MAP = new Map([
+const PROBLEMATIC_REGEX_MAP = new Map([
     // This uses the case insensitive group modifier, which is not supported in JavaScript.
     // When parsing the regex, an "Invalid group" error is thrown.
     ["(?i:'s|'t|'re|'ve|'m|'ll|'d)", "(?:'([sS]|[tT]|[rR][eE]|[vV][eE]|[mM]|[lL][lL]|[dD]))"],
@@ -478,7 +478,7 @@ class WordPieceTokenizer extends TokenizerModel {
          * @type {string[]}
          */
         this.vocab = new Array(this.tokens_to_ids.size);
-        for (var [key, value] of this.tokens_to_ids) {
+        for (const [key, value] of this.tokens_to_ids) {
             this.vocab[value] = key;
         }
     }
@@ -489,9 +489,9 @@ class WordPieceTokenizer extends TokenizerModel {
      * @returns {string[]} An array of encoded tokens.
      */
     encode(tokens: string[]): string[] {
-        var outputTokens: string[] = [];
-        for (var token of tokens) {
-            var chars = [...token];
+        const outputTokens: string[] = [];
+        for (const token of tokens) {
+            const chars = [...token];
             if (chars.length > this.max_input_chars_per_word) {
                 outputTokens.push(this.unk_token as string);
                 continue;
@@ -499,7 +499,7 @@ class WordPieceTokenizer extends TokenizerModel {
 
             let isUnknown = false;
             let start = 0;
-            var subTokens = [];
+            const subTokens = [];
 
             while (start < chars.length) {
                 let end = chars.length;
@@ -569,7 +569,7 @@ class Unigram extends TokenizerModel {
     ) {
         super(config as any);
 
-        var vocabSize = config.vocab.length;
+        const vocabSize = config.vocab.length;
         this.vocab = new Array(vocabSize);
         /** @type {number[]} */
         this.scores = new Array(vocabSize);
@@ -607,20 +607,20 @@ class Unigram extends TokenizerModel {
      * @param {TokenLattice} lattice The token lattice to populate with nodes.
      */
     populateNodes(lattice: TokenLattice) {
-        var chars = lattice._chars;
-        var mblen = 1;
+        const chars = lattice._chars;
+        const mblen = 1;
         let beginPos = 0;
         while (beginPos < chars.length) {
             let hasSingleNode = false;
 
-            var tokens = [];
-            var sliced = chars.slice(beginPos).join('');
-            var prefixedTokens = this.trie.commonPrefixSearch(sliced);
-            for (var token of prefixedTokens) {
+            const tokens = [];
+            const sliced = chars.slice(beginPos).join('');
+            const prefixedTokens = this.trie.commonPrefixSearch(sliced);
+            for (const token of prefixedTokens) {
                 tokens.push(token);
-                var tokenId = this.tokens_to_ids.get(token);
-                var tokenScore = this.scores[tokenId as number];
-                var n = len(token);
+                const tokenId = this.tokens_to_ids.get(token);
+                const tokenScore = this.scores[tokenId as number];
+                const n = len(token);
                 lattice.insert(beginPos, n, tokenScore, tokenId as number);
                 if (!hasSingleNode && n === mblen) {
                     hasSingleNode = true;
@@ -640,7 +640,7 @@ class Unigram extends TokenizerModel {
      * @returns {string[]} An array of subtokens obtained by encoding the input tokens using the unigram model.
      */
     tokenize(normalized: string) {
-        var lattice = new TokenLattice(normalized, this.bos_token_id as number, this.eos_token_id as number);
+        const lattice = new TokenLattice(normalized, this.bos_token_id as number, this.eos_token_id as number);
         this.populateNodes(lattice);
         return lattice.tokens();
     }
@@ -651,9 +651,9 @@ class Unigram extends TokenizerModel {
      * @returns {string[]} An array of encoded tokens.
      */
     encode(tokens: string[]) {
-        var toReturn = [];
-        for (var token of tokens) {
-            var tokenized = this.tokenize(token);
+        const toReturn = [];
+        for (const token of tokens) {
+            const tokenized = this.tokenize(token);
             toReturn.push(...tokenized);
         }
         return toReturn;
@@ -665,17 +665,17 @@ class Unigram extends TokenizerModel {
  * Specifically avoids mapping to whitespace/control characters the BPE code barfs on.
  * @returns {Object} Object with utf-8 byte keys and unicode string values.
  */
-var BYTES_TO_UNICODE = (() => {
+const BYTES_TO_UNICODE = (() => {
     // Returns list of utf-8 byte and a mapping to unicode strings.
     // We specifically avoids mapping to whitespace/control characters
     // the bpe code barfs on.
 
-    var bs = [
+    const bs = [
         ...Array.from({ length: '~'.charCodeAt(0) - '!'.charCodeAt(0) + 1 }, (_, i) => i + '!'.charCodeAt(0)),
         ...Array.from({ length: '¬'.charCodeAt(0) - '¡'.charCodeAt(0) + 1 }, (_, i) => i + '¡'.charCodeAt(0)),
         ...Array.from({ length: 'ÿ'.charCodeAt(0) - '®'.charCodeAt(0) + 1 }, (_, i) => i + '®'.charCodeAt(0)),
     ];
-    var cs = bs.slice();
+    const cs = bs.slice();
     let n = 0;
     for (let b = 0; b < 256; ++b) {
         if (!bs.includes(b)) {
@@ -684,11 +684,11 @@ var BYTES_TO_UNICODE = (() => {
             n += 1;
         }
     }
-    var ccs = cs.map((n) => String.fromCharCode(n));
+    const ccs = cs.map((n) => String.fromCharCode(n));
     return Object.fromEntries(bs.map((b, i) => [b, ccs[i]]));
 })();
 
-var UNICODE_TO_BYTES = reverseDictionary(BYTES_TO_UNICODE);
+const UNICODE_TO_BYTES = reverseDictionary(BYTES_TO_UNICODE);
 
 /**
  * @typedef {Object} BPENode
@@ -741,13 +741,13 @@ class BPE extends TokenizerModel {
         this.unk_token = config.unk_token;
 
         this.vocab = new Array(this.tokens_to_ids.size);
-        for (var [key, value] of this.tokens_to_ids) {
+        for (const [key, value] of this.tokens_to_ids) {
             this.vocab[value] = key;
         }
 
         // Tokenizers >= 0.20.0 serializes BPE merges as a [string, string][] instead of a string[],
         // which resolves the ambiguity for merges containing spaces.
-        var use_new_merge_format = Array.isArray(config.merges[0]);
+        const use_new_merge_format = Array.isArray(config.merges[0]);
 
         /** @type {[string, string][]} */
         this.merges = use_new_merge_format
@@ -784,12 +784,12 @@ class BPE extends TokenizerModel {
             return [];
         }
 
-        var cached = (this as any).cache.get(token);
+        const cached = (this as any).cache.get(token);
         if (cached !== undefined) {
             return cached;
         }
 
-        var word = Array.from(token);
+        const word = Array.from(token);
         if (this.end_of_word_suffix) {
             word[word.length - 1] += this.end_of_word_suffix;
         }
@@ -798,7 +798,7 @@ class BPE extends TokenizerModel {
         if (word.length > 1) {
             // Create a priority queue to store the nodes that will be merged.
             // The comparator function compares the scores of the nodes.
-            var queue = new PriorityQueue((a, b) => a.score < b.score);
+            const queue = new PriorityQueue((a, b) => a.score < b.score);
 
             // Construct a doubly-linked list of nodes that will be inserted into the priority queue,
             // starting with the individual characters. We also populate each node with a positional
@@ -812,7 +812,7 @@ class BPE extends TokenizerModel {
 
             let previousNode: any = startingNode;
             for (let i = 1; i < word.length; ++i) {
-                var currentNode = {
+                const currentNode = {
                     bias: i / word.length, // Add fractional component to break ties
                     token: word[i],
                     prev: previousNode,
@@ -825,7 +825,7 @@ class BPE extends TokenizerModel {
 
             while (!queue.isEmpty()) {
                 // Get the next node with the highest priority
-                var node = queue.pop();
+                const node = queue.pop();
 
                 // Check that this merge is still possible
                 if (node.deleted || !node.next || node.next.deleted) continue;
@@ -838,7 +838,7 @@ class BPE extends TokenizerModel {
                 // Next, we fix the node that comes before the current node (i.e., left side of the merge).
                 if (node.prev) {
                     // Make a shallow copy of the previous node
-                    var newPreviousNode = { ...node.prev };
+                    const newPreviousNode = { ...node.prev };
 
                     // Mark the old previous node as deleted. This avoids erroneous merges later,
                     // because there may still be references to this node in the priority queue.
@@ -856,7 +856,7 @@ class BPE extends TokenizerModel {
                 }
 
                 // Create a new node which represents the result of the merge.
-                var merged = {
+                const merged = {
                     token: node.token + node.next.token,
                     bias: node.bias,
                     prev: node.prev,
@@ -912,7 +912,7 @@ class BPE extends TokenizerModel {
         // `score` is a measure of the merge priority: lower means higher priority
         // We use the BPE rank as a measure of priority (i.e., the local of the merge in the merges list)
         // We also add a fractional component to the score to break ties (with the earlier character having higher priority)
-        var rank = this.bpe_ranks.get(JSON.stringify([node.token, node.next.token]));
+        const rank = this.bpe_ranks.get(JSON.stringify([node.token, node.next.token]));
         if (rank !== undefined) {
             node.score = rank + node.bias;
             queue.push(node);
@@ -925,20 +925,20 @@ class BPE extends TokenizerModel {
      * @returns {string[]} The resulting subword tokens after applying the BPE algorithm to the input sequence of tokens.
      */
     encode(tokens: string[]) {
-        var outputTokens = [];
+        const outputTokens = [];
 
-        for (var token of tokens) {
+        for (const token of tokens) {
             if (this.ignore_merges && this.tokens_to_ids.has(token)) {
                 outputTokens.push(token);
                 continue;
             }
-            var bpe_token_list = this.bpe(token);
+            const bpe_token_list = this.bpe(token);
 
-            for (var t of bpe_token_list) {
+            for (const t of bpe_token_list) {
                 if (this.tokens_to_ids.has(t)) {
                     outputTokens.push(t);
                 } else if (this.byte_fallback) {
-                    var byteTokens = Array.from(this.text_encoder.encode(t)).map(
+                    const byteTokens = Array.from(this.text_encoder.encode(t)).map(
                         (x: any) => `<0x${x.toString(16).toUpperCase().padStart(2, '0')}>`,
                     );
                     if (byteTokens.every((x) => this.tokens_to_ids.has(x))) {
@@ -1011,7 +1011,7 @@ class LegacyTokenizerModel extends TokenizerModel {
         this.unk_token_id = this.tokens_to_ids.get(this.unk_token);
 
         this.vocab = new Array(this.tokens_to_ids.size);
-        for (var [key, value] of this.tokens_to_ids) {
+        for (const [key, value] of this.tokens_to_ids) {
             this.vocab[value] = key;
         }
     }
@@ -1104,7 +1104,7 @@ class Replace extends Normalizer {
      * @returns {string} The normalized text after replacing the pattern with the content.
      */
     normalize(text: string) {
-        var pattern = createPattern(this.config.pattern);
+        const pattern = createPattern(this.config.pattern);
         return pattern === null ? text : text.replaceAll(pattern, this.config.content);
     }
 }
@@ -1274,10 +1274,10 @@ class BertNormalizer extends Normalizer {
      */
     _tokenize_chinese_chars(text: string) {
         /* Adds whitespace around any CJK character. */
-        var output = [];
+        const output = [];
         for (let i = 0; i < text.length; ++i) {
-            var char = text[i];
-            var cp = char.charCodeAt(0);
+            const char = text[i];
+            const cp = char.charCodeAt(0);
             if (is_chinese_char(cp)) {
                 output.push(' ');
                 output.push(char);
@@ -1330,9 +1330,9 @@ class BertNormalizer extends Normalizer {
      * @private
      */
     _clean_text(text: string) {
-        var output = [];
-        for (var char of text) {
-            var cp = char.charCodeAt(0);
+        const output = [];
+        for (const char of text) {
+            const cp = char.charCodeAt(0);
             if (cp === 0 || cp === 0xfffd || this._is_control(char)) {
                 continue;
             }
@@ -1545,7 +1545,7 @@ class ByteLevelPreTokenizer extends PreTokenizer {
         }
 
         // Split on whitespace and punctuation
-        var tokens = this.use_regex ? text.match(this.pattern) || [] : [text];
+        const tokens = this.use_regex ? text.match(this.pattern) || [] : [text];
 
         // Maps all our bytes to unicode strings, avoiding control tokens of the BPE (spaces in our case)
         return tokens.map((token) =>
@@ -1646,7 +1646,7 @@ class DigitsPreTokenizer extends PreTokenizer {
         this.config = config;
 
         // Construct a pattern which matches the rust implementation:
-        var digit_pattern = `[^\\d]+|\\d${this.config.individual_digits ? '' : '+'}`;
+        const digit_pattern = `[^\\d]+|\\d${this.config.individual_digits ? '' : '+'}`;
         this.pattern = new RegExp(digit_pattern, 'gu');
     }
 
@@ -1767,11 +1767,11 @@ class TemplateProcessing extends PostProcessor {
     post_process(tokens: string[], tokens_pair: string[] | null, {
         add_special_tokens = true,
     } = {}) {
-        var type = tokens_pair === null ? this.single : this.pair
+        const type = tokens_pair === null ? this.single : this.pair
 
         let processedTokens: string[] = [];
         let types: number[] = [];
-        for (var item of type) {
+        for (const item of type) {
             if ('SpecialToken' in item) {
                 if (add_special_tokens) {
                     processedTokens.push(item.SpecialToken.id);
@@ -1836,17 +1836,17 @@ class PostProcessorSequence extends PostProcessor {
      */
     post_process(tokens: string[], tokens_pair: string[] | null = null, options: any = {}) {
         let token_type_ids;
-        for (var processor of this.processors) {
+        for (const processor of this.processors) {
             if (processor instanceof ByteLevelPostProcessor) {
                 // Special case where we need to pass the tokens_pair to the post-processor
-                var output = processor.post_process(tokens);
+                const output = processor.post_process(tokens);
                 tokens = output.tokens;
                 if (tokens_pair) {
-                    var pair_output = processor.post_process(tokens_pair);
+                    const pair_output = processor.post_process(tokens_pair);
                     tokens_pair = pair_output.tokens;
                 }
             } else {
-                var output = processor.post_process(tokens, tokens_pair, options);
+                const output = processor.post_process(tokens, tokens_pair, options);
                 tokens = output.tokens;
                 token_type_ids = output.token_type_ids;
             }
@@ -1952,7 +1952,7 @@ class Decoder extends Callable {
 class ReplaceDecoder extends Decoder {
     /** @type {Decoder['decode_chain']} */
     decode_chain(tokens: string[]) {
-        var pattern = createPattern(this.config.pattern);
+        const pattern = createPattern(this.config.pattern);
         return pattern === null ? tokens : tokens.map((token) => token.replaceAll(pattern, this.config.content));
     }
 }
@@ -1968,13 +1968,13 @@ class ByteFallback extends Decoder {
 
     /** @type {Decoder['decode_chain']} */
     decode_chain(tokens: string[]) {
-        var new_tokens = [];
+        const new_tokens = [];
         let previous_byte_tokens = [];
 
-        for (var token of tokens) {
+        for (const token of tokens) {
             let bytes = null;
             if (token.length === 6 && token.startsWith('<0x') && token.endsWith('>')) {
-                var byte = parseInt(token.slice(3, 5), 16);
+                const byte = parseInt(token.slice(3, 5), 16);
                 if (!isNaN(byte)) {
                     bytes = byte;
                 }
@@ -1983,7 +1983,7 @@ class ByteFallback extends Decoder {
                 previous_byte_tokens.push(bytes);
             } else {
                 if (previous_byte_tokens.length > 0) {
-                    var string = this.text_decoder.decode(Uint8Array.from(previous_byte_tokens));
+                    const string = this.text_decoder.decode(Uint8Array.from(previous_byte_tokens));
                     new_tokens.push(string);
                     previous_byte_tokens = [];
                 }
@@ -1991,7 +1991,7 @@ class ByteFallback extends Decoder {
             }
         }
         if (previous_byte_tokens.length > 0) {
-            var string = this.text_decoder.decode(Uint8Array.from(previous_byte_tokens));
+            const string = this.text_decoder.decode(Uint8Array.from(previous_byte_tokens));
             new_tokens.push(string);
             previous_byte_tokens = [];
         }
@@ -2040,7 +2040,7 @@ class StripDecoder extends Decoder {
 
             let stop_cut = token.length;
             for (let i = 0; i < this.stop; ++i) {
-                var index = token.length - i - 1;
+                const index = token.length - i - 1;
                 if (token[index] === this.content) {
                     stop_cut = index;
                     continue;
@@ -2122,9 +2122,9 @@ class ByteLevelDecoder extends Decoder {
      * @returns {string} The decoded string.
      */
     convert_tokens_to_string(tokens: string[]) {
-        var text = tokens.join('');
-        var byteArray = new Uint8Array([...text].map((c) => this.byte_decoder[c]));
-        var decoded_text = this.text_decoder.decode(byteArray);
+        const text = tokens.join('');
+        const byteArray = new Uint8Array([...text].map((c) => this.byte_decoder[c]));
+        const decoded_text = this.text_decoder.decode(byteArray);
         return decoded_text;
     }
 
@@ -2136,9 +2136,9 @@ class ByteLevelDecoder extends Decoder {
         // To avoid mixing byte-level and unicode for byte-level BPT
         // we need to build string separately for added tokens and byte-level tokens
         // cf. https://github.com/huggingface/transformers/issues/1133
-        var sub_texts = [];
+        const sub_texts = [];
         let current_sub_text = [];
-        for (var token of tokens) {
+        for (const token of tokens) {
             // tokens sent here are already filtered, so we don't need to do this
             // if (skip_special_tokens && this.all_special_ids.includes(token)) {
             //     continue;
@@ -2189,7 +2189,7 @@ class CTCDecoder extends Decoder {
         if (tokens.length === 0) return '';
 
         // group same tokens into non-repeating tokens in CTC style decoding
-        var grouped_tokens = [tokens[0]];
+        const grouped_tokens = [tokens[0]];
         for (let i = 1; i < tokens.length; ++i) {
             if (tokens[i] !== grouped_tokens.at(-1)) {
                 grouped_tokens.push(tokens[i]);
@@ -2197,7 +2197,7 @@ class CTCDecoder extends Decoder {
         }
 
         // filter self.pad_token which is used as CTC-blank token
-        var filtered_tokens = grouped_tokens.filter((token) => token !== this.pad_token);
+        const filtered_tokens = grouped_tokens.filter((token) => token !== this.pad_token);
 
         let text = filtered_tokens.join('');
         if (this.cleanup) {
@@ -2341,7 +2341,7 @@ class MetaspaceDecoder extends Decoder {
 
     /** @type {Decoder['decode_chain']} */
     decode_chain(tokens: string[]) {
-        var result = [];
+        const result = [];
         for (let i = 0; i < tokens.length; ++i) {
             let normalized = tokens[i].replaceAll(this.replacement, ' ');
             if (this.addPrefixSpace && i == 0 && normalized.startsWith(' ')) {
@@ -2401,7 +2401,7 @@ class Precompiled extends Normalizer {
             // For some reason, the "Fullwidth Tilde" character (\uFF5E) should not be converted to the standard Tilde character (\u007E).
             // However, NFKC normalization does do this conversion. As a result, we split the string on the Fullwidth Tilde character,
             // perform NFKC normalization on each substring, and then join them back together with the Fullwidth Tilde character.
-            var parts = text.split('\uFF5E');
+            const parts = text.split('\uFF5E');
             text = parts.map((part) => part.normalize('NFKC')).join('\uFF5E');
         } else {
             text = text.normalize('NFKC');
@@ -2525,7 +2525,7 @@ class ReplacePreTokenizer extends PreTokenizer {
     }
 }
 
-var SPECIAL_TOKEN_ATTRIBUTES = [
+const SPECIAL_TOKEN_ATTRIBUTES = [
     'bos_token',
     'eos_token',
     'unk_token',
@@ -2547,11 +2547,11 @@ var SPECIAL_TOKEN_ATTRIBUTES = [
  * @private
  */
 function padHelper(item: Record<string, any[]>, length: number, value_fn: (key: string) => any, side: string) {
-    for (var key of Object.keys(item)) {
-        var diff = length - item[key].length;
-        var value = value_fn(key);
+    for (const key of Object.keys(item)) {
+        const diff = length - item[key].length;
+        const value = value_fn(key);
 
-        var padData = new Array(diff).fill(value);
+        const padData = new Array(diff).fill(value);
         item[key] = side === 'right' ? mergeArrays(item[key], padData) : mergeArrays(padData, item[key]);
     }
 }
@@ -2566,7 +2566,7 @@ function padHelper(item: Record<string, any[]>, length: number, value_fn: (key: 
 function truncateHelper(item: Record<string, any[]>, length: number) {
     // Setting .length to a lower value truncates the array in-place:
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/length
-    for (var key of Object.keys(item)) {
+    for (const key of Object.keys(item)) {
         item[key].length = length;
     }
 }
@@ -2639,8 +2639,8 @@ export class PreTrainedTokenizer extends Callable {
 
         /** @type {AddedToken[]} */
         this.added_tokens = [];
-        for (var addedToken of tokenizerJSON.added_tokens) {
-            var token = new AddedToken(addedToken);
+        for (const addedToken of tokenizerJSON.added_tokens) {
+            const token = new AddedToken(addedToken);
             this.added_tokens.push(token);
 
             this.model.tokens_to_ids.set(token.content, token.id);
@@ -2717,8 +2717,8 @@ export class PreTrainedTokenizer extends Callable {
         if (Array.isArray(this.chat_template)) {
             // Chat templates are stored as lists of dicts with fixed key names,
             // we reconstruct that into a single dict while loading them.
-            var chat_template = Object.create(null);
-            for (var { name, template } of this.chat_template) {
+            const chat_template = Object.create(null);
+            for (const { name, template } of this.chat_template) {
                 if (typeof name !== 'string' || typeof template !== 'string') {
                     throw new Error('Chat template must be a list of objects with "name" and "template" properties');
                 }
@@ -2737,8 +2737,8 @@ export class PreTrainedTokenizer extends Callable {
      * @private
      */
     getToken(...keys: string[]) {
-        for (var key of keys) {
-            var item = this._tokenizer_config[key];
+        for (const key of keys) {
+            const item = this._tokenizer_config[key];
 
             if (!item) continue;
 
@@ -2775,7 +2775,7 @@ export class PreTrainedTokenizer extends Callable {
             legacy: boolean = false,
         } = {},
     ) {
-        var info = await loadTokenizer(pretrained_model_name_or_path, {
+        const info = await loadTokenizer(pretrained_model_name_or_path, {
             progress_callback,
             config,
             cache_dir,
@@ -2833,7 +2833,7 @@ export class PreTrainedTokenizer extends Callable {
             return_token_type_ids?: boolean | null;
         } = {},
     ) {
-        var isBatched = Array.isArray(text);
+        const isBatched = Array.isArray(text);
 
         /** @type {EncodingSingle[]} */
         let encodedTokens;
@@ -2916,7 +2916,7 @@ export class PreTrainedTokenizer extends Callable {
             }
         }
 
-        var result: any = {};
+        const result: any = {};
 
         if (return_tensor) {
             if (!(padding && truncation)) {
@@ -2925,7 +2925,7 @@ export class PreTrainedTokenizer extends Callable {
 
                 if (
                     encodedTokens.some((x: any) => {
-                        for (var key of Object.keys(x)) {
+                        for (const key of Object.keys(x)) {
                             if (x[key].length !== (encodedTokens as any)[0][key]?.length) {
                                 return true;
                             }
@@ -2943,8 +2943,8 @@ export class PreTrainedTokenizer extends Callable {
             // Now we actually convert to tensor
             // NOTE: In the same way as the python library, we return a batched tensor, regardless of
             // whether we have a single input or multiple inputs.
-            var dims = [encodedTokens.length, encodedTokens[0].input_ids.length];
-            for (var key of Object.keys(encodedTokens[0])) {
+            const dims = [encodedTokens.length, encodedTokens[0].input_ids.length];
+            for (const key of Object.keys(encodedTokens[0])) {
                 result[key] = new Tensor(
                     'int64',
                     BigInt64Array.from((encodedTokens as any).flatMap((x: any) => x[key]).map(BigInt)),
@@ -2952,14 +2952,14 @@ export class PreTrainedTokenizer extends Callable {
                 );
             }
         } else {
-            for (var key of Object.keys(encodedTokens[0])) {
+            for (const key of Object.keys(encodedTokens[0])) {
                 result[key] = encodedTokens.map((x: any) => x[key]);
             }
 
             // If not returning a tensor, we match the input type
             if (!isBatched) {
                 // Input was not batched, so we unwrap
-                for (var key of Object.keys(result)) {
+                for (const key of Object.keys(result)) {
                     result[key] = result[key][0];
                 }
             }
@@ -2980,11 +2980,11 @@ export class PreTrainedTokenizer extends Callable {
         // Actual function which does encoding, for a single text
         // First, we take care of special tokens. Needed to avoid issues arising from
         // normalization and/or pretokenization (which may not preserve special tokens)
-        var sections = this.added_tokens_regex ? text.split(this.added_tokens_regex).filter((x) => x) : [text];
+        const sections = this.added_tokens_regex ? text.split(this.added_tokens_regex).filter((x) => x) : [text];
 
-        var tokens = sections
+        const tokens = sections
             .map((x: string, section_index: number) => {
-                var addedToken = this.added_tokens.find((t: AddedToken) => t.content === x);
+                const addedToken = this.added_tokens.find((t: AddedToken) => t.content === x);
                 if (addedToken !== undefined) {
                     // Ignore added tokens
                     return x;
@@ -3006,14 +3006,14 @@ export class PreTrainedTokenizer extends Callable {
                         return [];
                     }
 
-                    var sectionTokens =
+                    const sectionTokens =
                         this.pre_tokenizer !== null
                             ? this.pre_tokenizer(x, {
                                 section_index,
                             })
                             : [x];
 
-                    var tokens = this.model(sectionTokens);
+                    const tokens = this.model(sectionTokens);
 
                     return tokens;
                 }
@@ -3046,11 +3046,11 @@ export class PreTrainedTokenizer extends Callable {
             return_token_type_ids?: boolean | null;
         } = {},
     ) {
-        var { tokens, token_type_ids } = this._tokenize_helper(text, { pair: text_pair, add_special_tokens });
+        const { tokens, token_type_ids } = this._tokenize_helper(text, { pair: text_pair, add_special_tokens });
 
-        var input_ids = this.model.convert_tokens_to_ids(tokens);
+        const input_ids = this.model.convert_tokens_to_ids(tokens);
 
-        var result: any = {
+        const result: any = {
             input_ids,
             attention_mask: new Array(input_ids.length).fill(1),
         };
@@ -3078,8 +3078,8 @@ export class PreTrainedTokenizer extends Callable {
             add_special_tokens?: boolean;
         } = {},
     ) {
-        var tokens = this._encode_text(text);
-        var tokens2 = this._encode_text(pair);
+        const tokens = this._encode_text(text);
+        const tokens2 = this._encode_text(pair);
 
         return this.post_processor
             ? this.post_processor(tokens, tokens2, { add_special_tokens })
@@ -3212,7 +3212,7 @@ export class PreTrainedTokenizer extends Callable {
     get_chat_template({ chat_template = null, tools = null } = {}) {
         // First, handle the cases when the model has a dict of multiple templates
         if (this.chat_template && typeof this.chat_template === 'object') {
-            var template_dict = this.chat_template;
+            const template_dict = this.chat_template;
 
             if (chat_template !== null && Object.hasOwn(template_dict, chat_template)) {
                 // The user can pass the name of a template to the chat template argument instead of an entire template
@@ -3259,18 +3259,18 @@ export class PreTrainedTokenizer extends Callable {
      * ```javascript
      * import { AutoTokenizer } from "@huggingface/transformers";
      *
-     * var tokenizer = await AutoTokenizer.from_pretrained("Xenova/mistral-tokenizer-v1");
+     * const tokenizer = await AutoTokenizer.from_pretrained("Xenova/mistral-tokenizer-v1");
      *
-     * var chat = [
+     * const chat = [
      *   { "role": "user", "content": "Hello, how are you?" },
      *   { "role": "assistant", "content": "I'm doing great. How can I help you today?" },
      *   { "role": "user", "content": "I'd like to show off how chat templating works!" },
      * ]
      *
-     * var text = tokenizer.apply_chat_template(chat, { tokenize: false });
+     * const text = tokenizer.apply_chat_template(chat, { tokenize: false });
      * // "<s>[INST] Hello, how are you? [/INST]I'm doing great. How can I help you today?</s> [INST] I'd like to show off how chat templating works! [/INST]"
      *
-     * var input_ids = tokenizer.apply_chat_template(chat, { tokenize: true, return_tensor: false });
+     * const input_ids = tokenizer.apply_chat_template(chat, { tokenize: true, return_tensor: false });
      * // [1, 733, 16289, 28793, 22557, 28725, 910, 460, 368, 28804, 733, 28748, 16289, 28793, 28737, 28742, 28719, 2548, 1598, 28723, 1602, 541, 315, 1316, 368, 3154, 28804, 2, 28705, 733, 16289, 28793, 315, 28742, 28715, 737, 298, 1347, 805, 910, 10706, 5752, 1077, 3791, 28808, 733, 28748, 16289, 28793]
      * ```
      *
@@ -3335,15 +3335,15 @@ export class PreTrainedTokenizer extends Callable {
             this._compiled_template_cache.set(chat_template, compiledTemplate);
         }
 
-        var special_tokens_map = Object.create(null);
-        for (var key of SPECIAL_TOKEN_ATTRIBUTES) {
-            var value = this.getToken(key);
+        const special_tokens_map = Object.create(null);
+        for (const key of SPECIAL_TOKEN_ATTRIBUTES) {
+            const value = this.getToken(key);
             if (value) {
                 special_tokens_map[key] = value;
             }
         }
 
-        var rendered = compiledTemplate.render({
+        const rendered = compiledTemplate.render({
             messages: conversation,
             add_generation_prompt,
             tools,
@@ -3353,7 +3353,7 @@ export class PreTrainedTokenizer extends Callable {
         });
 
         if (tokenize) {
-            var out = this._call(rendered, {
+            const out = this._call(rendered, {
                 add_special_tokens: false,
                 padding,
                 truncation,
@@ -3452,7 +3452,7 @@ export class RobertaTokenizer extends PreTrainedTokenizer { }
 
 export class BloomTokenizer extends PreTrainedTokenizer { }
 
-var SPIECE_UNDERLINE = '▁';
+const SPIECE_UNDERLINE = '▁';
 
 export class LlamaTokenizer extends PreTrainedTokenizer {
     padding_side = 'left';
@@ -3528,8 +3528,8 @@ function _build_translation_inputs(self: any, raw_inputs: any, tokenizer_options
     if (!('lang_to_token' in self) || typeof self.lang_to_token !== 'function') {
         throw new Error('Tokenizer must have `lang_to_token` attribute set and it should be a function.');
     }
-    var src_lang_token = generate_kwargs.src_lang;
-    var tgt_lang_token = generate_kwargs.tgt_lang;
+    const src_lang_token = generate_kwargs.src_lang;
+    const tgt_lang_token = generate_kwargs.tgt_lang;
 
     // Check that the target language is valid:
     if (!self.language_codes.includes(tgt_lang_token)) {
@@ -3549,7 +3549,7 @@ function _build_translation_inputs(self: any, raw_inputs: any, tokenizer_options
 
         // In the same way as the Python library, we override the post-processor
         // to force the source language to be first:
-        for (var item of self.post_processor.config.single) {
+        for (const item of self.post_processor.config.single) {
             if ('SpecialToken' in item && self.languageRegex.test(item.SpecialToken.id)) {
                 item.SpecialToken.id = self.lang_to_token(src_lang_token);
                 break;
@@ -3687,22 +3687,22 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
         }
         let last_language: string | null = null;
 
-        var returnWordTimestamps = return_timestamps === 'word';
+        const returnWordTimestamps = return_timestamps === 'word';
 
         function new_chunk() {
             return { language: last_language, 'timestamp': [null, null], text: '', words: [] };
         }
 
         // Welcome to the state machine!
-        var chunks: any = [];
+        const chunks: any = [];
         let chunk = new_chunk();
         let time_offset = 0.0;
-        var timestamp_begin = this.timestamp_begin;
+        const timestamp_begin = this.timestamp_begin;
         // Whisper timestamp tokens start from 0.00 and go to timestamp 30.00 in 0.02 increments.
         // We can calculate the last time stamp token as timestamp_begin plus the number of tokens
         // tokens from 0.00 to 30.00 which is 1500.
-        var total_timestamp_tokens = 1500; // (30.00 - 0.00) / 0.02
-        var timestamp_end = timestamp_begin + total_timestamp_tokens;
+        const total_timestamp_tokens = 1500; // (30.00 - 0.00) / 0.02
+        const timestamp_end = timestamp_begin + total_timestamp_tokens;
 
         let previous_tokens: number[] = [];
         let previous_token_timestamps: number[] = [];
@@ -3710,12 +3710,12 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
         let skip = false;
         let right_stride_start = null;
 
-        var all_special_ids = new Set((this as any).all_special_ids);
+        const all_special_ids = new Set((this as any).all_special_ids);
 
-        for (var output of sequences) {
+        for (const output of sequences) {
             // NOTE: python version has batches, so it uses [0]
-            var token_ids = output.tokens;
-            var token_timestamps = returnWordTimestamps ? output.token_timestamps : null;
+            const token_ids = output.tokens;
+            const token_timestamps = returnWordTimestamps ? output.token_timestamps : null;
 
             // These keep track of timestamps within strides, which need
             // to be skipped and resolve all tokens in a single chunk.
@@ -3723,7 +3723,7 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
             let first_timestamp = timestamp_begin;
 
             if ('stride' in output) {
-                var [chunk_len, stride_left, stride_right] = output.stride;
+                const [chunk_len, stride_left, stride_right] = output.stride;
 
                 // Offset the timings to account for the other `model_outputs`.
                 time_offset -= stride_left;
@@ -3739,7 +3739,7 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
 
                 if (stride_right) {
                     for (let i = token_ids.length - 1; i >= 0; --i) {
-                        var token = Number(token_ids[i]);
+                        const token = Number(token_ids[i]);
                         if (token >= timestamp_begin) {
                             // There can be several token in the right stride
                             // But the last one is ALWAYS going to be skipped
@@ -3757,7 +3757,7 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
 
             // - all tokens within output
             for (let i = 0; i < token_ids.length; ++i) {
-                var token = Number(token_ids[i]);
+                const token = Number(token_ids[i]);
                 // 4 possible states for each token
                 // - 1/ Language code
                 // - 2/ all other special tokens (which we ignore)
@@ -3765,8 +3765,8 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
                 // - 4/ Regular text
 
                 if (all_special_ids.has(token)) {
-                    var text = this.decode([token]);
-                    var language = WHISPER_LANGUAGE_MAPPING.get(text.slice(2, -2));
+                    const text = this.decode([token]);
+                    const language = WHISPER_LANGUAGE_MAPPING.get(text.slice(2, -2));
 
                     if (language !== undefined) {
                         // 1/ Indeed some language
@@ -3774,8 +3774,8 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
                         // one, and we cannot use timestamped tokens to create chunks
                         if (last_language !== null && language !== last_language && !return_timestamps) {
                             previous_tokens.push(...current_tokens);
-                            var resolved_tokens = this.findLongestCommonSequence([previous_tokens], null)[0];
-                            var resolved_text = this.decode(resolved_tokens ?? [], {});
+                            const resolved_tokens = this.findLongestCommonSequence([previous_tokens], null)[0];
+                            const resolved_text = this.decode(resolved_tokens ?? [], {});
                             chunk.text = resolved_text;
                             chunks.push(chunk);
 
@@ -3791,8 +3791,8 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
                     }
                 } else if (token >= timestamp_begin && token <= timestamp_end) {
                     // 3/ Timestamp token
-                    var time = (token - timestamp_begin) * time_precision + time_offset;
-                    var rounded_time = round(time, 2);
+                    const time = (token - timestamp_begin) * time_precision + time_offset;
+                    const rounded_time = round(time, 2);
 
                     if (last_timestamp !== null && token >= last_timestamp) {
                         // Whisper outputted a timestamp token, but it falls within
@@ -3822,12 +3822,12 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
                             if (returnWordTimestamps && current_token_timestamps) {
                                 previous_token_timestamps.push(...current_token_timestamps);
                             }
-                            var [resolved_tokens, resolved_token_timestamps] = this.findLongestCommonSequence(
+                            const [resolved_tokens, resolved_token_timestamps] = this.findLongestCommonSequence(
                                 [previous_tokens],
                                 [previous_token_timestamps],
                             );
 
-                            var resolved_text = this.decode(resolved_tokens ?? [], {});
+                            const resolved_text = this.decode(resolved_tokens ?? [], {});
                             chunk.text = resolved_text;
 
                             if (returnWordTimestamps) {
@@ -3859,7 +3859,7 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
 
                             // Do not allow punctuation-only tokens to have a duration.
                             // This prevents long pauses from messing up the timestamps.
-                            var decoded_text = this.decode([token], {});
+                            const decoded_text = this.decode([token], {});
                             if (PUNCTUATION_ONLY_REGEX.test(decoded_text)) {
                                 // Add `time_precision` to avoid overlapping timestamps
                                 end_time = round(Math.min(start_time + time_precision, end_time), 2);
@@ -3874,7 +3874,7 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
             }
 
             if ('stride' in output) {
-                var [chunk_len, stride_left, stride_right] = output.stride;
+                const [chunk_len, stride_left, stride_right] = output.stride;
                 time_offset += chunk_len - stride_right;
             }
 
@@ -3905,13 +3905,13 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
             }
 
             // Happens when we don't use timestamps
-            var [resolved_tokens, resolved_token_timestamps] = this.findLongestCommonSequence(
+            const [resolved_tokens, resolved_token_timestamps] = this.findLongestCommonSequence(
                 [previous_tokens],
                 [previous_token_timestamps],
             );
 
             // Flushing previous tokens (FINAL)
-            var resolved_text = this.decode((resolved_tokens as any), {});
+            const resolved_text = this.decode((resolved_tokens as any), {});
             chunk.text = resolved_text;
             if (returnWordTimestamps) {
                 chunk.words = this.collateWordTimestamps((resolved_tokens as any), (resolved_token_timestamps as any), last_language as any);
@@ -3922,10 +3922,10 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
         let optional = Object.create(null);
 
         // Preparing and cleaning up the pipeline output
-        var full_text = chunks.map(((chunk: any) => chunk.text)).join('');
+        const full_text = chunks.map(((chunk: any) => chunk.text)).join('');
         if (return_timestamps || return_language) {
             for (let i = 0; i < chunks.length; ++i) {
-                var chunk = chunks[i];
+                const chunk = chunks[i];
                 if (!return_timestamps) {
                     delete chunk['timestamp'];
                 }
@@ -3935,9 +3935,9 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
                 }
             }
             if (returnWordTimestamps) {
-                var new_chunks: any = [];
-                for (var chunk of chunks) {
-                    for (var word of chunk.words) {
+                const new_chunks: any = [];
+                for (const chunk of chunks) {
+                    for (const word of chunk.words) {
                         new_chunks.push(word);
                     }
                 }
@@ -3966,12 +3966,12 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
         let leftLength = leftSequence.length;
         let totalSequence = [];
 
-        var use_token_timestamp_sequences =
+        const use_token_timestamp_sequences =
             Array.isArray(token_timestamp_sequences) && token_timestamp_sequences.length > 0;
         let total_token_timestamp_sequence = use_token_timestamp_sequences ? [] : null;
         let left_token_timestamp_sequence = use_token_timestamp_sequences ? token_timestamp_sequences[0] : null;
         for (let i = 1; i < sequences.length; ++i) {
-            var rightSequence = sequences[i];
+            const rightSequence = sequences[i];
             let max = 0.0;
             let maxIndices = [leftLength, leftLength, 0, 0];
             // Here we're sliding matches
@@ -4003,17 +4003,17 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
 
             // [a] == [f]
 
-            var rightLength = rightSequence.length;
+            const rightLength = rightSequence.length;
             for (let j = 1; j < leftLength + rightLength; ++j) {
                 // Slightly convoluted because we don't want out of bound indices
                 // This will be necessary for a small conflict resolution optimization
                 // later
-                var leftStart = Math.max(0, leftLength - j);
-                var leftStop = Math.min(leftLength, leftLength + rightLength - j);
-                var left = leftSequence.slice(leftStart, leftStop);
-                var rightStart = Math.max(0, j - leftLength);
-                var rightStop = Math.min(rightLength, j);
-                var right = rightSequence.slice(rightStart, rightStop);
+                const leftStart = Math.max(0, leftLength - j);
+                const leftStop = Math.min(leftLength, leftLength + rightLength - j);
+                const left = leftSequence.slice(leftStart, leftStop);
+                const rightStart = Math.max(0, j - leftLength);
+                const rightStop = Math.min(rightLength, j);
+                const right = rightSequence.slice(rightStart, rightStop);
                 if (left.length !== right.length) {
                     throw new Error(
                         'There is a bug within whisper `decode_asr` function, please report it. Dropping to prevent bad inference.',
@@ -4034,16 +4034,16 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
                 }
 
                 // epsilon to favor long perfect matches
-                var eps = j / 10000.0;
-                var matching = matches / j + eps;
+                const eps = j / 10000.0;
+                const matching = matches / j + eps;
                 if (matches > 1 && matching > max) {
                     max = matching;
                     maxIndices = [leftStart, leftStop, rightStart, rightStop];
                 }
             }
-            var [leftStart, leftStop, rightStart, rightStop] = maxIndices;
-            var leftMid = Math.floor((leftStop + leftStart) / 2);
-            var rightMid = Math.floor((rightStop + rightStart) / 2);
+            const [leftStart, leftStop, rightStart, rightStop] = maxIndices;
+            const leftMid = Math.floor((leftStop + leftStart) / 2);
+            const rightMid = Math.floor((rightStop + rightStart) / 2);
             totalSequence.push(...leftSequence.slice(0, leftMid));
             leftSequence = rightSequence.slice(rightMid);
             leftLength = leftSequence.length;
@@ -4066,11 +4066,11 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
 
     /** @private */
     collateWordTimestamps(tokens: number[], token_timestamps: number[][], language: string): any {
-        var [words, _, token_indices] = this.combineTokensIntoWords(tokens, language);
+        const [words, _, token_indices] = this.combineTokensIntoWords(tokens, language);
 
-        var timings = [];
+        const timings = [];
         for (let i = 0; i < words.length; ++i) {
-            var indices = token_indices[i];
+            const indices = token_indices[i];
             timings.push({
                 text: words[i],
                 timestamp: [token_timestamps[(indices as any).at(0)][0], token_timestamps[(indices as any).at(-1)][1]],
@@ -4134,15 +4134,15 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
      * @private
      */
     decodeWithTimestamps(token_ids: number[] | bigint[], decode_args: any) {
-        var time_precision = decode_args?.time_precision ?? 0.02;
+        const time_precision = decode_args?.time_precision ?? 0.02;
 
-        var timestamp_begin = (Array.from(this.all_special_ids).at(-1) ?? 0) + 1;
+        const timestamp_begin = (Array.from(this.all_special_ids).at(-1) ?? 0) + 1;
         /**@type {Array} */
         let outputs = Array<any>();
         for (let token of token_ids) {
             token = Number(token);
             if (token >= timestamp_begin) {
-                var timestamp = ((token - timestamp_begin) * time_precision).toFixed(2);
+                const timestamp = ((token - timestamp_begin) * time_precision).toFixed(2);
                 outputs.push(`<|${timestamp}|>`);
                 outputs.push([]);
             } else {
@@ -4161,26 +4161,26 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
      * @private
      */
     splitTokensOnUnicode(tokens: number[]) {
-        var decoded_full = this.decode(tokens, {
+        const decoded_full = this.decode(tokens, {
             // @ts-ignore
             decode_with_timestamps: true,
         });
-        var replacement_char = '\uFFFD';
+        const replacement_char = '\uFFFD';
 
-        var words = [];
-        var word_tokens = [];
-        var token_indices = [];
+        const words = [];
+        const word_tokens = [];
+        const token_indices = [];
         let current_tokens = [];
         let current_indices = [];
         let unicode_offset = 0;
 
         for (let token_idx = 0; token_idx < tokens.length; ++token_idx) {
-            var token = tokens[token_idx];
+            const token = tokens[token_idx];
 
             current_tokens.push(token);
             current_indices.push(token_idx);
 
-            var decoded = this.decode(current_tokens, {
+            const decoded = this.decode(current_tokens, {
                 // @ts-ignore
                 decode_with_timestamps: true,
             });
@@ -4207,31 +4207,31 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
      * @private
      */
     splitTokensOnSpaces(tokens: number[]) {
-        var [subwords, subword_tokens_list, subword_indices_list] = this.splitTokensOnUnicode(tokens);
+        const [subwords, subword_tokens_list, subword_indices_list] = this.splitTokensOnUnicode(tokens);
 
-        var words = [];
-        var word_tokens = [];
-        var token_indices = [];
+        const words = [];
+        const word_tokens = [];
+        const token_indices = [];
 
-        var punctuationRegex = new RegExp(`^[${PUNCTUATION_REGEX}]$`, 'gu');
+        const punctuationRegex = new RegExp(`^[${PUNCTUATION_REGEX}]$`, 'gu');
 
         for (let i = 0; i < subwords.length; ++i) {
-            var subword = subwords[i];
-            var subword_tokens = subword_tokens_list[i];
-            var subword_indices = subword_indices_list[i];
+            const subword = subwords[i];
+            const subword_tokens = subword_tokens_list[i];
+            const subword_indices = subword_indices_list[i];
 
             // @ts-ignore
-            var special = subword_tokens[0] >= this.model.tokens_to_ids.get('<|endoftext|>');
-            var with_space = subword.startsWith(' ');
-            var trimmed = subword.trim();
-            var punctuation = punctuationRegex.test(trimmed);
+            const special = subword_tokens[0] >= this.model.tokens_to_ids.get('<|endoftext|>');
+            const with_space = subword.startsWith(' ');
+            const trimmed = subword.trim();
+            const punctuation = punctuationRegex.test(trimmed);
 
             if (special || with_space || punctuation || words.length === 0) {
                 words.push(subword);
                 word_tokens.push(subword_tokens);
                 token_indices.push(subword_indices);
             } else {
-                var ix = words.length - 1;
+                const ix = words.length - 1;
                 words[ix] += subword;
                 word_tokens[ix].push(...subword_tokens);
                 token_indices[ix].push(...subword_indices);
@@ -4251,9 +4251,9 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
      * @private
      */
     mergePunctuations(words: string[], tokens: number[][], indices: number[][], prepended: string, appended: string) {
-        var newWords = structuredClone(words);
-        var newTokens = structuredClone(tokens);
-        var newIndices = structuredClone(indices);
+        const newWords = structuredClone(words);
+        const newTokens = structuredClone(tokens);
+        const newIndices = structuredClone(indices);
 
         // prepend punctuations
         let i = newWords.length - 2;
@@ -4333,14 +4333,14 @@ export class MarianTokenizer extends PreTrainedTokenizer {
         if (text === null) return null;
 
         // Check if text starts with language code:
-        var [matchInfo, ...remainder] = text.trim().split(this.languageRegex);
+        const [matchInfo, ...remainder] = text.trim().split(this.languageRegex);
 
         if (remainder.length === 0) {
             // No language code, encode normally
             return super._encode_text(matchInfo);
         } else if (remainder.length === 2) {
             // Text starts with language code, so we do not encode it with sentencepiece.
-            var [language, text] = remainder;
+            const [language, text] = remainder;
 
             if (!this.supported_language_codes.includes(language)) {
                 console.warn(
@@ -4379,7 +4379,7 @@ export class MgpstrTokenizer extends PreTrainedTokenizer { }
  * The chosen tokenizer class is determined by the type specified in the tokenizer config.
  *
  * @example
- * var tokenizer = await AutoTokenizer.from_pretrained('Xenova/bert-base-uncased');
+ * const tokenizer = await AutoTokenizer.from_pretrained('Xenova/bert-base-uncased');
  */
 export class AutoTokenizer {
     static TOKENIZER_CLASS_MAPPING = {
@@ -4466,7 +4466,7 @@ export class AutoTokenizer {
             legacy?: boolean;
         } = {},
     ) {
-        var [tokenizerJSON, tokenizerConfig] = await loadTokenizer(pretrained_model_name_or_path, {
+        const [tokenizerJSON, tokenizerConfig] = await loadTokenizer(pretrained_model_name_or_path, {
             progress_callback,
             config,
             cache_dir,
@@ -4476,7 +4476,7 @@ export class AutoTokenizer {
         });
 
         // Some tokenizers are saved with the "Fast" suffix, so we remove that if present.
-        var tokenizerName = tokenizerConfig.tokenizer_class?.replace(/Fast$/, '') ?? 'PreTrainedTokenizer';
+        const tokenizerName = tokenizerConfig.tokenizer_class?.replace(/Fast$/, '') ?? 'PreTrainedTokenizer';
 
         let cls = this.TOKENIZER_CLASS_MAPPING[tokenizerName as keyof typeof this.TOKENIZER_CLASS_MAPPING];
         if (!cls) {
