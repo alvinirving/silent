@@ -15,7 +15,7 @@ export class PyAnnoteFeatureExtractor extends FeatureExtractor {
       audio = new Float32Array(audio);
     }
 
-    const shape = [1 /* batch_size */, 1 /* num_channels */, audio.length /* num_samples */];
+    var shape = [1 /* batch_size */, 1 /* num_channels */, audio.length /* num_samples */];
     return {
       input_values: new Tensor('float32', audio, shape),
     };
@@ -37,18 +37,18 @@ export class PyAnnoteFeatureExtractor extends FeatureExtractor {
    * @returns {Array<Array<{ id: number, start: number, end: number, confidence: number }>>} The post-processed speaker diarization results.
    */
   post_process_speaker_diarization(logits, num_samples) {
-    const ratio = num_samples / this.samples_to_frames(num_samples) / this.config.sampling_rate;
+    var ratio = num_samples / this.samples_to_frames(num_samples) / this.config.sampling_rate;
 
-    const results = [];
-    for (const scores of logits.tolist()) {
-      const accumulated_segments = [];
+    var results = [];
+    for (var scores of logits.tolist()) {
+      var accumulated_segments = [];
 
       let current_speaker = -1;
       for (let i = 0; i < scores.length; ++i) {
         /** @type {number[]} */
-        const probabilities = softmax(scores[i]);
-        const [score, id] = max(probabilities);
-        const [start, end] = [i, i + 1];
+        var probabilities = softmax(scores[i]);
+        var [score, id] = max(probabilities);
+        var [start, end] = [i, i + 1];
 
         if (id !== current_speaker) {
           // Speaker has changed
