@@ -3,7 +3,7 @@ import { AutoImageProcessor } from '../auto/image_processing_auto.js';
 import { AutoTokenizer } from '../../tokenizers.js';
 import { max, softmax } from '../../utils/maths.js';
 
-const DECODE_TYPE_MAPPING = {
+var DECODE_TYPE_MAPPING = {
   char: ['char_decode', 1],
   bpe: ['bpe_decode', 2],
   wp: ['wp_decode', 102],
@@ -44,24 +44,24 @@ export class MgpstrProcessor extends Processor {
       throw new Error(`Format ${format} is not supported.`);
     }
 
-    const [decoder_name, eos_token] = DECODE_TYPE_MAPPING[format];
-    const decoder = this[decoder_name].bind(this);
+    var [decoder_name, eos_token] = DECODE_TYPE_MAPPING[format];
+    var decoder = this[decoder_name].bind(this);
 
-    const [batch_size, batch_max_length] = pred_logits.dims;
-    const conf_scores = [];
-    const all_ids = [];
+    var [batch_size, batch_max_length] = pred_logits.dims;
+    var conf_scores = [];
+    var all_ids = [];
 
     /** @type {number[][][]} */
-    const pred_logits_list = pred_logits.tolist();
+    var pred_logits_list = pred_logits.tolist();
     for (let i = 0; i < batch_size; ++i) {
-      const logits = pred_logits_list[i];
-      const ids = [];
-      const scores = [];
+      var logits = pred_logits_list[i];
+      var ids = [];
+      var scores = [];
 
       // Start and index=1 to skip the first token
       for (let j = 1; j < batch_max_length; ++j) {
         // NOTE: == to match bigint and number
-        const [max_prob, max_prob_index] = max(softmax(logits[j]));
+        var [max_prob, max_prob_index] = max(softmax(logits[j]));
         scores.push(max_prob);
         if (max_prob_index == eos_token) {
           break;
@@ -69,13 +69,13 @@ export class MgpstrProcessor extends Processor {
         ids.push(max_prob_index);
       }
 
-      const confidence_score = scores.length > 0 ? scores.reduce((a, b) => a * b, 1) : 0;
+      var confidence_score = scores.length > 0 ? scores.reduce((a, b) => a * b, 1) : 0;
 
       all_ids.push(ids);
       conf_scores.push(confidence_score);
     }
 
-    const decoded = decoder(all_ids);
+    var decoded = decoder(all_ids);
     return [decoded, conf_scores];
   }
 
@@ -120,14 +120,14 @@ export class MgpstrProcessor extends Processor {
   // @ts-expect-error The type of this method is not compatible with the one
   // in the base class. It might be a good idea to fix this.
   batch_decode([char_logits, bpe_logits, wp_logits]) {
-    const [char_preds, char_scores] = this._decode_helper(char_logits, 'char');
-    const [bpe_preds, bpe_scores] = this._decode_helper(bpe_logits, 'bpe');
-    const [wp_preds, wp_scores] = this._decode_helper(wp_logits, 'wp');
+    var [char_preds, char_scores] = this._decode_helper(char_logits, 'char');
+    var [bpe_preds, bpe_scores] = this._decode_helper(bpe_logits, 'bpe');
+    var [wp_preds, wp_scores] = this._decode_helper(wp_logits, 'wp');
 
-    const generated_text = [];
-    const scores = [];
+    var generated_text = [];
+    var scores = [];
     for (let i = 0; i < char_preds.length; ++i) {
-      const [max_score, max_score_index] = max([char_scores[i], bpe_scores[i], wp_scores[i]]);
+      var [max_score, max_score_index] = max([char_scores[i], bpe_scores[i], wp_scores[i]]);
       generated_text.push([char_preds[i], bpe_preds[i], wp_preds[i]][max_score_index]);
       scores.push(max_score);
     }
@@ -142,11 +142,11 @@ export class MgpstrProcessor extends Processor {
   }
   /** @type {typeof Processor.from_pretrained} */
   static async from_pretrained(...args) {
-    const base = await super.from_pretrained(...args);
+    var base = await super.from_pretrained(...args);
 
     // Load Transformers.js-compatible versions of the BPE and WordPiece tokenizers
-    const bpe_tokenizer = await AutoTokenizer.from_pretrained('Xenova/gpt2'); // openai-community/gpt2
-    const wp_tokenizer = await AutoTokenizer.from_pretrained('Xenova/bert-base-uncased'); // google-bert/bert-base-uncased
+    var bpe_tokenizer = await AutoTokenizer.from_pretrained('Xenova/gpt2'); // openai-community/gpt2
+    var wp_tokenizer = await AutoTokenizer.from_pretrained('Xenova/bert-base-uncased'); // google-bert/bert-base-uncased
 
     // Update components
     base.components = {
@@ -159,7 +159,7 @@ export class MgpstrProcessor extends Processor {
   }
 
   async _call(images, text = null) {
-    const result = await this.image_processor(images);
+    var result = await this.image_processor(images);
 
     if (text) {
       result.labels = this.tokenizer(text).input_ids;
