@@ -2,7 +2,7 @@ console.log('Content script loaded!');
 
 // Create and inject the floating button
 function createFloatingButton() {
-  const button = document.createElement('button');
+  let button = document.createElement('button');
   button.innerHTML = '🤖'; // You can replace this with an SVG icon
   button.className = 'floating-button';
 
