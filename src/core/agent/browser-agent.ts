@@ -33,7 +33,7 @@ export class BrowserAgent {
     }
 
     private async getModelForTask(taskType: AgentModelConfig['taskType']): Promise<void> {
-        const modelConfig = this.config.models[taskType];
+        let modelConfig = this.config.models[taskType];
         if (!modelConfig) {
             if (!this.config.defaultModel) {
                 throw new Error(`No model configured for task type ${taskType}`);
@@ -67,7 +67,7 @@ export class BrowserAgent {
                 throw error;
             }
             
-            const delay = this.retryConfig.delay * Math.pow(this.retryConfig.backoffFactor, attempt - 1);
+            let delay = this.retryConfig.delay * Math.pow(this.retryConfig.backoffFactor, attempt - 1);
             await this.wait(delay);
             return this.executeWithRetry(fn, attempt + 1);
         }
@@ -127,7 +127,7 @@ export class BrowserAgent {
     }
 
     private async clickElement(selector: string): Promise<boolean> {
-        const element = document.querySelector(selector);
+        let element = document.querySelector(selector);
         if (element && element instanceof HTMLElement) {
             element.click();
             return true;
@@ -147,7 +147,7 @@ export class BrowserAgent {
     }
 
     private async extractContent(selector: string): Promise<string> {
-        const element = document.querySelector(selector);
+        let element = document.querySelector(selector);
         return element ? this.htmlCleaner.clean(element.innerHTML) : '';
     }
 
@@ -156,7 +156,7 @@ export class BrowserAgent {
         semanticContent: string;
         metadata: PageMetadata;
     }> {
-        const html = document.documentElement.innerHTML;
+        let html = document.documentElement.innerHTML;
         return {
             mainContent: await this.getMainContent(html),
             semanticContent: this.htmlCleaner.cleanSemantic(html),
@@ -169,7 +169,7 @@ export class BrowserAgent {
     }
 
     private async getMainContent(html: string): Promise<string> {
-        const cleanedText = this.htmlCleaner.clean(html);
+        let cleanedText = this.htmlCleaner.clean(html);
         return identifyMainContent(cleanedText);
     }
 
@@ -184,7 +184,7 @@ export class BrowserAgent {
     }
 
     private getMetaContent(name: string): string {
-        const meta = document.querySelector(`meta[name="${name}"]`);
+        let meta = document.querySelector(`meta[name="${name}"]`);
         return meta ? meta.getAttribute('content') || '' : '';
     }
 
@@ -194,7 +194,7 @@ export class BrowserAgent {
     }> {
         await this.getModelForTask('decision');
         
-        const prompt = `
+        let prompt = `
         Context: ${context}
         Current URL: ${this.currentUrl}
         
@@ -210,7 +210,7 @@ export class BrowserAgent {
         }
         `;
 
-        const response = await this.browserAI.generateText(prompt);
+        let response = await this.browserAI.generateText(prompt);
         return JSON.parse(response as string);
     }
 
@@ -222,7 +222,7 @@ export class BrowserAgent {
     }> {
         await this.getModelForTask('analysis');
         
-        const prompt = `
+        let prompt = `
         Analyze this content:
         ${content}
         
@@ -230,7 +230,7 @@ export class BrowserAgent {
         Respond in JSON format.
         `;
 
-        const response = await this.browserAI.generateText(prompt);
+        let response = await this.browserAI.generateText(prompt);
         return JSON.parse(response as string);
     }
 
@@ -240,7 +240,7 @@ export class BrowserAgent {
         categories: string[];
     }> {
         await this.getModelForTask('analysis');
-        const response = await this.browserAI.generateText(`
+        let response = await this.browserAI.generateText(`
             Classify this content: ${content}
             Respond in JSON format with type, confidence, and categories.
         `);
@@ -252,7 +252,7 @@ export class BrowserAgent {
         keyPoints: string[];
     }> {
         await this.getModelForTask('analysis');
-        const response = await this.browserAI.generateText(`
+        let response = await this.browserAI.generateText(`
             Summarize this content: ${content}
             Respond in JSON format with summary and key points.
         `);
@@ -262,19 +262,19 @@ export class BrowserAgent {
     // Example usage with different models
     async performTask(goal: string): Promise<void> {
         // Read the page
-        const content = await this.executeAction({ 
+        let content = await this.executeAction({ 
             type: 'read' 
         });
 
         // Analyze content using analysis model
-        const analysis = await this.executeAction({ 
+        let analysis = await this.executeAction({ 
             type: 'analyze',
             value: content.mainContent,
             taskType: 'analysis'
         });
 
         // Make decision using decision model
-        const decision = await this.executeAction({
+        let decision = await this.executeAction({
             type: 'think',
             value: `Goal: ${goal}\nAnalysis: ${JSON.stringify(analysis)}`,
             taskType: 'decision'
