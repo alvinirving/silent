@@ -4,8 +4,8 @@ import { phonemize } from "../libs/transformers/utils/phonemize";
 import { getVoiceData, VOICES } from "../libs/transformers/utils/voices";
 
 
-var STYLE_DIM = 256;
-var SAMPLE_RATE = 24000;
+const STYLE_DIM = 256;
+const SAMPLE_RATE = 24000;
 
 export class TTSEngine {
   private model: StyleTextToSpeech2Model | null = null;
@@ -41,7 +41,7 @@ export class TTSEngine {
       throw new Error('TTS model not initialized');
     }
 
-    var { voice = "af_bella", speed = 1, language = "en-us" } = options;
+    const { voice = "af_bella", speed = 1, language = "en-us" } = options;
 
     if (!VOICES.hasOwnProperty(voice)) {
       console.error(`Voice "${voice}" not found. Available voices:`);
@@ -52,40 +52,40 @@ export class TTSEngine {
     try {
       // Split long text into manageable chunks
       // Maximum character limit per chunk (based on testing)
-      var MAX_CHUNK_LENGTH = 250;
-      var textChunks = this.splitTextIntoChunks(text, MAX_CHUNK_LENGTH);
+      const MAX_CHUNK_LENGTH = 250;
+      const textChunks = this.splitTextIntoChunks(text, MAX_CHUNK_LENGTH);
       console.log(`Text split into ${textChunks.length} chunks for processing`);
 
       // Process each chunk and collect audio data
-      for (var chunk of textChunks) {
+      for (const chunk of textChunks) {
         // Pass explicit language code directly to phonemize
-        var phonemes = await phonemize(chunk, language);
+        const phonemes = await phonemize(chunk, language);
         console.log(`Phonemized chunk: ${chunk.length} chars into ${phonemes.length} phoneme chars`);
 
-        var { input_ids } = this.tokenizer(phonemes, {
+        const { input_ids } = this.tokenizer(phonemes, {
           truncation: true,
         });
 
         // Select voice style based on number of input tokens
-        var num_tokens = Math.min(Math.max(
+        const num_tokens = Math.min(Math.max(
           input_ids.dims.at(-1) - 2, // Without padding
           0,
         ), 509);
 
         // Load voice style
-        var data = await getVoiceData(voice);
-        var offset = num_tokens * STYLE_DIM;
-        var voiceData = data.slice(offset, offset + STYLE_DIM);
+        const data = await getVoiceData(voice);
+        const offset = num_tokens * STYLE_DIM;
+        const voiceData = data.slice(offset, offset + STYLE_DIM);
 
         // Prepare model inputs
-        var inputs = {
+        const inputs = {
           input_ids: input_ids,
           style: new Tensor("float32", voiceData, [1, STYLE_DIM]),
           speed: new Tensor("float32", [speed], [1]),
         };
 
         // Generate audio for this chunk
-        var output = await this.model._call(inputs);
+        const output = await this.model._call(inputs);
         
         if (!output || !output.waveform) {
           console.warn('Model returned null or undefined waveform for a chunk, skipping');
@@ -93,7 +93,7 @@ export class TTSEngine {
         }
         
         // Convert Tensor to Float32Array
-        var chunkAudioData = new Float32Array(output.waveform.data);
+        const chunkAudioData = new Float32Array(output.waveform.data);
         
         if (chunkAudioData.length === 0) {
           console.warn('Generated audio data is empty for a chunk, skipping');
@@ -101,8 +101,8 @@ export class TTSEngine {
         }
 
         // Normalize audio data
-        var maxValue = chunkAudioData.reduce((max, val) => Math.max(max, Math.abs(val)), 0);
-        var normalizedData = maxValue > 0 ? 
+        const maxValue = chunkAudioData.reduce((max, val) => Math.max(max, Math.abs(val)), 0);
+        const normalizedData = maxValue > 0 ? 
           new Float32Array(chunkAudioData.length) : 
           chunkAudioData;
         
@@ -113,17 +113,17 @@ export class TTSEngine {
         }
 
         // Yield smaller chunks of the normalized audio data for streaming
-        var streamChunkSize = 4096; // Can be adjusted for performance
+        const streamChunkSize = 4096; // Can be adjusted for performance
         for (let i = 0; i < normalizedData.length; i += streamChunkSize) {
-          var streamChunk = normalizedData.slice(i, i + streamChunkSize);
+          const streamChunk = normalizedData.slice(i, i + streamChunkSize);
           if (streamChunk.length > 0) {
             yield streamChunk;
           }
         }
         
         // Small pause between chunks for natural-sounding speech
-        var pauseSamples = Math.floor(0.2 * SAMPLE_RATE); // 200ms pause
-        var pauseChunk = new Float32Array(pauseSamples).fill(0);
+        const pauseSamples = Math.floor(0.2 * SAMPLE_RATE); // 200ms pause
+        const pauseChunk = new Float32Array(pauseSamples).fill(0);
         yield pauseChunk;
       }
     } catch (error) {
@@ -135,13 +135,13 @@ export class TTSEngine {
   // Helper method to split text into manageable chunks
   private splitTextIntoChunks(text: string, maxChunkLength: number): string[] {
     // Find natural break points (sentences, clauses) to split text
-    var chunks: string[] = [];
+    const chunks: string[] = [];
     
     // Use regex to split by sentence boundaries but keep punctuation
-    var sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
     
     let currentChunk = '';
-    for (var sentence of sentences) {
+    for (const sentence of sentences) {
       // If adding this sentence would exceed max length and we already have content
       if (currentChunk.length + sentence.length > maxChunkLength && currentChunk.length > 0) {
         chunks.push(currentChunk);
@@ -153,10 +153,10 @@ export class TTSEngine {
       
       // If current chunk is already too long, split it at clause boundaries
       if (currentChunk.length > maxChunkLength) {
-        var clauses = currentChunk.split(/[,;:]/);
+        const clauses = currentChunk.split(/[,;:]/);
         currentChunk = '';
         
-        for (var clause of clauses) {
+        for (const clause of clauses) {
           if (currentChunk.length + clause.length > maxChunkLength && currentChunk.length > 0) {
             chunks.push(currentChunk);
             currentChunk = clause;
@@ -178,11 +178,11 @@ export class TTSEngine {
         return [chunk];
       } else {
         // Hard split by character count, trying to break at word boundaries
-        var words = chunk.split(' ');
-        var hardChunks: string[] = [];
+        const words = chunk.split(' ');
+        const hardChunks: string[] = [];
         let currentHardChunk = '';
         
-        for (var word of words) {
+        for (const word of words) {
           if (currentHardChunk.length + word.length + 1 > maxChunkLength) {
             hardChunks.push(currentHardChunk);
             currentHardChunk = word;
