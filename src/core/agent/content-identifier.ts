@@ -1,12 +1,12 @@
 export function identifyMainContent(cleanedText: string): string {
     // Split text into paragraphs
-    var paragraphs = cleanedText.split('\n\n').filter(p => p.trim());
+    const paragraphs = cleanedText.split('\n\n').filter(p => p.trim());
     
     if (paragraphs.length === 0) return cleanedText;
 
     // Use heuristics to identify main content
-    var mainParagraphs = paragraphs.filter(p => {
-        var words = p.split(/\s+/).length;
+    const mainParagraphs = paragraphs.filter(p => {
+        const words = p.split(/\s+/).length;
         return words > 20 && words < 1000; // Reasonable paragraph length
     });
 
@@ -30,8 +30,8 @@ export interface ContentClassification {
 }
 
 export function classifyContent(content: string): ContentClassification {
-    var words = content.toLowerCase().split(/\s+/);
-    var wordFreq = new Map<string, number>();
+    const words = content.toLowerCase().split(/\s+/);
+    const wordFreq = new Map<string, number>();
     
     // Calculate word frequencies
     words.forEach(word => {
@@ -41,13 +41,13 @@ export function classifyContent(content: string): ContentClassification {
     });
 
     // Extract keywords (words with high frequency)
-    var keywords = Array.from(wordFreq.entries())
+    const keywords = Array.from(wordFreq.entries())
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10)
         .map(([word]) => word);
 
     // Simple classification based on content patterns
-    var classification = determineContentType(keywords);
+    const classification = determineContentType(keywords);
 
     return {
         ...classification,
@@ -57,21 +57,21 @@ export function classifyContent(content: string): ContentClassification {
 }
 
 function determineContentType(keywords: string[]): Pick<ContentClassification, 'type' | 'confidence'> {
-    var patterns = {
+    const patterns = {
         article: ['article', 'post', 'blog', 'news', 'story'],
         product: ['price', 'buy', 'cart', 'shop', 'product'],
         form: ['submit', 'input', 'form', 'select', 'checkbox'],
         navigation: ['menu', 'nav', 'link', 'home', 'page']
     };
 
-    var scores = Object.entries(patterns).map(([type, patterns]) => {
-        var score = patterns.reduce((acc, pattern) => {
+    const scores = Object.entries(patterns).map(([type, patterns]) => {
+        const score = patterns.reduce((acc, pattern) => {
             return acc + (keywords.includes(pattern) ? 1 : 0);
         }, 0) / patterns.length;
         return { type, score };
     });
 
-    var bestMatch = scores.reduce((a, b) => a.score > b.score ? a : b);
+    const bestMatch = scores.reduce((a, b) => a.score > b.score ? a : b);
     
     return {
         type: bestMatch.score > 0.3 ? bestMatch.type as ContentClassification['type'] : 'other',
@@ -81,10 +81,10 @@ function determineContentType(keywords: string[]): Pick<ContentClassification, '
 
 function extractEntities(content: string): string[] {
     // Simple named entity recognition
-    var entities: string[] = [];
+    const entities: string[] = [];
     
     // Find potential proper nouns (words starting with capital letters)
-    var words = content.split(/\s+/);
+    const words = content.split(/\s+/);
     let currentEntity = '';
     
     words.forEach(word => {
@@ -126,7 +126,7 @@ export interface PlatformPatterns {
     }[];
 }
 
-var PLATFORM_PATTERNS: Record<string, PlatformPatterns> = {
+const PLATFORM_PATTERNS: Record<string, PlatformPatterns> = {
     linkedin: {
         selectors: [
             '[data-test-id]',
@@ -219,7 +219,7 @@ export class ContentSectionAnalyzer {
      * Detect the platform and set appropriate patterns
      */
     private detectPlatform(): void {
-        var url = window.location.hostname;
+        const url = window.location.hostname;
         
         if (url.includes('linkedin')) {
             this.platform = 'linkedin';
@@ -240,10 +240,10 @@ export class ContentSectionAnalyzer {
         this.detectPlatform();
         
         // Step 1: Initial section grouping
-        var sections = this.groupIntoSections(rootElement);
+        const sections = this.groupIntoSections(rootElement);
         
         // Step 2: Analyze and score sections
-        var analyzedSections = this.analyzeSectionRelevance(sections, task);
+        const analyzedSections = this.analyzeSectionRelevance(sections, task);
         
         // Step 3: Generate summary and recommendations
         return {
@@ -254,16 +254,16 @@ export class ContentSectionAnalyzer {
     }
 
     private groupIntoSections(rootElement: Element): ContentSection[] {
-        var sections: ContentSection[] = [];
+        const sections: ContentSection[] = [];
         
         // Helper to determine if elements are related
-        var areElementsRelated = (el1: Element, el2: Element): boolean => {
+        const areElementsRelated = (el1: Element, el2: Element): boolean => {
             // Check proximity in DOM
-            var distance = this.calculateDOMDistance(el1, el2);
+            const distance = this.calculateDOMDistance(el1, el2);
             if (distance > 3) return false;
             
             // Check visual proximity (if elements have position data)
-            var visuallyClose = this.areElementsVisuallyClose(el1, el2);
+            const visuallyClose = this.areElementsVisuallyClose(el1, el2);
             if (!visuallyClose) return false;
             
             // Check semantic relationship
@@ -271,9 +271,9 @@ export class ContentSectionAnalyzer {
         };
 
         // Start with landmark elements
-        var landmarks = rootElement.querySelectorAll('main, header, nav, article, aside, section');
+        const landmarks = rootElement.querySelectorAll('main, header, nav, article, aside, section');
         landmarks.forEach(landmark => {
-            var type = this.determineSectionType(landmark);
+            const type = this.determineSectionType(landmark);
             sections.push({
                 type,
                 elements: [landmark],
@@ -283,7 +283,7 @@ export class ContentSectionAnalyzer {
         });
 
         // Group remaining elements
-        var ungroupedElements = Array.from(rootElement.querySelectorAll('*'))
+        const ungroupedElements = Array.from(rootElement.querySelectorAll('*'))
             .filter(el => !this.isElementInSections(el, sections));
 
         let currentGroup: Element[] = [];
@@ -294,7 +294,7 @@ export class ContentSectionAnalyzer {
                 currentGroup.push(element);
                 currentType = this.determineSectionType(element);
             } else {
-                var lastElement = currentGroup[currentGroup.length - 1];
+                const lastElement = currentGroup[currentGroup.length - 1];
                 if (areElementsRelated(lastElement, element)) {
                     currentGroup.push(element);
                 } else {
@@ -326,7 +326,7 @@ export class ContentSectionAnalyzer {
 
     private analyzeSectionRelevance(sections: ContentSection[], task?: string): ContentSection[] {
         return sections.map(section => {
-            var relevanceScore = this.calculateRelevanceScore(section, task);
+            const relevanceScore = this.calculateRelevanceScore(section, task);
             return {
                 ...section,
                 relevanceScore
@@ -356,7 +356,7 @@ export class ContentSectionAnalyzer {
         let score = 0;
         
         // Check content length
-        var words = content.split(/\s+/).length;
+        const words = content.split(/\s+/).length;
         if (words > 10 && words < 1000) score += 0.3;
         
         // Check for meaningful content
@@ -372,7 +372,7 @@ export class ContentSectionAnalyzer {
     }
 
     private getTypeRelevanceScore(type: ContentSection['type']): number {
-        var typeScores: Record<ContentSection['type'], number> = {
+        const typeScores: Record<ContentSection['type'], number> = {
             header: 0.7,
             profile: 0.8,
             main: 1.0,
@@ -387,16 +387,16 @@ export class ContentSectionAnalyzer {
 
     private evaluateTaskRelevance(content: string, task: string): number {
         // Convert content and task to lowercase for comparison
-        var normalizedContent = content.toLowerCase();
-        var normalizedTask = task.toLowerCase();
+        const normalizedContent = content.toLowerCase();
+        const normalizedTask = task.toLowerCase();
 
         // Extract keywords from task
-        var taskKeywords = normalizedTask
+        const taskKeywords = normalizedTask
             .split(/\s+/)
             .filter(word => word.length > 3);
 
         // Calculate keyword matches
-        var matchingKeywords = taskKeywords.filter(keyword => 
+        const matchingKeywords = taskKeywords.filter(keyword => 
             normalizedContent.includes(keyword)
         );
 
@@ -404,13 +404,13 @@ export class ContentSectionAnalyzer {
     }
 
     private determineSectionType(element: Element): ContentSection['type'] {
-        var tagName = element.tagName.toLowerCase();
-        var role = element.getAttribute('role');
-        var className = element.className;
-        var textContent = element.textContent?.toLowerCase() || '';
+        const tagName = element.tagName.toLowerCase();
+        const role = element.getAttribute('role');
+        const className = element.className;
+        const textContent = element.textContent?.toLowerCase() || '';
 
         // Check platform-specific patterns first
-        for (var rule of this.patterns.contentRules) {
+        for (const rule of this.patterns.contentRules) {
             if (rule.patterns.some(pattern => 
                 textContent.includes(pattern) || 
                 className.toLowerCase().includes(pattern)
@@ -449,7 +449,7 @@ export class ContentSectionAnalyzer {
     }
 
     private inferTypeFromContext(element: Element): ContentSection['type'] {
-        var context = {
+        const context = {
             hasInteractiveElements: element.querySelectorAll('button, a, input, textarea').length > 0,
             hasImages: element.querySelectorAll('img').length > 0,
             textLength: element.textContent?.length || 0,
@@ -476,7 +476,7 @@ export class ContentSectionAnalyzer {
     }
 
     private isNearElementType(element: Element, type: string): boolean {
-        var distance = 3; // Check 3 elements up and down
+        const distance = 3; // Check 3 elements up and down
         let current = element;
         
         // Check previous siblings
@@ -496,12 +496,12 @@ export class ContentSectionAnalyzer {
     }
 
     private calculateDOMDistance(el1: Element, el2: Element): number {
-        var path1 = this.getPathToRoot(el1);
-        var path2 = this.getPathToRoot(el2);
+        const path1 = this.getPathToRoot(el1);
+        const path2 = this.getPathToRoot(el2);
         
         // Find common ancestor
         let commonAncestorIndex = 0;
-        var maxLength = Math.min(path1.length, path2.length);
+        const maxLength = Math.min(path1.length, path2.length);
         
         while (commonAncestorIndex < maxLength && 
                path1[commonAncestorIndex] === path2[commonAncestorIndex]) {
@@ -513,7 +513,7 @@ export class ContentSectionAnalyzer {
     }
 
     private getPathToRoot(element: Element): Element[] {
-        var path: Element[] = [];
+        const path: Element[] = [];
         let current: Element | null = element;
         
         while (current) {
@@ -525,12 +525,12 @@ export class ContentSectionAnalyzer {
     }
 
     private areElementsVisuallyClose(el1: Element, el2: Element): boolean {
-        var rect1 = el1.getBoundingClientRect();
-        var rect2 = el2.getBoundingClientRect();
+        const rect1 = el1.getBoundingClientRect();
+        const rect2 = el2.getBoundingClientRect();
         
         // Calculate distance between elements
-        var horizontalDistance = Math.abs(rect1.left - rect2.left);
-        var verticalDistance = Math.abs(rect1.top - rect2.top);
+        const horizontalDistance = Math.abs(rect1.left - rect2.left);
+        const verticalDistance = Math.abs(rect1.top - rect2.top);
         
         // Consider elements close if they're within 100px of each other
         return horizontalDistance < 100 && verticalDistance < 100;
@@ -538,9 +538,9 @@ export class ContentSectionAnalyzer {
 
     private areElementsSemanticallyRelated(el1: Element, el2: Element): boolean {
         // Add platform-specific class pattern checking
-        var matchesPatterns = this.patterns.classPatterns.some(pattern => {
-            var el1Match = Array.from(el1.classList).some(c => pattern.test(c));
-            var el2Match = Array.from(el2.classList).some(c => pattern.test(c));
+        const matchesPatterns = this.patterns.classPatterns.some(pattern => {
+            const el1Match = Array.from(el1.classList).some(c => pattern.test(c));
+            const el2Match = Array.from(el2.classList).some(c => pattern.test(c));
             return el1Match && el2Match;
         });
 
@@ -557,7 +557,7 @@ export class ContentSectionAnalyzer {
     }
 
     private generateSectionSummary(sections: ContentSection[]): string {
-        var relevantSections = sections
+        const relevantSections = sections
             .filter(s => (s.relevanceScore || 0) > 0.5)
             .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
 
