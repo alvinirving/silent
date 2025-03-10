@@ -27,7 +27,7 @@ export class WhisperFeatureExtractor extends FeatureExtractor {
    * @returns {Promise<Tensor>} An object containing the log-Mel spectrogram data as a Float32Array and its dimensions as an array of numbers.
    */
   async _extract_fbank_features(waveform: Float32Array | Float64Array) {
-    var features = await spectrogram(
+    const features = await spectrogram(
       waveform,
       this.window, // window
       this.config.n_fft, // frame_length
@@ -42,8 +42,8 @@ export class WhisperFeatureExtractor extends FeatureExtractor {
       },
     );
 
-    var data = features.data;
-    var maxValue = max(/** @type {Float32Array} */ data)[0];
+    const data = features.data;
+    const maxValue = max(/** @type {Float32Array} */ data)[0];
 
     for (let i = 0; i < data.length; ++i) {
       data[i] = (Math.max(data[i], maxValue - 8.0) + 4.0) / 4.0;
@@ -74,7 +74,7 @@ export class WhisperFeatureExtractor extends FeatureExtractor {
       waveform.set(audio);
     }
 
-    var features = await this._extract_fbank_features(waveform);
+    const features = await this._extract_fbank_features(waveform);
 
     return {
       input_features: features.unsqueeze_(0),
