@@ -11,8 +11,8 @@ export class JinaCLIPProcessor extends Processor {
       throw new Error('Either text or images must be provided');
     }
 
-    const text_inputs = text ? this.tokenizer(text, kwargs) : {};
-    const image_inputs = images ? await this.image_processor(images, kwargs) : {};
+    let text_inputs = text ? this.tokenizer(text, kwargs) : {};
+    let image_inputs = images ? await this.image_processor(images, kwargs) : {};
 
     return {
       ...text_inputs,
