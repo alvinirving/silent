@@ -27,17 +27,17 @@ export class GrammarParser {
         // Handle Type.Object format
         if (schema.includes('Type.Object')) {
           // Convert Type.Object format to standard JSON schema
-          const converted = schema
+          var converted = schema
             .replace(/Type\.Object\(/g, '{"type":"object","properties":')
             .replace(/Type\.String\(\)/g, '{"type":"string"}')
             .replace(/Type\.Number\(\)/g, '{"type":"number"}')
             .replace(/Type\.Boolean\(\)/g, '{"type":"boolean"}')
             .replace(/Type\.Enum\({([\s\S]*?)}\)/g, (match, p1) => {
-              const enumValues = p1.split(',')
+              var enumValues = p1.split(',')
                 .map((line: string) => line.trim())
                 .filter((line: string) => line)
                 .map((line: string) => {
-                  const [, value] = line.split(':').map((s: string) => s.trim().replace(/['"]/g, ''));
+                  var [, value] = line.split(':').map((s: string) => s.trim().replace(/['"]/g, ''));
                   return value;
                 });
               return `{"type":"string","enum":[${enumValues.map((v: string) => `"${v}"`).join(',')}]}`;
@@ -53,7 +53,7 @@ export class GrammarParser {
       parsedSchema = schema as SchemaConfig;
     }
 
-    const rules: Record<string, string[]> = {};
+    var rules: Record<string, string[]> = {};
     GrammarParser.convertSchemaToRules(parsedSchema, rules);
 
     return new GrammarParser({
@@ -69,8 +69,8 @@ export class GrammarParser {
   ): void {
     // Handle Type.Object format
     if (typeof schema === 'object' && schema.constructor?.name === 'Object') {
-      const properties = schema.properties || {};
-      const propEntries = Object.entries(properties);
+      var properties = schema.properties || {};
+      var propEntries = Object.entries(properties);
       
       // Start with opening brace
       rules[prefix] = ['{', 'ws'];
@@ -83,12 +83,12 @@ export class GrammarParser {
         // Handle different types including enums
         if (value.enum) {
           // Create a specific rule for this enum
-          const enumPrefix = `${prefix}_${key}_enum`;
+          var enumPrefix = `${prefix}_${key}_enum`;
           rules[enumPrefix] = value.enum.map((v: string) => `"${v}"`);
           rules[prefix].push(enumPrefix);
         } else if (value.type === 'object' && value.properties) {
           // Handle nested objects
-          const objPrefix = `${prefix}_${key}_obj`;
+          var objPrefix = `${prefix}_${key}_obj`;
           this.convertSchemaToRules(value, rules, objPrefix);
           rules[prefix].push(objPrefix);
         } else {
@@ -124,7 +124,7 @@ export class GrammarParser {
 
   toGrammarString(): string {
     // Generate all the rules
-    const ruleStrings = Object.entries(this.rules).map(([name, parts]) => 
+    var ruleStrings = Object.entries(this.rules).map(([name, parts]) => 
       `${name} ::= ${parts.join(' ')}`
     );
 
@@ -143,8 +143,8 @@ ws ::= [ \\t\\n]*`.trim();
 
   static convertTypeObjectToGrammar(schema: any): string {
     try {
-      const parser = GrammarParser.fromJsonSchema(schema);
-      const grammar = parser.toGrammarString();
+      var parser = GrammarParser.fromJsonSchema(schema);
+      var grammar = parser.toGrammarString();
       console.log('Generated grammar:', grammar); // For debugging
       return grammar;
     } catch (error) {
