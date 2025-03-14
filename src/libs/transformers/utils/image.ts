@@ -9,7 +9,7 @@ import { Tensor } from './tensor';
 let createCanvasFunction: any;
 let ImageDataClass: any;
 let loadImageFunction: any;
-const IS_BROWSER_OR_WEBWORKER = apis.IS_BROWSER_ENV || apis.IS_WEBWORKER_ENV;
+var IS_BROWSER_OR_WEBWORKER = apis.IS_BROWSER_ENV || apis.IS_WEBWORKER_ENV;
 if (IS_BROWSER_OR_WEBWORKER) {
   // Running in browser or web-worker
   createCanvasFunction = (width: number, height: number) => {
@@ -25,7 +25,7 @@ if (IS_BROWSER_OR_WEBWORKER) {
 }
 
 // Defined here: https://github.com/python-pillow/Pillow/blob/a405e8406b83f8bfb8916e93971edc7407b8b1ff/src/libImaging/Imaging.h#L262-L268
-const RESAMPLING_MAPPING = {
+var RESAMPLING_MAPPING = {
   0: 'nearest',
   1: 'lanczos',
   2: 'bilinear',
@@ -37,7 +37,7 @@ const RESAMPLING_MAPPING = {
 /**
  * Mapping from file extensions to MIME types.
  */
-const CONTENT_TYPE_MAP = new Map([
+var CONTENT_TYPE_MAP = new Map([
   ['png', 'image/png'],
   ['jpg', 'image/jpeg'],
   ['jpeg', 'image/jpeg'],
@@ -108,11 +108,11 @@ export class RawImage {
       throw new Error('fromCanvas() is only supported in browser environments.');
     }
 
-    const ctx = canvas.getContext('2d');
+    var ctx = canvas.getContext('2d');
     if (!ctx) {
       throw new Error('Failed to get 2D context from canvas');
     }
-    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
     return new RawImage(data, canvas.width, canvas.height, 4);
   }
 
@@ -122,11 +122,11 @@ export class RawImage {
    * @returns {Promise<RawImage>} The image object.
    */
   static async fromURL(url: string | URL) {
-    const response = await getFile(url);
+    var response = await getFile(url);
     if (response.status !== 200) {
       throw new Error(`Unable to read image from "${url}" (${response.status} ${response.statusText})`);
     }
-    const blob = await response.blob();
+    var blob = await response.blob();
     return this.fromBlob(blob);
   }
 
@@ -137,9 +137,9 @@ export class RawImage {
    */
   static async fromBlob(blob: Blob) {
       // Running in environment with canvas
-      const img = await loadImageFunction(blob);
+      var img = await loadImageFunction(blob);
 
-      const ctx = createCanvasFunction(img.width, img.height).getContext('2d');
+      var ctx = createCanvasFunction(img.width, img.height).getContext('2d');
 
       // Draw image to context
       ctx.drawImage(img, 0, 0);
@@ -186,14 +186,14 @@ export class RawImage {
       return this;
     }
 
-    const newData = new Uint8ClampedArray(this.width * this.height * 1);
+    var newData = new Uint8ClampedArray(this.width * this.height * 1);
     switch (this.channels) {
       case 3: // rgb to grayscale
       case 4: // rgba to grayscale
         for (let i = 0, offset = 0; i < this.data.length; i += this.channels) {
-          const red = this.data[i];
-          const green = this.data[i + 1];
-          const blue = this.data[i + 2];
+          var red = this.data[i];
+          var green = this.data[i + 1];
+          var blue = this.data[i + 2];
 
           newData[offset++] = Math.round(0.2989 * red + 0.587 * green + 0.114 * blue);
         }
@@ -213,7 +213,7 @@ export class RawImage {
       return this;
     }
 
-    const newData = new Uint8ClampedArray(this.width * this.height * 3);
+    var newData = new Uint8ClampedArray(this.width * this.height * 3);
 
     switch (this.channels) {
       case 1: // grayscale to rgb
@@ -245,7 +245,7 @@ export class RawImage {
       return this;
     }
 
-    const newData = new Uint8ClampedArray(this.width * this.height * 4);
+    var newData = new Uint8ClampedArray(this.width * this.height * 4);
 
     switch (this.channels) {
       case 1: // grayscale to rgba
@@ -287,12 +287,12 @@ export class RawImage {
       throw new Error(`Expected mask to have 1 channel, but got ${mask.channels}`);
     }
 
-    const this_data = this.data;
-    const mask_data = mask.data;
-    const num_pixels = this.width * this.height;
+    var this_data = this.data;
+    var mask_data = mask.data;
+    var num_pixels = this.width * this.height;
     if (this.channels === 3) {
       // Convert to RGBA and simultaneously apply mask to alpha channel
-      const newData = new Uint8ClampedArray(num_pixels * 4);
+      var newData = new Uint8ClampedArray(num_pixels * 4);
       for (let i = 0, in_offset = 0, out_offset = 0; i < num_pixels; ++i) {
         newData[out_offset++] = this_data[in_offset++];
         newData[out_offset++] = this_data[in_offset++];
@@ -331,8 +331,8 @@ export class RawImage {
     // the user passed a null value in.
     // This allows users to pass in something like `resize(320, null)` to
     // resize to 320 width, but maintain aspect ratio.
-    const nullish_width = isNullishDimension(width);
-    const nullish_height = isNullishDimension(height);
+    var nullish_width = isNullishDimension(width);
+    var nullish_height = isNullishDimension(height);
     if (nullish_width && nullish_height) {
       return this;
     } else if (nullish_width) {
@@ -345,19 +345,19 @@ export class RawImage {
       // TODO use `resample` in browser environment
 
       // Store number of channels before resizing
-      const numChannels = this.channels;
+      var numChannels = this.channels;
 
       // Create canvas object for this image
-      const canvas = this.toCanvas();
+      var canvas = this.toCanvas();
 
       // Actually perform resizing using the canvas API
-      const ctx = createCanvasFunction(width, height).getContext('2d');
+      var ctx = createCanvasFunction(width, height).getContext('2d');
 
       // Draw image to context, resizing in the process
       ctx.drawImage(canvas, 0, 0, width, height);
 
       // Create image from the resized data
-      const resizedImage = new RawImage(ctx.getImageData(0, 0, width, height).data, width, height, 4);
+      var resizedImage = new RawImage(ctx.getImageData(0, 0, width, height).data, width, height, 4);
 
       // Convert back so that image has the same number of channels as before
       return resizedImage.convert(numChannels as 1 | 3 | 4);
@@ -415,22 +415,22 @@ export class RawImage {
 
     if (IS_BROWSER_OR_WEBWORKER) {
       // Store number of channels before padding
-      const numChannels = this.channels;
+      var numChannels = this.channels;
 
       // Create canvas object for this image
-      const canvas = this.toCanvas();
+      var canvas = this.toCanvas();
 
-      const newWidth = this.width + left + right;
-      const newHeight = this.height + top + bottom;
+      var newWidth = this.width + left + right;
+      var newHeight = this.height + top + bottom;
 
       // Create a new canvas of the desired size.
-      const ctx = createCanvasFunction(newWidth, newHeight).getContext('2d');
+      var ctx = createCanvasFunction(newWidth, newHeight).getContext('2d');
 
       // Draw image to context, padding in the process
       ctx.drawImage(canvas, 0, 0, this.width, this.height, left, top, this.width, this.height);
 
       // Create image from the padded data
-      const paddedImage = new RawImage(ctx.getImageData(0, 0, newWidth, newHeight).data, newWidth, newHeight, 4);
+      var paddedImage = new RawImage(ctx.getImageData(0, 0, newWidth, newHeight).data, newWidth, newHeight, 4);
 
       // Convert back so that image has the same number of channels as before
       return paddedImage.convert(numChannels as 1 | 3 | 4);
@@ -449,25 +449,25 @@ export class RawImage {
       return this;
     }
 
-    const crop_width = x_max - x_min + 1;
-    const crop_height = y_max - y_min + 1;
+    var crop_width = x_max - x_min + 1;
+    var crop_height = y_max - y_min + 1;
 
     if (IS_BROWSER_OR_WEBWORKER) {
       // Store number of channels before resizing
-      const numChannels = this.channels;
+      var numChannels = this.channels;
 
       // Create canvas object for this image
-      const canvas = this.toCanvas();
+      var canvas = this.toCanvas();
 
       // Create a new canvas of the desired size. This is needed since if the
       // image is too small, we need to pad it with black pixels.
-      const ctx = createCanvasFunction(crop_width, crop_height).getContext('2d');
+      var ctx = createCanvasFunction(crop_width, crop_height).getContext('2d');
 
       // Draw image to context, cropping in the process
       ctx.drawImage(canvas, x_min, y_min, crop_width, crop_height, 0, 0, crop_width, crop_height);
 
       // Create image from the resized data
-      const resizedImage = new RawImage(
+      var resizedImage = new RawImage(
         ctx.getImageData(0, 0, crop_width, crop_height).data,
         crop_width,
         crop_height,
@@ -486,19 +486,19 @@ export class RawImage {
     }
 
     // Determine bounds of the image in the new canvas
-    const width_offset = (this.width - crop_width) / 2;
-    const height_offset = (this.height - crop_height) / 2;
+    var width_offset = (this.width - crop_width) / 2;
+    var height_offset = (this.height - crop_height) / 2;
 
     if (IS_BROWSER_OR_WEBWORKER) {
       // Store number of channels before resizing
-      const numChannels = this.channels;
+      var numChannels = this.channels;
 
       // Create canvas object for this image
-      const canvas = this.toCanvas();
+      var canvas = this.toCanvas();
 
       // Create a new canvas of the desired size. This is needed since if the
       // image is too small, we need to pad it with black pixels.
-      const ctx = createCanvasFunction(crop_width, crop_height).getContext('2d');
+      var ctx = createCanvasFunction(crop_width, crop_height).getContext('2d');
 
       let sourceX = 0;
       let sourceY = 0;
@@ -521,7 +521,7 @@ export class RawImage {
       ctx.drawImage(canvas, sourceX, sourceY, crop_width, crop_height, destX, destY, crop_width, crop_height);
 
       // Create image from the resized data
-      const resizedImage = new RawImage(
+      var resizedImage = new RawImage(
         ctx.getImageData(0, 0, crop_width, crop_height).data,
         crop_width,
         crop_height,
@@ -538,7 +538,7 @@ export class RawImage {
       throw new Error('toBlob() is only supported in browser environments.');
     }
 
-    const canvas = this.toCanvas();
+    var canvas = this.toCanvas();
     return await canvas.convertToBlob({ type, quality });
   }
 
@@ -563,13 +563,13 @@ export class RawImage {
 
     // Clone, and convert data to RGBA before drawing to canvas.
     // This is because the canvas API only supports RGBA
-    const cloned = this.clone().rgba();
+    var cloned = this.clone().rgba();
 
     // Create canvas object for the cloned image
-    const clonedCanvas = createCanvasFunction(cloned.width, cloned.height);
+    var clonedCanvas = createCanvasFunction(cloned.width, cloned.height);
 
     // Draw image to context
-    const data = new ImageDataClass(cloned.data, cloned.width, cloned.height);
+    var data = new ImageDataClass(cloned.data, cloned.width, cloned.height);
     clonedCanvas.getContext('2d').putImageData(data, 0, 0);
 
     return clonedCanvas;
@@ -583,21 +583,21 @@ export class RawImage {
    * @returns {RawImage[]} An array containing bands.
    */
   split() {
-    const { data, width, height, channels } = this;
+    var { data, width, height, channels } = this;
 
     /** @type {typeof Uint8Array | typeof Uint8ClampedArray} */
-    const data_type = /** @type {any} */ data.constructor;
-    const per_channel_length = data.length / channels;
+    var data_type = /** @type {any} */ data.constructor;
+    var per_channel_length = data.length / channels;
 
     // Pre-allocate buffers for each channel
-    const split_data = Array.from(
+    var split_data = Array.from(
       { length: channels },
       () => new (data_type as new (length: number) => Uint8Array | Uint8ClampedArray)(per_channel_length),
     );
 
     // Write pixel data
     for (let i = 0; i < per_channel_length; ++i) {
-      const data_offset = channels * i;
+      var data_offset = channels * i;
       for (let j = 0; j < channels; ++j) {
         split_data[j][i] = data[data_offset + j];
       }
@@ -665,17 +665,17 @@ export class RawImage {
         throw new Error('Unable to save an image from a Web Worker.');
       }
 
-      const extension = path.split('.').pop()?.toLowerCase();
-      const mime = CONTENT_TYPE_MAP.get(extension as string) ?? 'image/png';
+      var extension = path.split('.').pop()?.toLowerCase();
+      var mime = CONTENT_TYPE_MAP.get(extension as string) ?? 'image/png';
 
       // Convert image to Blob
-      const blob = await this.toBlob(mime);
+      var blob = await this.toBlob(mime);
 
       // Convert the canvas content to a data URL
-      const dataURL = URL.createObjectURL(blob);
+      var dataURL = URL.createObjectURL(blob);
 
       // Create an anchor element with the data URL as the href attribute
-      const downloadLink = document.createElement('a');
+      var downloadLink = document.createElement('a');
       downloadLink.href = dataURL;
 
       // Set the download attribute to specify the desired filename for the downloaded image
@@ -701,4 +701,4 @@ export class RawImage {
 /**
  * Helper function to load an image from a URL, path, etc.
  */
-export const load_image = RawImage.read.bind(RawImage);
+export var load_image = RawImage.read.bind(RawImage);
