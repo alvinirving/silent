@@ -26,33 +26,33 @@ export class VitPoseImageProcessor extends ImageProcessor {
     } = {},
   ) {
     // NOTE: boxes are 3D (batch_size, num_boxes, 4)
-    const heatmaps = outputs.tolist();
-    const [batch_size, num_classes, height, width] = outputs.dims;
+    var heatmaps = outputs.tolist();
+    var [batch_size, num_classes, height, width] = outputs.dims;
 
-    const results = [];
+    var results = [];
     for (let b = 0; b < batch_size; ++b) {
-      const heatmap = heatmaps[b];
-      const bboxes = boxes[b];
+      var heatmap = heatmaps[b];
+      var bboxes = boxes[b];
 
-      const batch_results = [];
+      var batch_results = [];
       for (let n = 0; n < bboxes.length; ++n) {
-        const bbox = bboxes[n];
+        var bbox = bboxes[n];
 
-        const keypoints = [];
-        const scores = [];
-        const labels = [];
+        var keypoints = [];
+        var scores = [];
+        var labels = [];
 
-        const xScale = bbox.at(-2) / width;
-        const yScale = bbox.at(-1) / height;
+        var xScale = bbox.at(-2) / width;
+        var yScale = bbox.at(-1) / height;
         for (let c = 0; c < heatmap.length; ++c) {
           let [xWeightedSum, yWeightedSum] = [0, 0];
           let sum = 0;
           let score = -Infinity;
-          const row = heatmap[c];
+          var row = heatmap[c];
           for (let y = 0; y < row.length; ++y) {
-            const col = row[y];
+            var col = row[y];
             for (let x = 0; x < col.length; ++x) {
-              const value = col[x];
+              var value = col[x];
               sum += value;
 
               score = Math.max(score, value);
@@ -68,7 +68,7 @@ export class VitPoseImageProcessor extends ImageProcessor {
           if (threshold != null && score < threshold) continue;
 
           /** @type {[number, number]} */
-          const keypoint = [(xScale * xWeightedSum) / sum, (yScale * yWeightedSum) / sum];
+          var keypoint = [(xScale * xWeightedSum) / sum, (yScale * yWeightedSum) / sum];
           keypoints.push(keypoint);
           labels.push(c);
           scores.push(score);
