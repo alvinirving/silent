@@ -19,7 +19,7 @@ export class Qwen2VLProcessor extends Processor {
       text = [text];
     }
 
-    const image_inputs, image_grid_thw;
+    let image_inputs, image_grid_thw;
 
     if (images) {
       image_inputs = await this.image_processor(images);
@@ -28,8 +28,8 @@ export class Qwen2VLProcessor extends Processor {
 
     if (image_grid_thw) {
       // @ts-expect-error TS2551
-      const merge_length = this.image_processor.config.merge_size ** 2;
-      const index = 0;
+      let merge_length = this.image_processor.config.merge_size ** 2;
+      let index = 0;
 
       var image_grid_thw_list = image_grid_thw.tolist();
       text = text.map((t) => {
