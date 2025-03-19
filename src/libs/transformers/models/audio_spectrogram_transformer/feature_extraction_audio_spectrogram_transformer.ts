@@ -11,8 +11,8 @@ export class ASTFeatureExtractor extends FeatureExtractor {
   constructor(config: any) {
     super(config);
 
-    var sampling_rate = this.config.sampling_rate;
-    var mel_filters = mel_filter_bank(
+    const sampling_rate = this.config.sampling_rate;
+    const mel_filters = mel_filter_bank(
       256, // num_frequency_bins
       this.config.num_mel_bins, // num_mel_filters
       20, // min_frequency
@@ -75,11 +75,11 @@ export class ASTFeatureExtractor extends FeatureExtractor {
   async _call(audio: Float32Array | Float64Array) {
     validate_audio_inputs(audio, 'ASTFeatureExtractor');
 
-    var features = await this._extract_fbank_features(audio, this.config.max_length);
+    const features = await this._extract_fbank_features(audio, this.config.max_length);
     if (this.config.do_normalize) {
       // Normalize the input audio spectrogram to have mean=0, std=0.5
-      var denom = this.std * 2;
-      var features_data = features.data;
+      const denom = this.std * 2;
+      const features_data = features.data;
       for (let i = 0; i < features_data.length; ++i) {
         features_data[i] = (features_data[i] - this.mean) / denom;
       }
