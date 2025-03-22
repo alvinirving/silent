@@ -101,21 +101,21 @@ export class Idefics3Processor extends Processor {
       text = [text];
     }
 
-    var image_rows = image_inputs.rows ?? [new Array(text.length).fill(0)];
-    var image_cols = image_inputs.cols ?? [new Array(text.length).fill(0)];
+    const image_rows = image_inputs.rows ?? [new Array(text.length).fill(0)];
+    const image_cols = image_inputs.cols ?? [new Array(text.length).fill(0)];
 
-    var image_seq_len = this.config.image_seq_len;
-    var n_images_in_text = [];
-    var prompt_strings = [];
+    const image_seq_len = this.config.image_seq_len;
+    const n_images_in_text = [];
+    const prompt_strings = [];
     for (let i = 0; i < text.length; ++i) {
-      var sample = text[i];
-      var sample_rows = image_rows[i];
-      var sample_cols = image_cols[i];
+      const sample = text[i];
+      const sample_rows = image_rows[i];
+      const sample_cols = image_cols[i];
 
       n_images_in_text.push(count(sample, this.image_token));
 
       // Replace the image token with fake tokens around the expanded image token sequence of length `image_seq_len`
-      var image_prompt_strings = sample_rows.map((n_rows: number, j: number) =>
+      const image_prompt_strings = sample_rows.map((n_rows: number, j: number) =>
         get_image_prompt_string(
           n_rows,
           sample_cols[j],
@@ -126,7 +126,7 @@ export class Idefics3Processor extends Processor {
         ),
       );
 
-      var split_sample = sample.split(this.image_token);
+      const split_sample = sample.split(this.image_token);
       if (split_sample.length === 0) {
         throw new Error('The image token should be present in the text.');
       }
@@ -139,7 +139,7 @@ export class Idefics3Processor extends Processor {
       prompt_strings.push(new_sample);
     }
 
-    var text_inputs = this.tokenizer(prompt_strings);
+    const text_inputs = this.tokenizer(prompt_strings);
 
     return {
       ...text_inputs,
