@@ -86,19 +86,19 @@ export class DOCXParser {
    * @returns Promise resolving to parsed DOCX data
    */
   static async parseFromFile(file: File, options: DOCXParseOptions = {}): Promise<DOCXParseResult> {
-    var debugInfo: string[] = options.debug ? [`Parsing DOCX file: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`] : [];
-    var errors: string[] = [];
+    const debugInfo: string[] = options.debug ? [`Parsing DOCX file: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`] : [];
+    const errors: string[] = [];
     
     try {
       // Read the file as ArrayBuffer
-      var arrayBuffer = await file.arrayBuffer();
+      const arrayBuffer = await file.arrayBuffer();
       
       if (options.debug) {
         debugInfo.push(`File loaded as ArrayBuffer, size: ${arrayBuffer.byteLength} bytes`);
       }
       
       // Configure mammoth options
-      var mammothOptions: any = {
+      const mammothOptions: any = {
         includeDefaultStyleMap: options.preserveStyles !== false,
         includeEmbeddedStyleMap: options.preserveStyles !== false,
         convertImage: options.extractImages ? mammoth.images.imgElement : undefined,
@@ -111,7 +111,7 @@ export class DOCXParser {
       }
       
       // Convert DOCX to HTML
-      var result = await mammoth.convertToHtml({ arrayBuffer }, mammothOptions);
+      const result = await mammoth.convertToHtml({ arrayBuffer }, mammothOptions);
       
       if (options.debug) {
         debugInfo.push(`Conversion to HTML complete, HTML length: ${result.value.length} characters`);
@@ -128,14 +128,14 @@ export class DOCXParser {
       });
       
       // Extract text from HTML
-      var text = this.extractTextFromHtml(result.value);
+      const text = this.extractTextFromHtml(result.value);
       
       if (options.debug) {
         debugInfo.push(`Text extracted from HTML, length: ${text.length} characters`);
       }
       
       // Extract document structure information
-      var structure = this.extractStructure(result.value);
+      const structure = this.extractStructure(result.value);
       
       if (options.debug) {
         debugInfo.push(`Document structure extracted: ${JSON.stringify(structure)}`);
@@ -150,7 +150,7 @@ export class DOCXParser {
             debugInfo.push(`Document properties extracted: ${JSON.stringify(properties)}`);
           }
         } catch (error) {
-          var errorMessage = error instanceof Error ? error.message : String(error);
+          const errorMessage = error instanceof Error ? error.message : String(error);
           errors.push(`Failed to extract document properties: ${errorMessage}`);
           if (options.debug) {
             debugInfo.push(`Error extracting properties: ${errorMessage}`);
@@ -167,7 +167,7 @@ export class DOCXParser {
         debugInfo: options.debug ? debugInfo : undefined
       };
     } catch (error) {
-      var errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       errors.push(`Error parsing DOCX: ${errorMessage}`);
       
       if (options.debug) {
@@ -191,8 +191,8 @@ export class DOCXParser {
    */
   private static extractTextFromHtml(html: string): string {
     // Create a DOM parser
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(html, 'text/html');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
     
     // Extract text
     return doc.body.textContent || '';
@@ -205,8 +205,8 @@ export class DOCXParser {
    */
   private static extractStructure(html: string): DOCXParseResult['structure'] {
     // Create a DOM parser
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(html, 'text/html');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
     
     return {
       paragraphs: doc.querySelectorAll('p').length,
@@ -226,7 +226,7 @@ export class DOCXParser {
     // For a full implementation, you might need to use another library or parse the DOCX XML
     
     // Use the arrayBuffer parameter to avoid the TS6133 error
-    var size = arrayBuffer.byteLength;
+    const size = arrayBuffer.byteLength;
     
     return {
       note: 'Document properties extraction is limited in this version',
@@ -274,12 +274,12 @@ export function docxToText(
   } = {}
 ): string {
   // Default options
-  var includeSummary = options.includeSummary !== false;
+  const includeSummary = options.includeSummary !== false;
   // Make these false by default
-  var includeStructure = options.includeStructure === true;
-  var includeProperties = options.includeProperties === true;
+  const includeStructure = options.includeStructure === true;
+  const includeProperties = options.includeProperties === true;
   
-  var lines: string[] = [];
+  const lines: string[] = [];
   
   // Add the main text content
   lines.push(result.text);
@@ -313,7 +313,7 @@ export function docxToText(
   if (includeProperties && result.properties) {
     lines.push('');
     lines.push('--- Document Properties ---');
-    for (var [key, value] of Object.entries(result.properties)) {
+    for (const [key, value] of Object.entries(result.properties)) {
       lines.push(`${key}: ${value}`);
     }
   }
@@ -332,7 +332,7 @@ export async function extractTextFromDOCX(
   options: DOCXParseOptions = {}
 ): Promise<string> {
   try {
-    var result = await DOCXParser.parseFromFile(file, options);
+    const result = await DOCXParser.parseFromFile(file, options);
     return result.text;
   } catch (error) {
     console.error('Error extracting text from DOCX:', error);
@@ -361,7 +361,7 @@ export async function processDOCXFile(
   formattedText: string;
   debugInfo: string[];
 }> {
-  var debugInfo: string[] = [];
+  const debugInfo: string[] = [];
   
   // Validate file
   if (!file || (!DOCXParser.isValidDocxFile(file) && !DOCXParser.isValidDocFile(file))) {
@@ -373,7 +373,7 @@ export async function processDOCXFile(
   try {
     // Parse the DOCX file
     debugInfo.push('Parsing document file...');
-    var parsed = await DOCXParser.parseFromFile(file, {
+    const parsed = await DOCXParser.parseFromFile(file, {
       ...options,
       debug: true // Force debug for internal use
     });
@@ -385,11 +385,11 @@ export async function processDOCXFile(
     }
     
     // Get the raw text
-    var text = parsed.text;
+    const text = parsed.text;
     
     // Create formatted text for AI with minimal metadata by default
     debugInfo.push('Creating formatted text for AI...');
-    var formattedText = docxToText(parsed, {
+    const formattedText = docxToText(parsed, {
       includeSummary: options.textFormatting?.includeSummary !== false,
       includeStructure: options.textFormatting?.includeStructure === true,
       includeProperties: options.textFormatting?.includeProperties === true
