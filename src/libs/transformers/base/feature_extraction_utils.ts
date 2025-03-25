@@ -39,7 +39,7 @@ export class FeatureExtractor extends Callable {
    * @returns {Promise<FeatureExtractor>} A new instance of the Feature Extractor class.
    */
   static async from_pretrained(pretrained_model_name_or_path: string, options: PretrainedOptions) {
-    const config = await getModelJSON(pretrained_model_name_or_path, FEATURE_EXTRACTOR_NAME, true, options);
+    let config = await getModelJSON(pretrained_model_name_or_path, FEATURE_EXTRACTOR_NAME, true, options);
     return new this(config);
   }
 }
