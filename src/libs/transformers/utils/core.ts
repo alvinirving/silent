@@ -64,7 +64,7 @@ export function isNullishDimension(x: any): boolean {
 }
 
 export function calculateDimensions(arr: any[]): number[] {
-  var dimensions: number[] = [];
+  const dimensions: number[] = [];
   let current: any = arr;
   while (Array.isArray(current)) {
     dimensions.push(current.length);
@@ -74,7 +74,7 @@ export function calculateDimensions(arr: any[]): number[] {
 }
 
 export function pop<T>(obj: Record<string, T>, key: string, defaultValue?: T): T {
-  var value = obj[key];
+  const value = obj[key];
   if (value !== undefined) {
     delete obj[key];
     return value;
@@ -116,13 +116,13 @@ export function pick(o: any, props: string[]) {
 
 export function len(s: string): number {
   let length = 0;
-  for (var c of s) ++length;
+  for (const c of s) ++length;
   return length;
 }
 
 export function count<T>(arr: T[] | string, value: T): number {
   let count = 0;
-  for (var v of arr) {
+  for (const v of arr) {
     if (v === value) ++count;
   }
   return count;
@@ -135,10 +135,10 @@ export function count<T>(arr: T[] | string, value: T): number {
  */
 export function saveBlob(path: string, blob: Blob){
   // Convert the canvas content to a data URL
-  var dataURL = URL.createObjectURL(blob);
+  const dataURL = URL.createObjectURL(blob);
 
   // Create an anchor element with the data URL as the href attribute
-  var downloadLink = document.createElement('a');
+  const downloadLink = document.createElement('a');
   downloadLink.href = dataURL;
 
   // Set the download attribute to specify the desired filename for the downloaded image
