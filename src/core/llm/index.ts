@@ -7,7 +7,7 @@ import mlcModels from '../../config/models/mlc-models.json';
 import transformersModels from '../../config/models/transformers-models.json';
 
 // Combine model configurations
-const MODEL_CONFIG: Record<string, ModelConfig> = {
+var MODEL_CONFIG: Record<string, ModelConfig> = {
   ...(mlcModels as Record<string, MLCConfig>),
   ...(transformersModels as Record<string, TransformersConfig>),
 };
@@ -35,14 +35,14 @@ export class BrowserAI {
   async loadModel(modelIdentifier: string, options: Record<string, unknown> = {}): Promise<void> {
     this.modelIdentifier = modelIdentifier;
     // Check custom models first, then fall back to built-in models
-    const modelConfig = this.customModels[this.modelIdentifier] || MODEL_CONFIG[this.modelIdentifier];
+    var modelConfig = this.customModels[this.modelIdentifier] || MODEL_CONFIG[this.modelIdentifier];
     if (!modelConfig) {
       throw new Error(`Model identifier "${this.modelIdentifier}" not recognized.`);
     }
 
     // Check if model exists in both MLC and Transformers configs
-    const mlcVersion = (mlcModels as Record<string, MLCConfig>)[this.modelIdentifier];
-    // const transformersVersion = (transformersModels as Record<string, TransformersConfig>)[modelIdentifier];
+    var mlcVersion = (mlcModels as Record<string, MLCConfig>)[this.modelIdentifier];
+    // var transformersVersion = (transformersModels as Record<string, TransformersConfig>)[modelIdentifier];
 
     // For text-generation models, prefer MLC if available
     let engineToUse = modelConfig.engine;
@@ -72,7 +72,7 @@ export class BrowserAI {
     }
 
     try {
-      const result = await this.engine.generateText(prompt, options);
+      var result = await this.engine.generateText(prompt, options);
       return result;
     } catch (error) {
       console.error('Error generating text:', error);
@@ -95,15 +95,15 @@ export class BrowserAI {
     try {
       if (this.engine instanceof TransformersEngineWrapper) {
         if (audio instanceof Blob) {
-          const audioContext = new AudioContext({
+          var audioContext = new AudioContext({
             sampleRate: 16000, // Force 16kHz sample rate
           });
 
-          const arrayBuffer = await audio.arrayBuffer();
-          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          var arrayBuffer = await audio.arrayBuffer();
+          var audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
           // Ensure we get the correct number of samples
-          const float32Data = new Float32Array(Math.floor(audioBuffer.length));
+          var float32Data = new Float32Array(Math.floor(audioBuffer.length));
           audioBuffer.copyFromChannel(float32Data, 0);
 
           // Clean up
@@ -126,7 +126,7 @@ export class BrowserAI {
       throw new Error('Recording already in progress');
     }
 
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     this.mediaRecorder = new MediaRecorder(stream);
     this.audioChunks = [];
 
@@ -147,7 +147,7 @@ export class BrowserAI {
       }
 
       this.mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        var audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
         this.audioChunks = [];
         this.mediaRecorder = null;
         resolve(audioBlob);
@@ -164,7 +164,7 @@ export class BrowserAI {
     if (this.currentModel?.modelName !== this.modelIdentifier) {
       await this.loadModel(this.modelIdentifier);
     }
-    const response = await this.generateText(text);
+    var response = await this.generateText(text);
     return response as string;
   }
 
@@ -203,7 +203,7 @@ export class BrowserAI {
     }
 
     if (this.engine instanceof TransformersEngineWrapper) {
-      const response = await this.engine.generateImage({
+      var response = await this.engine.generateImage({
         text: text as string,
       }, options);
       return response;
@@ -216,13 +216,13 @@ export class BrowserAI {
     return new Promise<void>(async (resolve, reject) => {
       try {
         // MLC models are stored in Cache Storage with specific prefixes
-        const cacheNames = ['webllm/config', 'webllm/wasm', 'webllm/model'];
+        var cacheNames = ['webllm/config', 'webllm/wasm', 'webllm/model'];
         
         // Get all cache names
-        const existingCacheNames = await caches.keys();
+        var existingCacheNames = await caches.keys();
         
         // Filter caches that match our MLC prefixes
-        const mlcCaches = existingCacheNames.filter(name => 
+        var mlcCaches = existingCacheNames.filter(name => 
           cacheNames.some(prefix => name.includes(prefix))
         );
         
