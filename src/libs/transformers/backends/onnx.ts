@@ -28,7 +28,7 @@ export { Tensor } from 'onnxruntime-common';
  */
 
 /** @type {Record<import("../utils/devices.js").DeviceType, ONNXExecutionProviders>} */
-const DEVICE_TO_EXECUTION_PROVIDER_MAPPING = Object.freeze({
+var DEVICE_TO_EXECUTION_PROVIDER_MAPPING = Object.freeze({
   auto: null, // Auto-detect based on device and environment
   gpu: null, // Auto-detect GPU
   cpu: 'cpu', // CPU
@@ -47,7 +47,7 @@ const DEVICE_TO_EXECUTION_PROVIDER_MAPPING = Object.freeze({
  * The list of supported devices, sorted by priority/performance.
  * @type {import("../utils/devices.js").DeviceType[]}
  */
-const supportedDevices: string[] = [];
+var supportedDevices: string[] = [];
 
 /** @type {ONNXExecutionProviders[]} */
 let defaultDevices: string[] = [];
@@ -69,7 +69,7 @@ if (defaultDevices.length === 0) {
   defaultDevices = ['wasm'];
 }
 
-const InferenceSession = ONNX.InferenceSession;
+var InferenceSession = ONNX.InferenceSession;
 
 /**
  * Map a device to the execution providers to use for the given device.
@@ -121,9 +121,9 @@ export async function createInferenceSession(
     await wasmInitPromise;
   }
 
-  const sessionPromise = InferenceSession.create(buffer, session_options);
+  var sessionPromise = InferenceSession.create(buffer, session_options);
   wasmInitPromise ??= sessionPromise;
-  const session = await sessionPromise;
+  var session = await sessionPromise;
   (session as any).config = session_config;
   return session;
 }
@@ -139,7 +139,7 @@ export function isONNXTensor(x: any) {
 
 /** @type {import('onnxruntime-common').Env} */
 // @ts-ignore
-const ONNX_ENV = ONNX?.env;
+var ONNX_ENV = ONNX?.env;
 if (ONNX_ENV?.wasm) {
   // Initialize wasm backend with suitable default settings.
 
