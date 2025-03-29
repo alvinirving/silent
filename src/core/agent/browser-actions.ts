@@ -10,7 +10,7 @@
  */
 export async function clickElement(selector: string): Promise<boolean> {
   try {
-    let element = document.querySelector(selector);
+    const element = document.querySelector(selector);
     if (element && element instanceof HTMLElement) {
       element.click();
       return true;
@@ -30,7 +30,7 @@ export async function clickElement(selector: string): Promise<boolean> {
  */
 export async function fillInput(selector: string, value: string): Promise<boolean> {
   try {
-    let element = document.querySelector(selector);
+    const element = document.querySelector(selector);
     if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
       element.value = value;
       
@@ -54,7 +54,7 @@ export async function fillInput(selector: string, value: string): Promise<boolea
  */
 export async function selectOption(selector: string, value: string): Promise<boolean> {
   try {
-    let element = document.querySelector(selector);
+    const element = document.querySelector(selector);
     if (element instanceof HTMLSelectElement) {
       element.value = value;
       element.dispatchEvent(new Event('change', { bubbles: true }));
@@ -107,15 +107,15 @@ export async function navigateTo(url: string): Promise<void> {
  */
 export async function waitForElement(selector: string, timeout = 5000): Promise<Element | null> {
   return new Promise(resolve => {
-    let element = document.querySelector(selector);
+    const element = document.querySelector(selector);
     if (element) {
       resolve(element);
       return;
     }
 
-    let startTime = Date.now();
-    let checkInterval = setInterval(() => {
-      let element = document.querySelector(selector);
+    const startTime = Date.now();
+    const checkInterval = setInterval(() => {
+      const element = document.querySelector(selector);
       if (element) {
         clearInterval(checkInterval);
         resolve(element);
@@ -134,7 +134,7 @@ export async function waitForElement(selector: string, timeout = 5000): Promise<
  */
 export async function extractText(selector: string): Promise<string> {
   try {
-    let element = document.querySelector(selector);
+    const element = document.querySelector(selector);
     return element ? element.textContent?.trim() || '' : '';
   } catch (error) {
     console.error(`Error extracting text from ${selector}:`, error);
@@ -163,7 +163,7 @@ export async function elementExists(selector: string): Promise<boolean> {
  */
 export async function findAllElements(selector: string): Promise<string[]> {
   try {
-    let elements = document.querySelectorAll(selector);
+    const elements = document.querySelectorAll(selector);
     return Array.from(elements).map(el => el.textContent?.trim() || '');
   } catch (error) {
     console.error(`Error finding elements ${selector}:`, error);
@@ -178,7 +178,7 @@ export async function findAllElements(selector: string): Promise<string[]> {
  */
 export async function submitForm(selector: string): Promise<boolean> {
   try {
-    let form = document.querySelector(selector);
+    const form = document.querySelector(selector);
     if (form instanceof HTMLFormElement) {
       form.submit();
       return true;
@@ -197,7 +197,7 @@ export async function submitForm(selector: string): Promise<boolean> {
  */
 export async function focusElement(selector: string): Promise<boolean> {
   try {
-    let element = document.querySelector(selector);
+    const element = document.querySelector(selector);
     if (element instanceof HTMLElement) {
       element.focus();
       return true;
@@ -220,12 +220,12 @@ export async function getElementAttributes(
   attributeNames: string[]
 ): Promise<Record<string, string>> {
   try {
-    let element = document.querySelector(selector);
+    const element = document.querySelector(selector);
     if (!element) return {};
     
-    let attributes: Record<string, string> = {};
+    const attributes: Record<string, string> = {};
     attributeNames.forEach(attr => {
-      let value = element.getAttribute(attr);
+      const value = element.getAttribute(attr);
       if (value !== null) {
         attributes[attr] = value;
       }
