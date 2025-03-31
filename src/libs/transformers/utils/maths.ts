@@ -40,57 +40,57 @@ export function interpolate_data(
   // TODO use mode and align_corners
 
   // Output image dimensions
-  const x_scale = out_width / in_width;
-  const y_scale = out_height / in_height;
+  var x_scale = out_width / in_width;
+  var y_scale = out_height / in_height;
 
   // Output image
   // @ts-ignore
-  const out_img = new input.constructor(out_height * out_width * in_channels);
+  var out_img = new input.constructor(out_height * out_width * in_channels);
 
   // Pre-calculate strides
-  const inStride = in_height * in_width;
-  const outStride = out_height * out_width;
+  var inStride = in_height * in_width;
+  var outStride = out_height * out_width;
 
   for (let i = 0; i < out_height; ++i) {
     for (let j = 0; j < out_width; ++j) {
       // Calculate output offset
-      const outOffset = i * out_width + j;
+      var outOffset = i * out_width + j;
 
       // Calculate input pixel coordinates
-      const x = (j + 0.5) / x_scale - 0.5;
-      const y = (i + 0.5) / y_scale - 0.5;
+      var x = (j + 0.5) / x_scale - 0.5;
+      var y = (i + 0.5) / y_scale - 0.5;
 
       // Calculate the four nearest input pixels
       // We also check if the input pixel coordinates are within the image bounds
       let x1 = Math.floor(x);
       let y1 = Math.floor(y);
-      const x2 = Math.min(x1 + 1, in_width - 1);
-      const y2 = Math.min(y1 + 1, in_height - 1);
+      var x2 = Math.min(x1 + 1, in_width - 1);
+      var y2 = Math.min(y1 + 1, in_height - 1);
 
       x1 = Math.max(x1, 0);
       y1 = Math.max(y1, 0);
 
       // Calculate the fractional distances between the input pixel and the four nearest pixels
-      const s = x - x1;
-      const t = y - y1;
+      var s = x - x1;
+      var t = y - y1;
 
       // Perform bilinear interpolation
-      const w1 = (1 - s) * (1 - t);
-      const w2 = s * (1 - t);
-      const w3 = (1 - s) * t;
-      const w4 = s * t;
+      var w1 = (1 - s) * (1 - t);
+      var w2 = s * (1 - t);
+      var w3 = (1 - s) * t;
+      var w4 = s * t;
 
       // Calculate the four nearest input pixel indices
-      const yStride = y1 * in_width;
-      const xStride = y2 * in_width;
-      const idx1 = yStride + x1;
-      const idx2 = yStride + x2;
-      const idx3 = xStride + x1;
-      const idx4 = xStride + x2;
+      var yStride = y1 * in_width;
+      var xStride = y2 * in_width;
+      var idx1 = yStride + x1;
+      var idx2 = yStride + x2;
+      var idx3 = xStride + x1;
+      var idx4 = xStride + x2;
 
       for (let k = 0; k < in_channels; ++k) {
         // Calculate channel offset
-        const cOffset = k * inStride;
+        var cOffset = k * inStride;
 
         out_img[k * outStride + outOffset] =
           w1 * input[cOffset + idx1] +
@@ -115,8 +115,8 @@ export function interpolate_data(
 export function permute_data(array: TypedArray, dims: number[], axes: number[]) {
   // Calculate the new shape of the permuted array
   // and the stride of the original array
-  const shape = new Array(axes.length);
-  const stride = new Array(axes.length);
+  var shape = new Array(axes.length);
+  var stride = new Array(axes.length);
 
   for (let i = axes.length - 1, s = 1; i >= 0; --i) {
     stride[i] = s;
@@ -125,11 +125,11 @@ export function permute_data(array: TypedArray, dims: number[], axes: number[]) 
   }
 
   // Precompute inverse mapping of stride
-  const invStride = axes.map((_, i) => stride[axes.indexOf(i)]);
+  var invStride = axes.map((_, i) => stride[axes.indexOf(i)]);
 
   // Create the permuted array with the new shape
   // @ts-ignore
-  const permutedData = new array.constructor(array.length);
+  var permutedData = new array.constructor(array.length);
 
   // Permute the original array to the new array
   for (let i = 0; i < array.length; ++i) {
@@ -152,10 +152,10 @@ export function permute_data(array: TypedArray, dims: number[], axes: number[]) 
  */
 export function softmax(arr: TypedArray | number[]) {
   // Compute the maximum value in the array
-  const maxVal = max(arr)[0];
+  var maxVal = max(arr)[0];
 
   // Compute the exponentials of the array values
-  const exps = arr.map((x) => {
+  var exps = arr.map((x) => {
     if (typeof maxVal === 'bigint') {
       // Convert to Number only if within safe integer range
       if (maxVal <= BigInt(Number.MAX_SAFE_INTEGER)) {
@@ -168,10 +168,10 @@ export function softmax(arr: TypedArray | number[]) {
 
   // Compute the sum of the exponentials
   // @ts-ignore
-  const sumExps = exps.reduce((acc, val) => acc + val, 0);
+  var sumExps = exps.reduce((acc, val) => acc + val, 0);
 
   // Compute the softmax values
-  const softmaxArr = exps.map((x) => x / sumExps);
+  var softmaxArr = exps.map((x) => x / sumExps);
 
   return /** @type {T} */ softmaxArr;
 }
@@ -184,7 +184,7 @@ export function softmax(arr: TypedArray | number[]) {
  */
 export function log_softmax(arr: TypedArray | number[]) {
   // Compute the maximum value in the array
-  const maxVal = max(arr)[0];
+  var maxVal = max(arr)[0];
 
   // Compute the sum of the exponentials
   let sumExps = 0;
@@ -199,10 +199,10 @@ export function log_softmax(arr: TypedArray | number[]) {
   }
 
   // Compute the log of the sum
-  const logSum = Math.log(sumExps);
+  var logSum = Math.log(sumExps);
 
   // Compute the softmax values
-  const logSoftmaxArr = arr.map((x) => {
+  var logSoftmaxArr = arr.map((x) => {
     if (typeof maxVal === 'bigint') {
       return Number(x) - Number(maxVal) - logSum;
     }
@@ -235,16 +235,16 @@ export function dot(arr1: number[], arr2: number[]) {
  */
 export function cos_sim(arr1: number[], arr2: number[]) {
   // Calculate dot product of the two arrays
-  const dotProduct = dot(arr1, arr2);
+  var dotProduct = dot(arr1, arr2);
 
   // Calculate the magnitude of the first array
-  const magnitudeA = magnitude(arr1);
+  var magnitudeA = magnitude(arr1);
 
   // Calculate the magnitude of the second array
-  const magnitudeB = magnitude(arr2);
+  var magnitudeB = magnitude(arr2);
 
   // Calculate the cosine similarity
-  const cosineSimilarity = dotProduct / (magnitudeA * magnitudeB);
+  var cosineSimilarity = dotProduct / (magnitudeA * magnitudeB);
 
   return cosineSimilarity;
 }
@@ -329,7 +329,7 @@ class P2FFT {
 
     this.table = new Float64Array(this.size * 2);
     for (let i = 0; i < this.table.length; i += 2) {
-      const angle = (Math.PI * i) / this.size;
+      var angle = (Math.PI * i) / this.size;
       this.table[i] = Math.cos(angle);
       this.table[i + 1] = -Math.sin(angle);
     }
@@ -348,7 +348,7 @@ class P2FFT {
     for (let j = 0; j < this._bitrev.length; ++j) {
       this._bitrev[j] = 0;
       for (let shift = 0; shift < this._width; shift += 2) {
-        const revShift = this._width - shift - 2;
+        var revShift = this._width - shift - 2;
         this._bitrev[j] |= ((j >>> shift) & 3) << revShift;
       }
     }
@@ -371,7 +371,7 @@ class P2FFT {
    * @returns {number[]} An array of real numbers representing the input complex number representation.
    */
   fromComplexArray(complex: Float64Array, storage?: number[]) {
-    const res = storage || new Array(complex.length >>> 1);
+    var res = storage || new Array(complex.length >>> 1);
     for (let i = 0; i < complex.length; i += 2) res[i >>> 1] = complex[i];
     return res;
   }
@@ -383,7 +383,7 @@ class P2FFT {
    * @returns {Float64Array} The complex-valued output array.
    */
   toComplexArray(input: number[], storage?: Float64Array) {
-    const res = storage || this.createComplexArray();
+    var res = storage || this.createComplexArray();
     for (let i = 0; i < res.length; i += 2) {
       res[i] = input[i >>> 1];
       res[i + 1] = 0;
@@ -451,79 +451,79 @@ class P2FFT {
   _transform4(out: Float64Array, data: Float64Array, inv: number) {
     // radix-4 implementation
 
-    const size = this._csize;
+    var size = this._csize;
 
     // Initial step (permute and transform)
-    const width = this._width;
+    var width = this._width;
     let step = 1 << width;
     let len = (size / step) << 1;
 
     let outOff;
     let t;
-    const bitrev = this._bitrev;
+    var bitrev = this._bitrev;
     if (len === 4) {
       for (outOff = 0, t = 0; outOff < size; outOff += len, ++t) {
-        const off = bitrev[t];
+        var off = bitrev[t];
         this._singleTransform2(data, out, outOff, off, step);
       }
     } else {
       // len === 8
       for (outOff = 0, t = 0; outOff < size; outOff += len, ++t) {
-        const off = bitrev[t];
+        var off = bitrev[t];
         this._singleTransform4(data, out, outOff, off, step, inv);
       }
     }
 
     // Loop through steps in decreasing order
-    const table = this.table;
+    var table = this.table;
     for (step >>= 2; step >= 2; step >>= 2) {
       len = (size / step) << 1;
-      const quarterLen = len >>> 2;
+      var quarterLen = len >>> 2;
 
       // Loop through offsets in the data
       for (outOff = 0; outOff < size; outOff += len) {
         // Full case
-        const limit = outOff + quarterLen - 1;
+        var limit = outOff + quarterLen - 1;
         for (let i = outOff, k = 0; i < limit; i += 2, k += step) {
-          const A = i;
-          const B = A + quarterLen;
-          const C = B + quarterLen;
-          const D = C + quarterLen;
+          var A = i;
+          var B = A + quarterLen;
+          var C = B + quarterLen;
+          var D = C + quarterLen;
 
           // Original values
-          const Ar = out[A];
-          const Ai = out[A + 1];
-          const Br = out[B];
-          const Bi = out[B + 1];
-          const Cr = out[C];
-          const Ci = out[C + 1];
-          const Dr = out[D];
-          const Di = out[D + 1];
+          var Ar = out[A];
+          var Ai = out[A + 1];
+          var Br = out[B];
+          var Bi = out[B + 1];
+          var Cr = out[C];
+          var Ci = out[C + 1];
+          var Dr = out[D];
+          var Di = out[D + 1];
 
-          const tableBr = table[k];
-          const tableBi = inv * table[k + 1];
-          const MBr = Br * tableBr - Bi * tableBi;
-          const MBi = Br * tableBi + Bi * tableBr;
+          var tableBr = table[k];
+          var tableBi = inv * table[k + 1];
+          var MBr = Br * tableBr - Bi * tableBi;
+          var MBi = Br * tableBi + Bi * tableBr;
 
-          const tableCr = table[2 * k];
-          const tableCi = inv * table[2 * k + 1];
-          const MCr = Cr * tableCr - Ci * tableCi;
-          const MCi = Cr * tableCi + Ci * tableCr;
+          var tableCr = table[2 * k];
+          var tableCi = inv * table[2 * k + 1];
+          var MCr = Cr * tableCr - Ci * tableCi;
+          var MCi = Cr * tableCi + Ci * tableCr;
 
-          const tableDr = table[3 * k];
-          const tableDi = inv * table[3 * k + 1];
-          const MDr = Dr * tableDr - Di * tableDi;
-          const MDi = Dr * tableDi + Di * tableDr;
+          var tableDr = table[3 * k];
+          var tableDi = inv * table[3 * k + 1];
+          var MDr = Dr * tableDr - Di * tableDi;
+          var MDi = Dr * tableDi + Di * tableDr;
 
           // Pre-Final values
-          const T0r = Ar + MCr;
-          const T0i = Ai + MCi;
-          const T1r = Ar - MCr;
-          const T1i = Ai - MCi;
-          const T2r = MBr + MDr;
-          const T2i = MBi + MDi;
-          const T3r = inv * (MBr - MDr);
-          const T3i = inv * (MBi - MDi);
+          var T0r = Ar + MCr;
+          var T0i = Ai + MCi;
+          var T1r = Ar - MCr;
+          var T1i = Ai - MCi;
+          var T2r = MBr + MDr;
+          var T2i = MBi + MDi;
+          var T3r = inv * (MBr - MDr);
+          var T3i = inv * (MBi - MDi);
 
           // Final values
           out[A] = T0r + T2r;
@@ -553,10 +553,10 @@ class P2FFT {
     // radix-2 implementation
     // NOTE: Only called for len=4
 
-    const evenR = data[off];
-    const evenI = data[off + 1];
-    const oddR = data[off + step];
-    const oddI = data[off + step + 1];
+    var evenR = data[off];
+    var evenI = data[off + 1];
+    var oddR = data[off + step];
+    var oddI = data[off + step + 1];
 
     out[outOff] = evenR + oddR;
     out[outOff + 1] = evenI + oddI;
@@ -579,28 +579,28 @@ class P2FFT {
   _singleTransform4(data: Float64Array, out: Float64Array, outOff: number, off: number, step: number, inv: number) {
     // radix-4
     // NOTE: Only called for len=8
-    const step2 = step * 2;
-    const step3 = step * 3;
+    var step2 = step * 2;
+    var step3 = step * 3;
 
     // Original values
-    const Ar = data[off];
-    const Ai = data[off + 1];
-    const Br = data[off + step];
-    const Bi = data[off + step + 1];
-    const Cr = data[off + step2];
-    const Ci = data[off + step2 + 1];
-    const Dr = data[off + step3];
-    const Di = data[off + step3 + 1];
+    var Ar = data[off];
+    var Ai = data[off + 1];
+    var Br = data[off + step];
+    var Bi = data[off + step + 1];
+    var Cr = data[off + step2];
+    var Ci = data[off + step2 + 1];
+    var Dr = data[off + step3];
+    var Di = data[off + step3 + 1];
 
     // Pre-Final values
-    const T0r = Ar + Cr;
-    const T0i = Ai + Ci;
-    const T1r = Ar - Cr;
-    const T1i = Ai - Ci;
-    const T2r = Br + Dr;
-    const T2i = Bi + Di;
-    const T3r = inv * (Br - Dr);
-    const T3i = inv * (Bi - Di);
+    var T0r = Ar + Cr;
+    var T0i = Ai + Ci;
+    var T1r = Ar - Cr;
+    var T1i = Ai - Ci;
+    var T2r = Br + Dr;
+    var T2i = Bi + Di;
+    var T3r = inv * (Br - Dr);
+    var T3i = inv * (Bi - Di);
 
     // Final values
     out[outOff] = T0r + T2r;
@@ -621,83 +621,83 @@ class P2FFT {
    */
   _realTransform4(out: Float64Array, data: Float64Array, inv: number) {
     // Real input radix-4 implementation
-    const size = this._csize;
+    var size = this._csize;
 
     // Initial step (permute and transform)
-    const width = this._width;
+    var width = this._width;
     let step = 1 << width;
     let len = (size / step) << 1;
 
     let outOff;
     let t;
-    const bitrev = this._bitrev;
+    var bitrev = this._bitrev;
     if (len === 4) {
       for (outOff = 0, t = 0; outOff < size; outOff += len, ++t) {
-        const off = bitrev[t];
+        var off = bitrev[t];
         this._singleRealTransform2(data, out, outOff, off >>> 1, step >>> 1);
       }
     } else {
       // len === 8
       for (outOff = 0, t = 0; outOff < size; outOff += len, ++t) {
-        const off = bitrev[t];
+        var off = bitrev[t];
         this._singleRealTransform4(data, out, outOff, off >>> 1, step >>> 1, inv);
       }
     }
 
     // Loop through steps in decreasing order
-    const table = this.table;
+    var table = this.table;
     for (step >>= 2; step >= 2; step >>= 2) {
       len = (size / step) << 1;
-      const halfLen = len >>> 1;
-      const quarterLen = halfLen >>> 1;
-      const hquarterLen = quarterLen >>> 1;
+      var halfLen = len >>> 1;
+      var quarterLen = halfLen >>> 1;
+      var hquarterLen = quarterLen >>> 1;
 
       // Loop through offsets in the data
       for (outOff = 0; outOff < size; outOff += len) {
         for (let i = 0, k = 0; i <= hquarterLen; i += 2, k += step) {
-          const A = outOff + i;
-          const B = A + quarterLen;
-          const C = B + quarterLen;
-          const D = C + quarterLen;
+          var A = outOff + i;
+          var B = A + quarterLen;
+          var C = B + quarterLen;
+          var D = C + quarterLen;
 
           // Original values
-          const Ar = out[A];
-          const Ai = out[A + 1];
-          const Br = out[B];
-          const Bi = out[B + 1];
-          const Cr = out[C];
-          const Ci = out[C + 1];
-          const Dr = out[D];
-          const Di = out[D + 1];
+          var Ar = out[A];
+          var Ai = out[A + 1];
+          var Br = out[B];
+          var Bi = out[B + 1];
+          var Cr = out[C];
+          var Ci = out[C + 1];
+          var Dr = out[D];
+          var Di = out[D + 1];
 
           // Middle values
-          const MAr = Ar;
-          const MAi = Ai;
+          var MAr = Ar;
+          var MAi = Ai;
 
-          const tableBr = table[k];
-          const tableBi = inv * table[k + 1];
-          const MBr = Br * tableBr - Bi * tableBi;
-          const MBi = Br * tableBi + Bi * tableBr;
+          var tableBr = table[k];
+          var tableBi = inv * table[k + 1];
+          var MBr = Br * tableBr - Bi * tableBi;
+          var MBi = Br * tableBi + Bi * tableBr;
 
-          const tableCr = table[2 * k];
-          const tableCi = inv * table[2 * k + 1];
-          const MCr = Cr * tableCr - Ci * tableCi;
-          const MCi = Cr * tableCi + Ci * tableCr;
+          var tableCr = table[2 * k];
+          var tableCi = inv * table[2 * k + 1];
+          var MCr = Cr * tableCr - Ci * tableCi;
+          var MCi = Cr * tableCi + Ci * tableCr;
 
-          const tableDr = table[3 * k];
-          const tableDi = inv * table[3 * k + 1];
-          const MDr = Dr * tableDr - Di * tableDi;
-          const MDi = Dr * tableDi + Di * tableDr;
+          var tableDr = table[3 * k];
+          var tableDi = inv * table[3 * k + 1];
+          var MDr = Dr * tableDr - Di * tableDi;
+          var MDi = Dr * tableDi + Di * tableDr;
 
           // Pre-Final values
-          const T0r = MAr + MCr;
-          const T0i = MAi + MCi;
-          const T1r = MAr - MCr;
-          const T1i = MAi - MCi;
-          const T2r = MBr + MDr;
-          const T2i = MBi + MDi;
-          const T3r = inv * (MBr - MDr);
-          const T3i = inv * (MBi - MDi);
+          var T0r = MAr + MCr;
+          var T0i = MAi + MCi;
+          var T1r = MAr - MCr;
+          var T1i = MAi - MCi;
+          var T2r = MBr + MDr;
+          var T2i = MBi + MDi;
+          var T3r = inv * (MBr - MDr);
+          var T3i = inv * (MBi - MDi);
 
           // Final values
           out[A] = T0r + T2r;
@@ -715,8 +715,8 @@ class P2FFT {
           // Do not overwrite ourselves
           if (i === hquarterLen) continue;
 
-          const SA = outOff + quarterLen - i;
-          const SB = outOff + halfLen - i;
+          var SA = outOff + quarterLen - i;
+          var SB = outOff + halfLen - i;
 
           out[SA] = T1r - inv * T3i;
           out[SA + 1] = -T1i - inv * T3r;
@@ -727,7 +727,7 @@ class P2FFT {
     }
 
     // Complete the spectrum by adding its mirrored negative frequency components.
-    const half = size >>> 1;
+    var half = size >>> 1;
     for (let i = 2; i < half; i += 2) {
       out[size - i] = out[i];
       out[size - i + 1] = -out[i + 1];
@@ -749,8 +749,8 @@ class P2FFT {
     // radix-2 implementation
     // NOTE: Only called for len=4
 
-    const evenR = data[off];
-    const oddR = data[off + step];
+    var evenR = data[off];
+    var oddR = data[off + step];
 
     out[outOff] = evenR + oddR;
     out[outOff + 1] = 0;
@@ -772,20 +772,20 @@ class P2FFT {
   _singleRealTransform4(data: Float64Array, out: Float64Array, outOff: number, off: number, step: number, inv: number) {
     // radix-4
     // NOTE: Only called for len=8
-    const step2 = step * 2;
-    const step3 = step * 3;
+    var step2 = step * 2;
+    var step3 = step * 3;
 
     // Original values
-    const Ar = data[off];
-    const Br = data[off + step];
-    const Cr = data[off + step2];
-    const Dr = data[off + step3];
+    var Ar = data[off];
+    var Br = data[off + step];
+    var Cr = data[off + step2];
+    var Dr = data[off + step3];
 
     // Pre-Final values
-    const T0r = Ar + Cr;
-    const T1r = Ar - Cr;
-    const T2r = Br + Dr;
-    const T3r = inv * (Br - Dr);
+    var T0r = Ar + Cr;
+    var T1r = Ar - Cr;
+    var T2r = Br + Dr;
+    var T3r = inv * (Br - Dr);
 
     // Final values
     out[outOff] = T0r + T2r;
@@ -818,16 +818,16 @@ class NP2FFT {
 
   constructor(fft_length: number) {
     // Helper variables
-    const a = 2 * (fft_length - 1);
-    const b = 2 * (2 * fft_length - 1);
-    const nextP2 = 2 ** Math.ceil(Math.log2(b));
+    var a = 2 * (fft_length - 1);
+    var b = 2 * (2 * fft_length - 1);
+    var nextP2 = 2 ** Math.ceil(Math.log2(b));
     this.bufferSize = nextP2;
     this._a = a;
 
     // Define buffers
     // Compute chirp for transform
-    const chirp = new Float64Array(b);
-    const ichirp = new Float64Array(nextP2);
+    var chirp = new Float64Array(b);
+    var ichirp = new Float64Array(nextP2);
     this._chirpBuffer = new Float64Array(nextP2);
     this._buffer1 = new Float64Array(nextP2);
     this._buffer2 = new Float64Array(nextP2);
@@ -835,22 +835,22 @@ class NP2FFT {
     this._outBuffer2 = new Float64Array(nextP2);
 
     // Compute complex exponentiation
-    const theta = (-2 * Math.PI) / fft_length;
-    const baseR = Math.cos(theta);
-    const baseI = Math.sin(theta);
+    var theta = (-2 * Math.PI) / fft_length;
+    var baseR = Math.cos(theta);
+    var baseI = Math.sin(theta);
 
     // Precompute helper for chirp-z transform
     for (let i = 0; i < b >> 1; ++i) {
       // Compute complex power:
-      const e = (i + 1 - fft_length) ** 2 / 2.0;
+      var e = (i + 1 - fft_length) ** 2 / 2.0;
 
       // Compute the modulus and argument of the result
-      const result_mod = Math.sqrt(baseR ** 2 + baseI ** 2) ** e;
-      const result_arg = e * Math.atan2(baseI, baseR);
+      var result_mod = Math.sqrt(baseR ** 2 + baseI ** 2) ** e;
+      var result_arg = e * Math.atan2(baseI, baseR);
 
       // Convert the result back to rectangular form
       // and assign to chirp and ichirp
-      const i2 = 2 * i;
+      var i2 = 2 * i;
       chirp[i2] = result_mod * Math.cos(result_arg);
       chirp[i2 + 1] = result_mod * Math.sin(result_arg);
 
@@ -867,28 +867,28 @@ class NP2FFT {
   }
 
   _transform(output: Float64Array, input: Float64Array, real: boolean) {
-    const ib1 = this._buffer1;
-    const ib2 = this._buffer2;
-    const ob2 = this._outBuffer1;
-    const ob3 = this._outBuffer2;
-    const cb = this._chirpBuffer;
-    const sb = this._slicedChirpBuffer;
-    const a = this._a;
+    var ib1 = this._buffer1;
+    var ib2 = this._buffer2;
+    var ob2 = this._outBuffer1;
+    var ob3 = this._outBuffer2;
+    var cb = this._chirpBuffer;
+    var sb = this._slicedChirpBuffer;
+    var a = this._a;
 
     if (real) {
       // Real multiplication
       for (let j = 0; j < sb.length; j += 2) {
-        const j2 = j + 1;
-        const j3 = j >> 1;
+        var j2 = j + 1;
+        var j3 = j >> 1;
 
-        const a_real = input[j3];
+        var a_real = input[j3];
         ib1[j] = a_real * sb[j];
         ib1[j2] = a_real * sb[j2];
       }
     } else {
       // Complex multiplication
       for (let j = 0; j < sb.length; j += 2) {
-        const j2 = j + 1;
+        var j2 = j + 1;
         ib1[j] = input[j] * sb[j] - input[j2] * sb[j2];
         ib1[j2] = input[j] * sb[j2] + input[j2] * sb[j];
       }
@@ -896,7 +896,7 @@ class NP2FFT {
     this._f.transform(ob2, ib1);
 
     for (let j = 0; j < cb.length; j += 2) {
-      const j2 = j + 1;
+      var j2 = j + 1;
 
       ib2[j] = ob2[j] * cb[j] - ob2[j2] * cb[j2];
       ib2[j2] = ob2[j] * cb[j2] + ob2[j2] * cb[j];
@@ -904,10 +904,10 @@ class NP2FFT {
     this._f.inverseTransform(ob3, ib2);
 
     for (let j = 0; j < ob3.length; j += 2) {
-      const a_real = ob3[j + a];
-      const a_imag = ob3[j + a + 1];
-      const b_real = sb[j];
-      const b_imag = sb[j + 1];
+      var a_real = ob3[j + a];
+      var a_imag = ob3[j + a + 1];
+      var b_real = sb[j];
+      var b_imag = sb[j + 1];
 
       output[j] = a_real * b_real - a_imag * b_imag;
       output[j + 1] = a_real * b_imag + a_imag * b_real;
@@ -965,12 +965,12 @@ export function medianFilter(data: AnyTypedArray, windowSize: number) {
   }
 
   // @ts-ignore
-  const outputArray = new data.constructor(data.length);
+  var outputArray = new data.constructor(data.length);
 
   // @ts-ignore
-  const buffer = new data.constructor(windowSize); // Reusable array for storing values
+  var buffer = new data.constructor(windowSize); // Reusable array for storing values
 
-  const halfWindowSize = Math.floor(windowSize / 2);
+  var halfWindowSize = Math.floor(windowSize / 2);
 
   for (let i = 0; i < data.length; ++i) {
     let valuesIndex = 0;
@@ -1000,7 +1000,7 @@ export function medianFilter(data: AnyTypedArray, windowSize: number) {
  * @returns {number} The rounded number
  */
 export function round(num: number, decimals: number) {
-  const pow = Math.pow(10, decimals);
+  var pow = Math.pow(10, decimals);
   return Math.round(num * pow) / pow;
 }
 
@@ -1013,8 +1013,8 @@ export function round(num: number, decimals: number) {
  * @returns {number} The rounded number
  */
 export function bankers_round(x: number) {
-  const r = Math.round(x);
-  const br = Math.abs(x) % 1 === 0.5 ? (r % 2 === 0 ? r : r - 1) : r;
+  var r = Math.round(x);
+  var br = Math.abs(x) % 1 === 0.5 ? (r % 2 === 0 ? r : r - 1) : r;
   return br;
 }
 
@@ -1025,21 +1025,21 @@ export function bankers_round(x: number) {
  * @returns {number[][]}
  */
 export function dynamic_time_warping(matrix: number[][]) {
-  const output_length = matrix.length;
-  const input_length = matrix[0].length;
+  var output_length = matrix.length;
+  var input_length = matrix[0].length;
 
-  const outputShape = [output_length + 1, input_length + 1];
+  var outputShape = [output_length + 1, input_length + 1];
 
-  const cost = Array.from({ length: outputShape[0] }, () => Array(outputShape[1]).fill(Infinity));
+  var cost = Array.from({ length: outputShape[0] }, () => Array(outputShape[1]).fill(Infinity));
   cost[0][0] = 0;
 
-  const trace = Array.from({ length: outputShape[0] }, () => Array(outputShape[1]).fill(-1));
+  var trace = Array.from({ length: outputShape[0] }, () => Array(outputShape[1]).fill(-1));
 
   for (let j = 1; j < outputShape[1]; ++j) {
     for (let i = 1; i < outputShape[0]; ++i) {
-      const c0 = cost[i - 1][j - 1];
-      const c1 = cost[i - 1][j];
-      const c2 = cost[i][j - 1];
+      var c0 = cost[i - 1][j - 1];
+      var c1 = cost[i - 1][j];
+      var c2 = cost[i][j - 1];
 
       let c, t;
       if (c0 < c1 && c0 < c2) {
