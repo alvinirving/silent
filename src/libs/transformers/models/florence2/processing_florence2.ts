@@ -15,7 +15,7 @@ export class Florence2Processor extends Processor {
   constructor(config: any, components: any) {
     super(config, components);
 
-    const { tasks_answer_post_processing_type, task_prompts_without_inputs, task_prompts_with_input } =
+    var { tasks_answer_post_processing_type, task_prompts_without_inputs, task_prompts_with_input } =
       this.image_processor.config;
 
     /** @type {Map<string, string>} */
@@ -44,15 +44,15 @@ export class Florence2Processor extends Processor {
       text = [text];
     }
 
-    const prompts = [];
-    for (const t of text) {
+    var prompts = [];
+    for (var t of text) {
       // 1. fixed task prompts without additional inputs
       if (this.task_prompts_without_inputs.has(t)) {
         prompts.push(this.task_prompts_without_inputs.get(t));
       }
       // 2. task prompts with additional inputs
       else {
-        for (const [task, prompt] of this.task_prompts_with_input) {
+        for (var [task, prompt] of this.task_prompts_with_input) {
           if (t.includes(task)) {
             prompts.push(prompt.replaceAll('{input}', t).replaceAll(task, ''));
             break;
@@ -75,7 +75,7 @@ export class Florence2Processor extends Processor {
    * @param {[number, number]} image_size The size of the image. height x width.
    */
   post_process_generation(text: string, task: string, image_size: [number, number]) {
-    const task_answer_post_processing_type = this.tasks_answer_post_processing_type.get(task) ?? 'pure_text';
+    var task_answer_post_processing_type = this.tasks_answer_post_processing_type.get(task) ?? 'pure_text';
 
     // remove the special tokens
     text = text.replaceAll('<s>', '').replaceAll('</s>', '');
@@ -90,11 +90,11 @@ export class Florence2Processor extends Processor {
       case 'bboxes':
       case 'phrase_grounding':
       case 'ocr':
-        const key = task_answer_post_processing_type === 'ocr' ? 'quad_boxes' : 'bboxes';
-        const matches = text.matchAll(this.regexes[key]);
-        const labels: string[] = [];
-        const items: number[][] = [];
-        for (const [_, label, ...locations] of matches) {
+        var key = task_answer_post_processing_type === 'ocr' ? 'quad_boxes' : 'bboxes';
+        var matches = text.matchAll(this.regexes[key]);
+        var labels: string[] = [];
+        var items: number[][] = [];
+        for (var [_, label, ...locations] of matches) {
           // Push new label, or duplicate the last label
           labels.push(label ? label.trim() : (labels.at(-1) ?? ''));
           items.push(
@@ -122,8 +122,8 @@ export class Florence2Processor extends Processor {
       throw new Error('Either text or images must be provided');
     }
 
-    const image_inputs = await this.image_processor(images, kwargs);
-    const text_inputs = text ? this.tokenizer(text, kwargs) : {};
+    var image_inputs = await this.image_processor(images, kwargs);
+    var text_inputs = text ? this.tokenizer(text, kwargs) : {};
 
     return {
       ...image_inputs,
