@@ -12,7 +12,7 @@ export class SqliteStorage<T extends Storable> implements Storage<T> {
 
     private async initDatabase(): Promise<void> {
         return new Promise((resolve, reject) => {
-            let request = indexedDB.open(this.storeName, 1);
+            const request = indexedDB.open(this.storeName, 1);
 
             request.onerror = () => reject(request.error);
             request.onsuccess = () => {
@@ -21,7 +21,7 @@ export class SqliteStorage<T extends Storable> implements Storage<T> {
             };
 
             request.onupgradeneeded = (event) => {
-                let db = (event.target as IDBOpenDBRequest).result;
+                const db = (event.target as IDBOpenDBRequest).result;
                 if (!db.objectStoreNames.contains(this.storeName)) {
                     db.createObjectStore(this.storeName, { keyPath: 'id' });
                 }
@@ -32,9 +32,9 @@ export class SqliteStorage<T extends Storable> implements Storage<T> {
     async store(data: T): Promise<void> {
         await this.ensureDbReady();
         return new Promise((resolve, reject) => {
-            let transaction = this.db!.transaction([this.storeName], 'readwrite');
-            let store = transaction.objectStore(this.storeName);
-            let request = store.add(data);
+            const transaction = this.db!.transaction([this.storeName], 'readwrite');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.add(data);
 
             request.onerror = () => reject(request.error);
             request.onsuccess = () => resolve();
@@ -44,9 +44,9 @@ export class SqliteStorage<T extends Storable> implements Storage<T> {
     async get(id: string): Promise<T | undefined> {
         await this.ensureDbReady();
         return new Promise((resolve, reject) => {
-            let transaction = this.db!.transaction([this.storeName], 'readonly');
-            let store = transaction.objectStore(this.storeName);
-            let request = store.get(id);
+            const transaction = this.db!.transaction([this.storeName], 'readonly');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.get(id);
 
             request.onerror = () => reject(request.error);
             request.onsuccess = () => resolve(request.result || undefined);
@@ -56,9 +56,9 @@ export class SqliteStorage<T extends Storable> implements Storage<T> {
     async getAll(): Promise<T[]> {
         await this.ensureDbReady();
         return new Promise((resolve, reject) => {
-            let transaction = this.db!.transaction([this.storeName], 'readonly');
-            let store = transaction.objectStore(this.storeName);
-            let request = store.getAll();
+            const transaction = this.db!.transaction([this.storeName], 'readonly');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.getAll();
 
             request.onerror = () => reject(request.error);
             request.onsuccess = () => resolve(request.result);
@@ -68,9 +68,9 @@ export class SqliteStorage<T extends Storable> implements Storage<T> {
     async update(data: T): Promise<void> {
         await this.ensureDbReady();
         return new Promise((resolve, reject) => {
-            let transaction = this.db!.transaction([this.storeName], 'readwrite');
-            let store = transaction.objectStore(this.storeName);
-            let request = store.put(data);
+            const transaction = this.db!.transaction([this.storeName], 'readwrite');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.put(data);
 
             request.onerror = () => reject(request.error);
             request.onsuccess = () => resolve();
@@ -80,9 +80,9 @@ export class SqliteStorage<T extends Storable> implements Storage<T> {
     async delete(id: string): Promise<void> {
         await this.ensureDbReady();
         return new Promise((resolve, reject) => {
-            let transaction = this.db!.transaction([this.storeName], 'readwrite');
-            let store = transaction.objectStore(this.storeName);
-            let request = store.delete(id);
+            const transaction = this.db!.transaction([this.storeName], 'readwrite');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.delete(id);
 
             request.onerror = () => reject(request.error);
             request.onsuccess = () => resolve();
@@ -92,9 +92,9 @@ export class SqliteStorage<T extends Storable> implements Storage<T> {
     async clear(): Promise<void> {
         await this.ensureDbReady();
         return new Promise((resolve, reject) => {
-            let transaction = this.db!.transaction([this.storeName], 'readwrite');
-            let store = transaction.objectStore(this.storeName);
-            let request = store.clear();
+            const transaction = this.db!.transaction([this.storeName], 'readwrite');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.clear();
 
             request.onerror = () => reject(request.error);
             request.onsuccess = () => resolve();
