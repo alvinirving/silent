@@ -11,7 +11,7 @@ import { DEVICE_TYPES } from './devices';
 /**
  * Checks if WebGPU fp16 support is available in the current environment.
  */
-export const isWebGpuFp16Supported = (function () {
+export var isWebGpuFp16Supported = (function () {
   /** @type {boolean} */
   let cachedResult: boolean | undefined;
 
@@ -21,7 +21,7 @@ export const isWebGpuFp16Supported = (function () {
         cachedResult = false;
       } else {
         try {
-          const adapter = await navigator.gpu.requestAdapter();
+          var adapter = await navigator.gpu.requestAdapter();
           if (!adapter) {
             cachedResult = false;
           } else {
@@ -36,7 +36,7 @@ export const isWebGpuFp16Supported = (function () {
   };
 })();
 
-export const DATA_TYPES = Object.freeze({
+export var DATA_TYPES = Object.freeze({
   auto: 'auto', // Auto-detect based on environment
   fp32: 'fp32',
   fp16: 'fp16',
@@ -49,13 +49,13 @@ export const DATA_TYPES = Object.freeze({
 });
 /** @typedef {keyof typeof DATA_TYPES} DataType */
 
-export const DEFAULT_DEVICE_DTYPE_MAPPING = Object.freeze({
+export var DEFAULT_DEVICE_DTYPE_MAPPING = Object.freeze({
   // NOTE: If not specified, will default to fp32
   [DEVICE_TYPES.wasm]: DATA_TYPES.q8,
 });
 
 /** @type {Record<Exclude<DataType, "auto">, string>} */
-export const DEFAULT_DTYPE_SUFFIX_MAPPING = Object.freeze({
+export var DEFAULT_DTYPE_SUFFIX_MAPPING = Object.freeze({
   [DATA_TYPES.fp32]: '',
   [DATA_TYPES.fp16]: '_fp16',
   [DATA_TYPES.int8]: '_int8',
