@@ -22,7 +22,7 @@ export async function executeAction(action: {
   type: string;
   params: Record<string, any>;
 }): Promise<any> {
-  const { type, params } = action;
+  let { type, params } = action;
   
   try {
     switch (type) {
