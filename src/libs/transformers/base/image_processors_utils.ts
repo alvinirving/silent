@@ -29,7 +29,7 @@ import { IMAGE_PROCESSOR_NAME } from '../utils/constants.js';
  * @private
  */
 function constraint_to_multiple_of(val: number, multiple: number, minVal = 0, maxVal = null) {
-  var a = val / multiple;
+  const a = val / multiple;
   let x = bankers_round(a) * multiple;
 
   if (maxVal !== null && x > maxVal) {
@@ -81,9 +81,9 @@ export function post_process_object_detection(
   target_sizes: [number, number][] | null = null,
   is_zero_shot = false,
 ) {
-  var out_logits = outputs.logits;
-  var out_bbox = outputs.pred_boxes;
-  var [batch_size, num_boxes, num_classes] = out_logits.dims;
+  const out_logits = outputs.logits;
+  const out_bbox = outputs.pred_boxes;
+  const [batch_size, num_boxes, num_classes] = out_logits.dims;
 
   if (target_sizes !== null && target_sizes.length !== batch_size) {
     throw Error('Make sure that you pass in as many target sizes as the batch dimension of the logits');
@@ -133,7 +133,7 @@ export function post_process_object_detection(
         indices.push(maxIndex);
       }
 
-      for (var index of indices) {
+      for (const index of indices) {
         // Some class has a high enough probability
         /** @type {number[]} */
         let box = bbox[j].data;
@@ -162,16 +162,16 @@ export function post_process_object_detection(
  * @returns {{segmentation: Tensor; labels: number[]}[]} The semantic segmentation maps.
  */
 export function post_process_semantic_segmentation(outputs: any, target_sizes: [number, number][] | null = null) {
-  var logits = outputs.logits;
-  var batch_size = logits.dims[0];
+  const logits = outputs.logits;
+  const batch_size = logits.dims[0];
 
   if (target_sizes !== null && target_sizes.length !== batch_size) {
     throw Error('Make sure that you pass in as many target sizes as the batch dimension of the logits');
   }
 
-  var toReturn = [];
+  const toReturn = [];
   for (let i = 0; i < batch_size; ++i) {
-    var target_size = target_sizes !== null ? target_sizes[i] : null;
+    const target_size = target_sizes !== null ? target_sizes[i] : null;
 
     let data = logits[i];
 
@@ -180,15 +180,15 @@ export function post_process_semantic_segmentation(outputs: any, target_sizes: [
       // resize the masks to the target size
       data = interpolate(data, target_size, 'bilinear', false);
     }
-    var [height, width] = target_size ?? data.dims.slice(-2);
+    const [height, width] = target_size ?? data.dims.slice(-2);
 
-    var segmentation = new Tensor('int32', new Int32Array(height * width), [height, width]);
+    const segmentation = new Tensor('int32', new Int32Array(height * width), [height, width]);
 
     // Buffer to store current largest value
-    var buffer = data[0].data;
-    var segmentation_data = segmentation.data;
+    const buffer = data[0].data;
+    const segmentation_data = segmentation.data;
     for (let j = 1; j < data.dims[0]; ++j) {
-      var row = data[j].data;
+      const row = data[j].data;
       for (let k = 0; k < row.length; ++k) {
         if (row[k] > buffer[k]) {
           buffer[k] = row[k];
@@ -199,13 +199,13 @@ export function post_process_semantic_segmentation(outputs: any, target_sizes: [
 
     // Store which objects have labels
     // This is much more efficient that creating a set of the final values
-    var hasLabel = new Array(data.dims[0]);
+    const hasLabel = new Array(data.dims[0]);
     for (let j = 0; j < segmentation_data.length; ++j) {
-      var index = segmentation_data[j];
+      const index = segmentation_data[j];
       hasLabel[index] = index;
     }
     /** @type {number[]} The unique list of labels that were detected */
-    var labels = hasLabel.filter((x) => x !== undefined);
+    const labels = hasLabel.filter((x) => x !== undefined);
 
     toReturn.push({ segmentation, labels });
   }
@@ -227,22 +227,22 @@ function remove_low_and_no_objects(
   object_mask_threshold: number,
   num_labels: number,
 ) {
-  var mask_probs_item = [];
-  var pred_scores_item = [];
-  var pred_labels_item = [];
+  const mask_probs_item = [];
+  const pred_scores_item = [];
+  const pred_labels_item = [];
 
   for (let j = 0; j < class_logits.dims[0]; ++j) {
-    var cls = class_logits[j];
-    var mask = mask_logits[j];
+    const cls = class_logits[j];
+    const mask = mask_logits[j];
 
-    var pred_label = max(cls.data as Float32Array)[1];
+    const pred_label = max(cls.data as Float32Array)[1];
     if (pred_label === num_labels) {
       // Is the background, so we ignore it
       continue;
     }
 
-    var scores = softmax(cls.data as Float32Array);
-    var pred_score = scores[Number(pred_label)];
+    const scores = softmax(cls.data as Float32Array);
+    const pred_score = scores[Number(pred_label)];
     if (pred_score > object_mask_threshold) {
       mask_probs_item.push(mask);
       pred_scores_item.push(pred_score);
@@ -271,11 +271,11 @@ function check_segment_validity(
   overlap_mask_area_threshold = 0.8,
 ) {
   // mask_k is a 1D array of indices, indicating where the mask is equal to k
-  var mask_k = [];
+  const mask_k = [];
   let mask_k_area = 0;
   let original_area = 0;
 
-  var mask_probs_k_data = mask_probs[k].data;
+  const mask_probs_k_data = mask_probs[k].data;
 
   // Compute the area of all the stuff in query k
   for (let i = 0; i < mask_labels.length; ++i) {
@@ -321,10 +321,10 @@ function compute_segments(
   label_ids_to_fuse: Set<number>,
   target_size: [number, number] | null = null,
 ) {
-  var [height, width] = target_size ?? mask_probs[0].dims;
+  const [height, width] = target_size ?? mask_probs[0].dims;
 
-  var segmentation = new Tensor('int32', new Int32Array(height * width), [height, width]);
-  var segments = [];
+  const segmentation = new Tensor('int32', new Int32Array(height * width), [height, width]);
+  const segments = [];
 
   // 1. If target_size is not null, we need to resize the masks to the target size
   if (target_size !== null) {
@@ -338,13 +338,13 @@ function compute_segments(
   // NOTE: `mask_probs` is updated in-place
   //
   // Temporary storage for the best label/scores for each pixel ([height, width]):
-  var mask_labels = new Int32Array(mask_probs[0].data.length);
-  var bestScores = new Float32Array(mask_probs[0].data.length);
+  const mask_labels = new Int32Array(mask_probs[0].data.length);
+  const bestScores = new Float32Array(mask_probs[0].data.length);
 
   for (let i = 0; i < mask_probs.length; ++i) {
     let score = pred_scores[i];
 
-    var mask_probs_i_data = mask_probs[i].data;
+    const mask_probs_i_data = mask_probs[i].data;
 
     for (let j = 0; j < mask_probs_i_data.length; ++j) {
       mask_probs_i_data[j] *= score;
@@ -358,15 +358,15 @@ function compute_segments(
   let current_segment_id = 0;
 
   // let stuff_memory_list = {}
-  var segmentation_data = segmentation.data;
+  const segmentation_data = segmentation.data;
   for (let k = 0; k < pred_labels.length; ++k) {
-    var pred_class = pred_labels[k];
+    const pred_class = pred_labels[k];
 
     // TODO add `should_fuse`
     // let should_fuse = pred_class in label_ids_to_fuse
 
     // Check if mask exists and large enough to be a segment
-    var [mask_exists, mask_k] = check_segment_validity(
+    const [mask_exists, mask_k] = check_segment_validity(
       mask_labels,
       mask_probs,
       k,
@@ -388,7 +388,7 @@ function compute_segments(
     ++current_segment_id;
 
     // Add current object segment to final segmentation map
-    for (var index of mask_k as number[]) {
+    for (const index of mask_k as number[]) {
       segmentation_data[index] = current_segment_id;
     }
 
@@ -442,11 +442,11 @@ function smart_resize(
   let w_bar = Math.round(width / factor) * factor;
 
   if (h_bar * w_bar > max_pixels) {
-    var beta = Math.sqrt((height * width) / max_pixels);
+    const beta = Math.sqrt((height * width) / max_pixels);
     h_bar = Math.floor(height / beta / factor) * factor;
     w_bar = Math.floor(width / beta / factor) * factor;
   } else if (h_bar * w_bar < min_pixels) {
-    var beta = Math.sqrt(min_pixels / (height * width));
+    const beta = Math.sqrt(min_pixels / (height * width));
     h_bar = Math.ceil((height * beta) / factor) * factor;
     w_bar = Math.ceil((width * beta) / factor) * factor;
   }
@@ -477,10 +477,10 @@ export function post_process_panoptic_segmentation(
     label_ids_to_fuse = new Set();
   }
 
-  var class_queries_logits = outputs.class_queries_logits ?? outputs.logits; // [batch_size, num_queries, num_classes+1]
-  var masks_queries_logits = outputs.masks_queries_logits ?? outputs.pred_masks; // [batch_size, num_queries, height, width]
+  const class_queries_logits = outputs.class_queries_logits ?? outputs.logits; // [batch_size, num_queries, num_classes+1]
+  const masks_queries_logits = outputs.masks_queries_logits ?? outputs.pred_masks; // [batch_size, num_queries, height, width]
 
-  var mask_probs = masks_queries_logits.sigmoid(); // [batch_size, num_queries, height, width]
+  const mask_probs = masks_queries_logits.sigmoid(); // [batch_size, num_queries, height, width]
 
   let [batch_size, num_queries, num_labels] = class_queries_logits.dims;
   num_labels -= 1; // Remove last class (background)
@@ -678,11 +678,11 @@ export class ImageProcessor extends Callable {
    * @returns {Promise<RawImage>} The resized image.
    */
   async thumbnail(image: RawImage, size: { height: number; width: number }, resample = 2) {
-    var input_height = image.height;
-    var input_width = image.width;
+    const input_height = image.height;
+    const input_width = image.width;
 
-    var output_height = size.height;
-    var output_width = size.width;
+    const output_height = size.height;
+    const output_width = size.width;
 
     // We always resize to the smallest of either the input or output size.
     let height = Math.min(input_height, output_height);
@@ -706,25 +706,25 @@ export class ImageProcessor extends Callable {
    * @returns {Promise<RawImage>} The cropped image.
    */
   async crop_margin(image: RawImage, gray_threshold = 200) {
-    var gray_image = image.clone().grayscale();
+    const gray_image = image.clone().grayscale();
 
-    var minValue = min(gray_image.data)[0];
-    var maxValue = max(gray_image.data)[0];
-    var diff = BigInt(maxValue) - BigInt(minValue);
+    const minValue = min(gray_image.data)[0];
+    const maxValue = max(gray_image.data)[0];
+    const diff = BigInt(maxValue) - BigInt(minValue);
 
     if (Number(diff) === 0) {
       return image;
     }
 
-    var threshold = gray_threshold / 255;
+    const threshold = gray_threshold / 255;
 
     let x_min = gray_image.width,
       y_min = gray_image.height,
       x_max = 0,
       y_max = 0;
-    var gray_image_data = gray_image.data;
+    const gray_image_data = gray_image.data;
     for (let j = 0; j < gray_image.height; ++j) {
-      var row = j * gray_image.width;
+      const row = j * gray_image.width;
       for (let i = 0; i < gray_image.width; ++i) {
         if ((Number(gray_image_data[row + i]) - Number(minValue)) / Number(diff) < threshold) {
           // We have a non-zero pixel, so we update the min/max values accordingly
@@ -759,7 +759,7 @@ export class ImageProcessor extends Callable {
     mode: 'constant' | 'symmetric' = 'constant',
     center: boolean = false,
   ): [Float32Array, number[]] {
-    var [imageHeight, imageWidth, imageChannels] = imgDims;
+    const [imageHeight, imageWidth, imageChannels] = imgDims;
 
     let paddedImageWidth, paddedImageHeight;
     if (typeof padSize === 'number') {
@@ -774,7 +774,7 @@ export class ImageProcessor extends Callable {
 
     // Only add padding if there is a difference in size
     if (paddedImageWidth !== imageWidth || paddedImageHeight !== imageHeight) {
-      var paddedPixelData = new Float32Array(paddedImageWidth * paddedImageHeight * imageChannels);
+      const paddedPixelData = new Float32Array(paddedImageWidth * paddedImageHeight * imageChannels);
       if (Array.isArray(constant_values)) {
         // Fill with constant values, cycling through the array
         for (let i = 0; i < paddedPixelData.length; ++i) {
@@ -784,17 +784,17 @@ export class ImageProcessor extends Callable {
         paddedPixelData.fill(constant_values);
       }
 
-      var [left, top] = center
+      const [left, top] = center
         ? [Math.floor((paddedImageWidth - imageWidth) / 2), Math.floor((paddedImageHeight - imageHeight) / 2)]
         : [0, 0];
 
       // Copy the original image into the padded image
       for (let i = 0; i < imageHeight; ++i) {
-        var a = (i + top) * paddedImageWidth;
-        var b = i * imageWidth;
+        const a = (i + top) * paddedImageWidth;
+        const b = i * imageWidth;
         for (let j = 0; j < imageWidth; ++j) {
-          var c = (a + j + left) * imageChannels;
-          var d = (b + j) * imageChannels;
+          const c = (a + j + left) * imageChannels;
+          const d = (b + j) * imageChannels;
           for (let k = 0; k < imageChannels; ++k) {
             paddedPixelData[c + k] = pixelData[d + k];
           }
@@ -806,16 +806,16 @@ export class ImageProcessor extends Callable {
           throw new Error('`center` padding is not supported when `mode` is set to `symmetric`.');
           // TODO: Implement this
         }
-        var h1 = imageHeight - 1;
-        var w1 = imageWidth - 1;
+        const h1 = imageHeight - 1;
+        const w1 = imageWidth - 1;
         for (let i = 0; i < paddedImageHeight; ++i) {
-          var a = i * paddedImageWidth;
-          var b = calculateReflectOffset(i, h1) * imageWidth;
+          const a = i * paddedImageWidth;
+          const b = calculateReflectOffset(i, h1) * imageWidth;
 
           for (let j = 0; j < paddedImageWidth; ++j) {
             if (i < imageHeight && j < imageWidth) continue; // Do not overwrite original image
-            var c = (a + j) * imageChannels;
-            var d = (b + calculateReflectOffset(j, w1)) * imageChannels;
+            const c = (a + j) * imageChannels;
+            const d = (b + calculateReflectOffset(j, w1)) * imageChannels;
 
             // Copy channel-wise
             for (let k = 0; k < imageChannels; ++k) {
@@ -854,14 +854,14 @@ export class ImageProcessor extends Callable {
     // `size` comes in many forms, so we need to handle them all here:
     // 1. `size` is an integer, in which case we resize the image to be a square
 
-    var [srcWidth, srcHeight] = image.size;
+    const [srcWidth, srcHeight] = image.size;
 
     let shortest_edge;
     let longest_edge;
 
     if (this.do_thumbnail) {
       // NOTE: custom logic for `Donut` models
-      var { height, width } = size;
+      const { height, width } = size;
       shortest_edge = Math.min(height, width);
     }
     // Support both formats for backwards compatibility
@@ -880,17 +880,17 @@ export class ImageProcessor extends Callable {
     if (shortest_edge !== undefined || longest_edge !== undefined) {
       // http://opensourcehacker.com/2011/12/01/calculate-aspect-ratio-conserving-resize-for-images-in-javascript/
       // Try resize so that shortest edge is `shortest_edge` (target)
-      var shortResizeFactor =
+      const shortResizeFactor =
         shortest_edge === undefined
           ? 1 // If `shortest_edge` is not set, don't upscale
           : Math.max(shortest_edge / srcWidth, shortest_edge / srcHeight);
 
-      var newWidth = srcWidth * shortResizeFactor;
-      var newHeight = srcHeight * shortResizeFactor;
+      const newWidth = srcWidth * shortResizeFactor;
+      const newHeight = srcHeight * shortResizeFactor;
 
       // The new width and height might be greater than `longest_edge`, so
       // we downscale again to ensure the largest dimension is `longest_edge`
-      var longResizeFactor =
+      const longResizeFactor =
         longest_edge === undefined
           ? 1 // If `longest_edge` is not set, don't downscale
           : Math.min(longest_edge / newWidth, longest_edge / newHeight);
@@ -933,9 +933,9 @@ export class ImageProcessor extends Callable {
       return enforce_size_divisibility([srcWidth, srcHeight], this.size_divisibility);
     } else if (size.min_pixels !== undefined && size.max_pixels !== undefined) {
       // Custom resize logic for Qwen2-VL models
-      var { min_pixels, max_pixels } = size;
+      const { min_pixels, max_pixels } = size;
       // @ts-expect-error TS2339
-      var factor = this.config.patch_size * this.config.merge_size;
+      const factor = this.config.patch_size * this.config.merge_size;
       return smart_resize(srcHeight, srcWidth, factor, min_pixels, max_pixels);
     } else {
       throw new Error(
@@ -950,7 +950,7 @@ export class ImageProcessor extends Callable {
    * @returns {Promise<RawImage>} The resized image.
    */
   async resize(image: RawImage) {
-    var [newWidth, newHeight] = this.get_resize_output_image_size(image, this.size);
+    const [newWidth, newHeight] = this.get_resize_output_image_size(image, this.size);
     return await image.resize(newWidth, newHeight, {
       resample: this.resample,
     });
@@ -986,7 +986,7 @@ export class ImageProcessor extends Callable {
       image = await this.crop_margin(image);
     }
 
-    var [srcWidth, srcHeight] = image.size; // original image size
+    const [srcWidth, srcHeight] = image.size; // original image size
 
     // Convert image to RGB if specified in config.
     if (do_convert_rgb ?? this.do_convert_rgb) {
@@ -1024,7 +1024,7 @@ export class ImageProcessor extends Callable {
     }
 
     /** @type {HeightWidth} */
-    var reshaped_input_size = [image.height, image.width];
+    const reshaped_input_size = [image.height, image.width];
 
     // NOTE: All pixel-level manipulation (i.e., modifying `pixelData`)
     // occurs with data in the hwc format (height, width, channels),
@@ -1068,10 +1068,10 @@ export class ImageProcessor extends Callable {
     // do padding after rescaling/normalizing
     if (do_pad ?? this.do_pad) {
       if (this.pad_size) {
-        var padded = this.pad_image(pixelData, [image.height, image.width, image.channels], this.pad_size);
+        const padded = this.pad_image(pixelData, [image.height, image.width, image.channels], this.pad_size);
         [pixelData, imgDims] = padded as [Float32Array, number[]];
       } else if (this.size_divisibility) {
-        var [paddedWidth, paddedHeight] = enforce_size_divisibility([imgDims[1], imgDims[0]], this.size_divisibility);
+        const [paddedWidth, paddedHeight] = enforce_size_divisibility([imgDims[1], imgDims[0]], this.size_divisibility);
         [pixelData, imgDims] = this.pad_image(pixelData, imgDims, { width: paddedWidth, height: paddedHeight });
       }
     }
@@ -1082,13 +1082,13 @@ export class ImageProcessor extends Callable {
       }
       // Convert RGB to BGR
       for (let i = 0; i < pixelData.length; i += 3) {
-        var temp = pixelData[i];
+        const temp = pixelData[i];
         pixelData[i] = pixelData[i + 2];
         pixelData[i + 2] = temp;
       }
     }
 
-    var pixel_values = new Tensor('float32', pixelData, imgDims).permute(2, 0, 1); // convert to channel dimension format (hwc -> chw)
+    const pixel_values = new Tensor('float32', pixelData, imgDims).permute(2, 0, 1); // convert to channel dimension format (hwc -> chw)
 
     return {
       original_size: [srcHeight, srcWidth],
@@ -1110,10 +1110,10 @@ export class ImageProcessor extends Callable {
       images = [images];
     }
     /** @type {PreprocessedImage[]} */
-    var imageData = await Promise.all(images.map((x) => this.preprocess(x)));
+    const imageData = await Promise.all(images.map((x) => this.preprocess(x)));
 
     // Stack pixel values
-    var pixel_values = stack(
+    const pixel_values = stack(
       imageData.map((x) => x.pixel_values),
       0,
     );
@@ -1145,7 +1145,7 @@ export class ImageProcessor extends Callable {
    * @returns {Promise<ImageProcessor>} A new instance of the Processor class.
    */
   static async from_pretrained(pretrained_model_name_or_path: string, options: PretrainedOptions) {
-    var preprocessorConfig = await getModelJSON(pretrained_model_name_or_path, IMAGE_PROCESSOR_NAME, true, options);
+    const preprocessorConfig = await getModelJSON(pretrained_model_name_or_path, IMAGE_PROCESSOR_NAME, true, options);
     return new this(preprocessorConfig);
   }
 }
