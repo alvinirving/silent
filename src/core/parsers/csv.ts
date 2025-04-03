@@ -89,15 +89,15 @@ export class CSVParser {
    * @returns Parsed CSV data
    */
   static parseFromString(content: string, options: CSVParseOptions = {}): CSVParseResult {
-    var debugInfo: string[] = options.debug ? ['Parsing CSV from string'] : [];
-    var errors: string[] = [];
+    const debugInfo: string[] = options.debug ? ['Parsing CSV from string'] : [];
+    const errors: string[] = [];
     
     // Set default options
-    var delimiter = options.delimiter || ',';
-    var quoteChar = options.quoteChar || '"';
-    var includeHeaders = options.includeHeaders !== false;
-    var trimValues = options.trimValues !== false;
-    var skipEmptyLines = options.skipEmptyLines !== false;
+    const delimiter = options.delimiter || ',';
+    const quoteChar = options.quoteChar || '"';
+    const includeHeaders = options.includeHeaders !== false;
+    const trimValues = options.trimValues !== false;
+    const skipEmptyLines = options.skipEmptyLines !== false;
     
     if (options.debug) {
       debugInfo.push(`Options: delimiter="${delimiter}", quoteChar="${quoteChar}", includeHeaders=${includeHeaders}, trimValues=${trimValues}, skipEmptyLines=${skipEmptyLines}`);
@@ -129,10 +129,10 @@ export class CSVParser {
       }
       
       // Parse lines into rows
-      var rows: string[][] = [];
+      const rows: string[][] = [];
       for (let i = 0; i < lines.length; i++) {
-        var line = lines[i];
-        var row = this.parseLine(line, delimiter, quoteChar, trimValues);
+        const line = lines[i];
+        const row = this.parseLine(line, delimiter, quoteChar, trimValues);
         rows.push(row);
       }
       
@@ -142,11 +142,11 @@ export class CSVParser {
       
       if (includeHeaders && rows.length > 0) {
         headers = rows[0];
-        var dataRows = rows.slice(1);
+        const dataRows = rows.slice(1);
         
         // Convert to array of objects
         data = dataRows.map(row => {
-          var obj: Record<string, string> = {};
+          const obj: Record<string, string> = {};
           headers.forEach((header, index) => {
             obj[header] = index < row.length ? row[index] : '';
           });
@@ -155,7 +155,7 @@ export class CSVParser {
       } else {
         // No headers, use indices as keys
         data = rows.map(row => {
-          var obj: Record<string, string> = {};
+          const obj: Record<string, string> = {};
           row.forEach((value, index) => {
             obj[`column${index + 1}`] = value;
           });
@@ -163,8 +163,8 @@ export class CSVParser {
         });
       }
       
-      var columnCount = rows.length > 0 ? rows[0].length : 0;
-      var rowCount = includeHeaders && rows.length > 0 ? rows.length - 1 : rows.length;
+      const columnCount = rows.length > 0 ? rows[0].length : 0;
+      const rowCount = includeHeaders && rows.length > 0 ? rows.length - 1 : rows.length;
       
       if (options.debug) {
         debugInfo.push(`Parsed ${rowCount} data rows with ${columnCount} columns`);
@@ -180,7 +180,7 @@ export class CSVParser {
         debugInfo: options.debug ? debugInfo : undefined
       };
     } catch (error) {
-      var errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       errors.push(`Error parsing CSV: ${errorMessage}`);
       
       if (options.debug) {
@@ -203,13 +203,13 @@ export class CSVParser {
    * Parse a single CSV line into an array of values
    */
   private static parseLine(line: string, delimiter: string, quoteChar: string, trimValues: boolean): string[] {
-    var values: string[] = [];
+    const values: string[] = [];
     let currentValue = '';
     let inQuotes = false;
     
     for (let i = 0; i < line.length; i++) {
-      var char = line[i];
-      var nextChar = i < line.length - 1 ? line[i + 1] : '';
+      const char = line[i];
+      const nextChar = i < line.length - 1 ? line[i + 1] : '';
       
       if (char === quoteChar) {
         if (inQuotes && nextChar === quoteChar) {
@@ -243,16 +243,16 @@ export class CSVParser {
    * @returns Promise resolving to parsed CSV data
    */
   static async parseFromFile(file: File, options: CSVParseOptions = {}): Promise<CSVParseResult> {
-    var debugInfo: string[] = options.debug ? [`Parsing CSV file: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`] : [];
+    const debugInfo: string[] = options.debug ? [`Parsing CSV file: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`] : [];
     
     try {
-      var text = await file.text();
+      const text = await file.text();
       
       if (options.debug) {
         debugInfo.push(`File loaded as text, length: ${text.length} characters`);
       }
       
-      var result = this.parseFromString(text, options);
+      const result = this.parseFromString(text, options);
       
       if (options.debug && debugInfo.length > 0) {
         result.debugInfo = [...debugInfo, ...(result.debugInfo || [])];
@@ -260,7 +260,7 @@ export class CSVParser {
       
       return result;
     } catch (error) {
-      var errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       
       if (options.debug) {
         debugInfo.push(`Error reading file: ${errorMessage}`);
@@ -296,19 +296,19 @@ export function csvToText(
   } = {}
 ): string {
   // Default options
-  var includeHeaders = options.includeHeaders !== false;
-  var columnSeparator = options.columnSeparator || ' | ';
-  var rowSeparator = options.rowSeparator || '\n';
-  var maxRows = options.maxRows || Infinity;
-  var maxColumnWidth = options.maxColumnWidth || 50;
+  const includeHeaders = options.includeHeaders !== false;
+  const columnSeparator = options.columnSeparator || ' | ';
+  const rowSeparator = options.rowSeparator || '\n';
+  const maxRows = options.maxRows || Infinity;
+  const maxColumnWidth = options.maxColumnWidth || 50;
   
   // Function to truncate long values
-  var truncate = (value: string): string => {
+  const truncate = (value: string): string => {
     if (value.length <= maxColumnWidth) return value;
     return value.substring(0, maxColumnWidth - 3) + '...';
   };
   
-  var lines: string[] = [];
+  const lines: string[] = [];
   
   // Add headers if requested
   if (includeHeaders && csvData.headers.length > 0) {
@@ -316,15 +316,15 @@ export function csvToText(
     
     // Add separator line
     if (csvData.headers.length > 0) {
-      var separatorLine = csvData.headers.map(() => '-'.repeat(10)).join(columnSeparator);
+      const separatorLine = csvData.headers.map(() => '-'.repeat(10)).join(columnSeparator);
       lines.push(separatorLine);
     }
   }
   
   // Add data rows
-  var rowsToInclude = Math.min(csvData.rows.length, maxRows);
+  const rowsToInclude = Math.min(csvData.rows.length, maxRows);
   for (let i = 0; i < rowsToInclude; i++) {
-    var row = csvData.rows[i];
+    const row = csvData.rows[i];
     lines.push(row.map(cell => truncate(cell)).join(columnSeparator));
   }
   
@@ -397,7 +397,7 @@ export async function processCSVFile(
   text: string;
   debugInfo: string[];
 }> {
-  var debugInfo: string[] = [];
+  const debugInfo: string[] = [];
   
   // Validate file
   if (!file || (!file.name.toLowerCase().endsWith('.csv') && file.type !== 'text/csv')) {
@@ -409,7 +409,7 @@ export async function processCSVFile(
   try {
     // Parse the CSV file
     debugInfo.push('Parsing CSV file...');
-    var parsed = await CSVParser.parseFromFile(file, {
+    const parsed = await CSVParser.parseFromFile(file, {
       ...options,
       debug: true // Force debug for internal use
     });
@@ -422,7 +422,7 @@ export async function processCSVFile(
     
     // Convert to text
     debugInfo.push('Converting CSV to text format...');
-    var text = csvToText(parsed, options.textFormatting);
+    const text = csvToText(parsed, options.textFormatting);
     debugInfo.push(`Text conversion complete: ${text.length} characters`);
     
     return {
