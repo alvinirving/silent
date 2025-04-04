@@ -1,6 +1,6 @@
 // Some of this code is from https://github.com/hexgrad/kokoro/
 
-export const VOICES = Object.freeze({
+export var VOICES = Object.freeze({
   af: {
     // Default voice is a 50-50 mix of Bella & Sarah
     name: "Default",
@@ -165,7 +165,7 @@ export const VOICES = Object.freeze({
   },
 });
 
-const VOICE_DATA_URL = "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/voices";
+var VOICE_DATA_URL = "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/voices";
 
 /**
  *
@@ -173,12 +173,12 @@ const VOICE_DATA_URL = "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ON
  * @returns {Promise<ArrayBufferLike>}
  */
 async function getVoiceFile(id: string) {
-  const url = `${VOICE_DATA_URL}/${id}.bin`;
+  var url = `${VOICE_DATA_URL}/${id}.bin`;
 
   let cache;
   try {
     cache = await caches.open("kokoro-voices");
-    const cachedResponse = await cache.match(url);
+    var cachedResponse = await cache.match(url);
     if (cachedResponse) {
       return await cachedResponse.arrayBuffer();
     }
@@ -187,8 +187,8 @@ async function getVoiceFile(id: string) {
   }
 
   // No cache, or cache failed to open. Fetch the file.
-  const response = await fetch(url);
-  const buffer = await response.arrayBuffer();
+  var response = await fetch(url);
+  var buffer = await response.arrayBuffer();
 
   if (cache) {
     try {
@@ -207,13 +207,13 @@ async function getVoiceFile(id: string) {
   return buffer;
 }
 
-const VOICE_CACHE = new Map();
+var VOICE_CACHE = new Map();
 export async function getVoiceData(voice: any) {
   if (VOICE_CACHE.has(voice)) {
     return VOICE_CACHE.get(voice);
   }
 
-  const buffer = new Float32Array(await getVoiceFile(voice));
+  var buffer = new Float32Array(await getVoiceFile(voice));
   VOICE_CACHE.set(voice, buffer);
   return buffer;
 }
