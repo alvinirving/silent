@@ -6,7 +6,7 @@
  *
  * ```javascript
  * import { AutoConfig } from '@huggingface/transformers';
- * var config = await AutoConfig.from_pretrained('bert-base-uncased');
+ * const config = await AutoConfig.from_pretrained('bert-base-uncased');
  * console.log(config);
  * // PretrainedConfig {
  * //   "model_type": "bert",
@@ -57,7 +57,7 @@ async function loadConfig(pretrained_model_name_or_path: string, options: Pretra
  * @returns {Object} The normalized configuration.
  */
 function getNormalizedConfig(config: PretrainedConfig) {
-  var mapping: { [key: string]: string } = {};
+  const mapping: { [key: string]: string } = {};
 
   let init_normalized_config = {};
   switch (config.model_type as unknown as string) {
@@ -201,10 +201,10 @@ function getNormalizedConfig(config: PretrainedConfig) {
 
     case 'vision-encoder-decoder':
       // @ts-expect-error TS2339
-      var decoderConfig = getNormalizedConfig(config.decoder);
+      const decoderConfig = getNormalizedConfig(config.decoder);
 
-      var add_encoder_pkv = 'num_decoder_layers' in decoderConfig;
-      var result: Record<string, unknown> = pick(config, ['model_type', 'is_encoder_decoder']);
+      const add_encoder_pkv = 'num_decoder_layers' in decoderConfig;
+      const result: Record<string, unknown> = pick(config, ['model_type', 'is_encoder_decoder']);
       if (add_encoder_pkv) {
         // Decoder is part of an encoder-decoder model
         result.num_decoder_layers = (decoderConfig as Record<string, unknown>).num_decoder_layers;
@@ -224,11 +224,11 @@ function getNormalizedConfig(config: PretrainedConfig) {
   }
 
   // NOTE: If `num_attention_heads` is not set, it is assumed to be equal to `num_heads`
-  var normalized_config: Record<string, any> = {
+  const normalized_config: Record<string, any> = {
     ...init_normalized_config,
     ...pick(config, ['model_type', 'multi_query', 'is_encoder_decoder']),
   };
-  for (var key in mapping) {
+  for (const key in mapping) {
     normalized_config[key] = (config as Record<string, any>)[mapping[key]];
   }
   return normalized_config;
@@ -241,21 +241,21 @@ function getNormalizedConfig(config: PretrainedConfig) {
  */
 export function getKeyValueShapes(config: PretrainedConfig, { prefix = 'past_key_values', batch_size = 1 } = {}) {
   /** @type {Record<string, number[]>} */
-  var decoderFeeds: Record<string, number[]> = {};
-  var normalized_config = config.normalized_config;
+  const decoderFeeds: Record<string, number[]> = {};
+  const normalized_config = config.normalized_config;
 
   if (
     normalized_config.is_encoder_decoder &&
     'num_encoder_heads' in normalized_config &&
     'num_decoder_heads' in normalized_config
   ) {
-    var encoder_dim_kv =
+    const encoder_dim_kv =
       normalized_config.encoder_dim_kv ?? normalized_config.encoder_hidden_size / normalized_config.num_encoder_heads;
-    var decoder_dim_kv =
+    const decoder_dim_kv =
       normalized_config.decoder_dim_kv ?? normalized_config.decoder_hidden_size / normalized_config.num_decoder_heads;
 
-    var encoder_dims = [batch_size, normalized_config.num_encoder_heads, 0, encoder_dim_kv];
-    var decoder_dims = [batch_size, normalized_config.num_decoder_heads, 0, decoder_dim_kv];
+    const encoder_dims = [batch_size, normalized_config.num_encoder_heads, 0, encoder_dim_kv];
+    const decoder_dims = [batch_size, normalized_config.num_decoder_heads, 0, decoder_dim_kv];
     for (let i = 0; i < normalized_config.num_decoder_layers; ++i) {
       decoderFeeds[`${prefix}.${i}.encoder.key`] = encoder_dims;
       decoderFeeds[`${prefix}.${i}.encoder.value`] = encoder_dims;
@@ -264,21 +264,21 @@ export function getKeyValueShapes(config: PretrainedConfig, { prefix = 'past_key
     }
   } else {
     // Decoders
-    var num_heads = normalized_config.num_heads;
-    var num_layers = normalized_config.num_layers;
-    var dim_kv =
+    const num_heads = normalized_config.num_heads;
+    const num_layers = normalized_config.num_layers;
+    const dim_kv =
       normalized_config.dim_kv ?? normalized_config.hidden_size / (normalized_config.num_attention_heads ?? num_heads);
 
     if (normalized_config.model_type === 'falcon') {
       // NOTE: Custom implementation for Falcon
-      var dims = [batch_size * num_heads, 0, dim_kv];
+      const dims = [batch_size * num_heads, 0, dim_kv];
       for (let i = 0; i < num_layers; ++i) {
         decoderFeeds[`${prefix}.${i}.key`] = dims;
         decoderFeeds[`${prefix}.${i}.value`] = dims;
       }
     } else if (normalized_config.multi_query) {
       // e.g., for `gpt_bigcode`
-      var dims = [batch_size * num_heads, 0, 2 * dim_kv];
+      const dims = [batch_size * num_heads, 0, 2 * dim_kv];
 
       for (let i = 0; i < num_layers; ++i) {
         decoderFeeds[`${prefix}.${i}.key_value`] = dims;
@@ -286,22 +286,22 @@ export function getKeyValueShapes(config: PretrainedConfig, { prefix = 'past_key
     } else if (normalized_config.model_type === 'bloom') {
       // NOTE: Custom implementation for Bloom
 
-      var keyDims = [batch_size * num_heads, dim_kv, 0]; // [batch_size x num_heads,64,past_sequence_length]
-      var valueDims = [batch_size * num_heads, 0, dim_kv]; // [batch_size x num_heads,past_sequence_length,64]
+      const keyDims = [batch_size * num_heads, dim_kv, 0]; // [batch_size x num_heads,64,past_sequence_length]
+      const valueDims = [batch_size * num_heads, 0, dim_kv]; // [batch_size x num_heads,past_sequence_length,64]
       for (let i = 0; i < num_layers; ++i) {
         decoderFeeds[`${prefix}.${i}.key`] = keyDims;
         decoderFeeds[`${prefix}.${i}.value`] = valueDims;
       }
     } else if (normalized_config.model_type === 'openelm') {
       for (let i = 0; i < num_layers; ++i) {
-        var dims = [batch_size, num_heads[i], 0, dim_kv];
+        const dims = [batch_size, num_heads[i], 0, dim_kv];
 
         decoderFeeds[`${prefix}.${i}.key`] = dims;
         decoderFeeds[`${prefix}.${i}.value`] = dims;
       }
     } else {
       // Decoder-only
-      var dims = [batch_size, num_heads, 0, dim_kv];
+      const dims = [batch_size, num_heads, 0, dim_kv];
       for (let i = 0; i < num_layers; ++i) {
         decoderFeeds[`${prefix}.${i}.key`] = dims;
         decoderFeeds[`${prefix}.${i}.value`] = dims;
@@ -366,7 +366,7 @@ export class PretrainedConfig {
       config = new PretrainedConfig(config);
     }
 
-    var data =
+    const data =
       config ??
       (await loadConfig(pretrained_model_name_or_path, {
         progress_callback,
@@ -383,7 +383,7 @@ export class PretrainedConfig {
  * Helper class which is used to instantiate pretrained configs with the `from_pretrained` function.
  *
  * @example
- * var config = await AutoConfig.from_pretrained('Xenova/bert-base-uncased');
+ * const config = await AutoConfig.from_pretrained('Xenova/bert-base-uncased');
  */
 export class AutoConfig {
   /** @type {typeof PretrainedConfig.from_pretrained} */
