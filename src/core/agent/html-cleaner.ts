@@ -29,7 +29,7 @@ export class HTMLCleaner {
             elements.forEach(el => el.remove());
         });
 
-        const allElements = tempElement.querySelectorAll('*');
+        var allElements = tempElement.querySelectorAll('*');
         allElements.forEach(el => {
             this.attributesToRemove.forEach(attr => el.removeAttribute(attr));
         });
@@ -48,7 +48,7 @@ export class HTMLCleaner {
         let tempElement = document.createElement('div');
         tempElement.innerHTML = html;
         let importantText = "";
-        const importantTags = ['article', 'main', 'section', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'blockquote', 'code', 'pre', 'em', 'strong', 'a'];
+        var importantTags = ['article', 'main', 'section', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'blockquote', 'code', 'pre', 'em', 'strong', 'a'];
         importantTags.forEach(tag => {
             let elements = tempElement.querySelectorAll(tag);
             elements.forEach(el => {
@@ -68,27 +68,27 @@ export class HTMLCleaner {
         let tempElement = document.createElement('div');
         tempElement.innerHTML = html;
         
-        const interactiveElements = new Set([
+        var interactiveElements = new Set([
             'a', 'button', 'input', 'select', 'textarea',
             'details', 'menu', 'menuitem'
         ]);
 
-        const interactiveRoles = new Set([
+        var interactiveRoles = new Set([
             'button', 'link', 'checkbox', 'radio',
             'tab', 'menuitem', 'option', 'switch'
         ]);
 
         let interactiveContent = "";
         
-        const processElement = (element: Element) => {
-            const tagName = element.tagName.toLowerCase();
-            const role = element.getAttribute('role');
+        var processElement = (element: Element) => {
+            var tagName = element.tagName.toLowerCase();
+            var role = element.getAttribute('role');
             
             if (interactiveElements.has(tagName) || 
                 (role && interactiveRoles.has(role))) {
                 // Special handling for input elements
                 if (tagName === 'input') {
-                    const value = (element as HTMLInputElement).value;
+                    var value = (element as HTMLInputElement).value;
                     interactiveContent += `[${tagName}] ${value}\n`;
                 } else {
                     interactiveContent += `[${tagName}] ${element.textContent}\n`;
@@ -109,12 +109,12 @@ export class HTMLCleaner {
         let tempElement = document.createElement('div');
         tempElement.innerHTML = html;
 
-        const headingLevels = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+        var headingLevels = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
         let structuredContent = "";
         
-        const processNode = (element: Element, depth: number = 0) => {
-            const tagName = element.tagName.toLowerCase();
-            const indent = '  '.repeat(depth);
+        var processNode = (element: Element, depth: number = 0) => {
+            var tagName = element.tagName.toLowerCase();
+            var indent = '  '.repeat(depth);
             
             if (headingLevels.includes(tagName)) {
                 structuredContent += `${indent}${tagName}: ${element.textContent}\n`;
@@ -136,13 +136,13 @@ export class HTMLCleaner {
      */
     private deduplicateFinalOutput(text: string): string {
         // Split text into paragraphs
-        const paragraphs = text.split(/\n{2,}|\r\n{2,}/);
-        const uniqueParagraphs: string[] = [];
-        const seenParagraphs = new Set<string>();
+        var paragraphs = text.split(/\n{2,}|\r\n{2,}/);
+        var uniqueParagraphs: string[] = [];
+        var seenParagraphs = new Set<string>();
         
         // Process each paragraph
-        for (const paragraph of paragraphs) {
-            const trimmed = paragraph.trim();
+        for (var paragraph of paragraphs) {
+            var trimmed = paragraph.trim();
             
             // Skip empty paragraphs
             if (!trimmed) continue;
@@ -152,7 +152,7 @@ export class HTMLCleaner {
             
             // Check for near-duplicate paragraphs (>80% similarity)
             let isDuplicate = false;
-            for (const existing of seenParagraphs) {
+            for (var existing of seenParagraphs) {
                 if (this.calculateSimilarity(trimmed, existing) > 0.8) {
                     isDuplicate = true;
                     break;
@@ -189,25 +189,25 @@ export class HTMLCleaner {
         }
         
         // Calculate Levenshtein distance
-        const len1 = str1.length;
-        const len2 = str2.length;
+        var len1 = str1.length;
+        var len2 = str2.length;
         
         // Use a simplified approach for long strings to avoid performance issues
         if (len1 > 100 || len2 > 100) {
             // Compare first 50 chars, middle 50 chars, and last 50 chars
-            const compareStart = this.calculateLevenshteinSimilarity(
+            var compareStart = this.calculateLevenshteinSimilarity(
                 str1.substring(0, 50), 
                 str2.substring(0, 50)
             );
             
-            const mid1Start = Math.max(0, Math.floor(len1 / 2) - 25);
-            const mid2Start = Math.max(0, Math.floor(len2 / 2) - 25);
-            const compareMiddle = this.calculateLevenshteinSimilarity(
+            var mid1Start = Math.max(0, Math.floor(len1 / 2) - 25);
+            var mid2Start = Math.max(0, Math.floor(len2 / 2) - 25);
+            var compareMiddle = this.calculateLevenshteinSimilarity(
                 str1.substring(mid1Start, mid1Start + 50), 
                 str2.substring(mid2Start, mid2Start + 50)
             );
             
-            const compareEnd = this.calculateLevenshteinSimilarity(
+            var compareEnd = this.calculateLevenshteinSimilarity(
                 str1.substring(Math.max(0, len1 - 50)), 
                 str2.substring(Math.max(0, len2 - 50))
             );
@@ -228,11 +228,11 @@ export class HTMLCleaner {
      * @returns {number} Similarity score between 0 and 1
      */
     private calculateLevenshteinSimilarity(str1: string, str2: string): number {
-        const len1 = str1.length;
-        const len2 = str2.length;
+        var len1 = str1.length;
+        var len2 = str2.length;
         
         // Create a matrix of size (len1+1) x (len2+1)
-        const matrix: number[][] = Array(len1 + 1).fill(null).map(() => Array(len2 + 1).fill(0));
+        var matrix: number[][] = Array(len1 + 1).fill(null).map(() => Array(len2 + 1).fill(0));
         
         // Initialize the first row and column
         for (let i = 0; i <= len1; i++) {
@@ -246,7 +246,7 @@ export class HTMLCleaner {
         // Fill the matrix
         for (let i = 1; i <= len1; i++) {
             for (let j = 1; j <= len2; j++) {
-                const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                var cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
                 matrix[i][j] = Math.min(
                     matrix[i - 1][j] + 1,      // deletion
                     matrix[i][j - 1] + 1,      // insertion
@@ -256,8 +256,8 @@ export class HTMLCleaner {
         }
         
         // Calculate similarity as 1 - (distance / max length)
-        const distance = matrix[len1][len2];
-        const maxLength = Math.max(len1, len2);
+        var distance = matrix[len1][len2];
+        var maxLength = Math.max(len1, len2);
         return 1 - (distance / maxLength);
     }
 
@@ -266,10 +266,10 @@ export class HTMLCleaner {
      */
     private applyDeduplicationToAllMethods(): void {
         // Store original methods
-        const originalClean = this.clean;
-        const originalCleanSemantic = this.cleanSemantic;
-        const originalCleanForInteractive = this.cleanForInteractive;
-        const originalPreserveSemanticHierarchy = this.preserveSemanticHierarchy;
+        var originalClean = this.clean;
+        var originalCleanSemantic = this.cleanSemantic;
+        var originalCleanForInteractive = this.cleanForInteractive;
+        var originalPreserveSemanticHierarchy = this.preserveSemanticHierarchy;
         
         // Override methods to apply deduplication
         this.clean = (html: string): string => {
@@ -307,13 +307,13 @@ export class HTMLCleaner {
         elements: Record<string, { type: string, text: string, attributes?: Record<string, string> }>,
         references: Record<string, string | { href?: string, class?: string, selector?: string }>
     } {
-        const includeCodeBlocks = options.includeCodeBlocks || false;
-        const includeScripts = options.includeScripts || false;
+        var includeCodeBlocks = options.includeCodeBlocks || false;
+        var includeScripts = options.includeScripts || false;
 
         let tempElement = document.createElement('div');
         // Use DOMParser for potentially more robust parsing, though innerHTML is often fine
-        // const parser = new DOMParser();
-        // const doc = parser.parseFromString(html, 'text/html');
+        // var parser = new DOMParser();
+        // var doc = parser.parseFromString(html, 'text/html');
         // tempElement = doc.body; // Or work directly with doc.body
         tempElement.innerHTML = html; // Sticking with innerHTML for simplicity matching original code
 
@@ -331,8 +331,8 @@ export class HTMLCleaner {
         });
 
         // 2. Clean attributes except important ones
-        const allowedAttributes = ['href', 'type', 'value', 'placeholder', 'name', 'checked', 'selected', 'class', 'id', 'for', 'alt', 'title']; // Added for, alt, title
-        const allElements = tempElement.querySelectorAll('*');
+        var allowedAttributes = ['href', 'type', 'value', 'placeholder', 'name', 'checked', 'selected', 'class', 'id', 'for', 'alt', 'title']; // Added for, alt, title
+        var allElements = tempElement.querySelectorAll('*');
         allElements.forEach(el => {
             Array.from(el.attributes).forEach(attr => {
                 // Allow all data-* attributes? Maybe not needed for LLM.
@@ -345,18 +345,18 @@ export class HTMLCleaner {
 
         // --- Processing ---
 
-        const elements: Record<string, { type: string, text: string, attributes?: Record<string, string> }> = {};
-        const references: Record<string, string | { href?: string, class?: string, selector?: string }> = {};
+        var elements: Record<string, { type: string, text: string, attributes?: Record<string, string> }> = {};
+        var references: Record<string, string | { href?: string, class?: string, selector?: string }> = {};
         let elementCounter = 1;
 
         // Set to track processed text content to avoid duplicates (mainly for paragraphs/headings)
-        const processedTextContent = new Set<string>();
+        var processedTextContent = new Set<string>();
 
         // Helper function to create a selector for an element
-        const createSelector = (element: Element): string => {
+        var createSelector = (element: Element): string => {
             console.log(element);
             if (!element || !element.tagName) return ''; // Guard against null/undefined elements
-            const tagName = element.tagName.toLowerCase();
+            var tagName = element.tagName.toLowerCase();
             let selector = tagName;
 
             // Add ID if available and valid
@@ -375,7 +375,7 @@ export class HTMLCleaner {
 
             // Add classes if available
             if (element.className && typeof element.className === 'string') {
-                const classes = element.className.split(/\s+/).filter(Boolean);
+                var classes = element.className.split(/\s+/).filter(Boolean);
                 classes.forEach(cls => {
                     // Check if class is reasonably valid (optional, but good practice)
                     if (/^[a-zA-Z0-9_-]+$/.test(cls)) {
@@ -388,22 +388,22 @@ export class HTMLCleaner {
         };
 
         // Recursive function to process the document
-        const processNode = (node: Node): string => {
+        var processNode = (node: Node): string => {
             // 1. Handle Text Nodes
             if (node.nodeType === Node.TEXT_NODE) {
-                const text = node.textContent?.replace(/\s+/g, ' ').trim(); // Normalize whitespace
+                var text = node.textContent?.replace(/\s+/g, ' ').trim(); // Normalize whitespace
                 return text ? text + ' ' : ''; // Add trailing space for concatenation
             }
 
             // 2. Handle Non-Element Nodes (like comments)
             if (node.nodeType !== Node.ELEMENT_NODE) return '';
 
-            const element = node as Element;
-            const tagName = element.tagName.toLowerCase();
+            var element = node as Element;
+            var tagName = element.tagName.toLowerCase();
 
             // 3. Skip elements completely if they are not meant for LLM context
             // (This check might be redundant if tagsToRemove already handled it, but good safety)
-            const skipElements = ['script', 'style', 'noscript', 'svg', 'canvas', 'iframe']; // Ensure consistency
+            var skipElements = ['script', 'style', 'noscript', 'svg', 'canvas', 'iframe']; // Ensure consistency
              if (skipElements.includes(tagName) && !(tagName === 'script' && includeScripts)) {
                  return '';
              }
@@ -418,9 +418,9 @@ export class HTMLCleaner {
 
             // Headings
              if (/^h[1-6]$/.test(tagName)) {
-                const level = parseInt(tagName.substring(1));
-                const prefix = '#'.repeat(level);
-                const text = element.textContent?.trim();
+                var level = parseInt(tagName.substring(1));
+                var prefix = '#'.repeat(level);
+                var text = element.textContent?.trim();
                 if (text && !processedTextContent.has(text)) {
                     elementId = `${tagName}_${elementCounter++}`;
                     elements[elementId] = { type: tagName, text: text };
@@ -437,8 +437,8 @@ export class HTMLCleaner {
             }
             // Links
             else if (tagName === 'a' && element.hasAttribute('href')) {
-                const text = element.textContent?.trim();
-                const href = element.getAttribute('href') || '';
+                var text = element.textContent?.trim();
+                var href = element.getAttribute('href') || '';
 
                 // Avoid processing mailto: or javascript: links unless text is significant?
                 // if (href.startsWith('mailto:') || href.startsWith('javascript:')) return '';
@@ -446,10 +446,10 @@ export class HTMLCleaner {
                 // Process if text is meaningful
                 if (text && text.length > 1) {
                     // Use combined text+href for uniqueness check if needed, but often text is enough
-                    const uniqueKey = `link:${text}|${href}`;
+                    var uniqueKey = `link:${text}|${href}`;
                     if (!processedTextContent.has(uniqueKey)) {
                          elementId = `link_${elementCounter++}`;
-                         const attributes: Record<string, string> = { href: href };
+                         var attributes: Record<string, string> = { href: href };
                          elements[elementId] = { type: 'link', text: text, attributes: attributes };
                          references[elementId] = { href: href, selector: createSelector(element), class: element.getAttribute('class') || undefined };
                          processedTextContent.add(uniqueKey);
@@ -472,19 +472,19 @@ export class HTMLCleaner {
             }
             // Buttons
             else if (tagName === 'button') {
-                const text = element.textContent?.trim() || element.getAttribute('aria-label') || element.getAttribute('title');
+                var text = element.textContent?.trim() || element.getAttribute('aria-label') || element.getAttribute('title');
 
                 if (text && text.length > 0) {
-                    const uniqueKey = `button:${text}`;
+                    var uniqueKey = `button:${text}`;
                     // Allow duplicate button text if needed, maybe use selector for uniqueness?
-                    // const uniqueKey = createSelector(element);
+                    // var uniqueKey = createSelector(element);
                     if (!processedTextContent.has(uniqueKey)) {
                          elementId = `btn_${elementCounter++}`;
-                         const attributes: Record<string, string> = {};
-                         const type = element.getAttribute('type');
-                         const name = element.getAttribute('name');
-                         const value = element.getAttribute('value');
-                         const class_val = element.getAttribute('class'); // Use consistent naming
+                         var attributes: Record<string, string> = {};
+                         var type = element.getAttribute('type');
+                         var name = element.getAttribute('name');
+                         var value = element.getAttribute('value');
+                         var class_val = element.getAttribute('class'); // Use consistent naming
 
                          if (type) attributes.type = type;
                          if (name) attributes.name = name;
@@ -512,20 +512,20 @@ export class HTMLCleaner {
             }
             // Inputs
             else if (tagName === 'input') {
-                const type = element.getAttribute('type') || 'text';
+                var type = element.getAttribute('type') || 'text';
                 // Skip hidden inputs unless specifically needed
                 if (type === 'hidden') return '';
 
-                const value = (element as HTMLInputElement).value;
-                const placeholder = element.getAttribute('placeholder');
-                const name = element.getAttribute('name');
-                const checked = (element as HTMLInputElement).checked;
-                const labelText = findLabelText(element); // Helper to find associated label
+                var value = (element as HTMLInputElement).value;
+                var placeholder = element.getAttribute('placeholder');
+                var name = element.getAttribute('name');
+                var checked = (element as HTMLInputElement).checked;
+                var labelText = findLabelText(element); // Helper to find associated label
 
-                const idText = labelText || placeholder || name || type; // Best text descriptor
+                var idText = labelText || placeholder || name || type; // Best text descriptor
 
                 elementId = `input_${elementCounter++}`;
-                const attributes: Record<string, string> = { type };
+                var attributes: Record<string, string> = { type };
                 if (value && type !== 'password') attributes.value = value; // Don't expose password values
                 if (placeholder) attributes.placeholder = placeholder;
                 if (name) attributes.name = name;
@@ -556,9 +556,9 @@ export class HTMLCleaner {
             }
             // Select (Dropdowns)
             else if (tagName === 'select') {
-                const name = element.getAttribute('name');
-                const labelText = findLabelText(element);
-                const idText = labelText || name || 'dropdown';
+                var name = element.getAttribute('name');
+                var labelText = findLabelText(element);
+                var idText = labelText || name || 'dropdown';
 
                 interface OptionData {
                     value: string;
@@ -566,8 +566,8 @@ export class HTMLCleaner {
                     selected?: boolean;
                 }
 
-                const options: OptionData[] = Array.from(element.querySelectorAll('option')).map(opt => {
-                    const optData: OptionData = {
+                var options: OptionData[] = Array.from(element.querySelectorAll('option')).map(opt => {
+                    var optData: OptionData = {
                         value: opt.getAttribute('value') || opt.textContent || '',
                         text: opt.textContent || ''
                     };
@@ -576,7 +576,7 @@ export class HTMLCleaner {
                     }
                     return optData;
                 });
-                const selectedOption = options.find(opt => opt.selected);
+                var selectedOption = options.find(opt => opt.selected);
 
                 elementId = `select_${elementCounter++}`;
                 elements[elementId] = {
@@ -605,14 +605,14 @@ export class HTMLCleaner {
             }
             // ** Textareas **
             else if (tagName === 'textarea') {
-                // const value = (element as HTMLTextAreaElement)?.value; // Current value
-                const placeholder = element.getAttribute('placeholder');
-                const name = element.getAttribute('name');
-                 const labelText = findLabelText(element);
-                 const idText = labelText || placeholder || name || 'text area';
+                // var value = (element as HTMLTextAreaElement)?.value; // Current value
+                var placeholder = element.getAttribute('placeholder');
+                var name = element.getAttribute('name');
+                 var labelText = findLabelText(element);
+                 var idText = labelText || placeholder || name || 'text area';
 
                 elementId = `textarea_${elementCounter++}`;
-                const attributes: Record<string, string> = {};
+                var attributes: Record<string, string> = {};
                 // Include value? Might be too verbose for LLM, depends on use case.
                 // if (value) attributes.value = value;
                 if (placeholder) attributes.placeholder = placeholder;
@@ -643,7 +643,7 @@ export class HTMLCleaner {
              else if (tagName === 'p') {
                 // Process children, add paragraph breaks
                 elementContent = Array.from(element.childNodes).map(processNode).join('');
-                const trimmedContent = elementContent.trim();
+                var trimmedContent = elementContent.trim();
                 if (trimmedContent && trimmedContent.length > 10 && !processedTextContent.has(trimmedContent)) { // Add length check and deduplication
                      // Optionally add ID for long/unique paragraphs
                      // elementId = `p_${elementCounter++}`;
@@ -662,7 +662,7 @@ export class HTMLCleaner {
              else if (tagName === 'li') {
                 // Process children, add list marker
                 elementContent = Array.from(element.childNodes).map(processNode).join('');
-                 const trimmedContent = elementContent.trim();
+                 var trimmedContent = elementContent.trim();
                  if (trimmedContent) {
                      // Optionally add ID
                      // elementId = `li_${elementCounter++}`;
@@ -684,13 +684,13 @@ export class HTMLCleaner {
              else if (tagName === 'pre' || tagName === 'code') {
                 if (includeCodeBlocks) {
                      elementId = `${tagName}_${elementCounter++}`;
-                     const text = element.textContent || ''; // Get raw text content
+                     var text = element.textContent || ''; // Get raw text content
                      elements[elementId] = { type: tagName, text: text.trim() };
                      references[elementId] = { selector: createSelector(element), class: element.getAttribute('class') || undefined };
 
                      // Output format: ```language\n code \n``` [code_1]
-                     const langClass = element.className.match(/language-(\w+)/);
-                     const lang = langClass ? langClass[1] : '';
+                     var langClass = element.className.match(/language-(\w+)/);
+                     var lang = langClass ? langClass[1] : '';
                      elementOutputPrefix = `\`\`\`${lang}\n${text.trim()}\n\`\`\``;
                      elementOutputSuffix = ` [${elementId}]\n\n`;
                      processChildren = false; // Don't process children of code blocks
@@ -705,8 +705,8 @@ export class HTMLCleaner {
              }
             // Images
              else if (tagName === 'img') {
-                 const alt = element.getAttribute('alt')?.trim();
-                 const src = element.getAttribute('src');
+                 var alt = element.getAttribute('alt')?.trim();
+                 var src = element.getAttribute('src');
                  if (alt) {
                      elementId = `img_${elementCounter++}`;
                      elements[elementId] = { type: 'image', text: alt, attributes: { alt: alt, ...(src && {src: src}) } };
@@ -729,26 +729,26 @@ export class HTMLCleaner {
         };
 
         // Helper function to find text associated with an input/textarea/select
-        const findLabelText = (element: Element): string | null => {
+        var findLabelText = (element: Element): string | null => {
             // 1. Check for aria-label or aria-labelledby
-             const ariaLabel = element.getAttribute('aria-label');
+             var ariaLabel = element.getAttribute('aria-label');
              if (ariaLabel) return ariaLabel;
-             const ariaLabelledBy = element.getAttribute('aria-labelledby');
+             var ariaLabelledBy = element.getAttribute('aria-labelledby');
              if (ariaLabelledBy) {
-                 const labelElement = tempElement.querySelector(`#${CSS.escape(ariaLabelledBy)}`);
+                 var labelElement = tempElement.querySelector(`#${CSS.escape(ariaLabelledBy)}`);
                  if (labelElement) return labelElement.textContent?.trim() || null;
              }
 
             // 2. Look for a <label> element pointing to this element's ID
             if (element.id) {
-                const label = tempElement.querySelector(`label[for="${CSS.escape(element.id)}"]`);
+                var label = tempElement.querySelector(`label[for="${CSS.escape(element.id)}"]`);
                 if (label) {
                     return label.textContent?.trim() || null;
                 }
             }
 
             // 3. Look for a <label> element wrapping this element
-            const parentLabel = element.closest('label');
+            var parentLabel = element.closest('label');
             if (parentLabel) {
                 // Get text content of the label, excluding the input/select/textarea itself
                 let labelText = '';
@@ -770,9 +770,9 @@ export class HTMLCleaner {
              }
 
              // 5. Look within common parent structure like <div class="q"> <label>...</label> <input/> </div>
-             const commonParent = element.closest('.q, .form-group, .input-group'); // Add common form group classes
+             var commonParent = element.closest('.q, .form-group, .input-group'); // Add common form group classes
              if (commonParent) {
-                 const label = commonParent.querySelector('label');
+                 var label = commonParent.querySelector('label');
                  if (label && !label.hasAttribute('for')) { // If label doesn't have 'for', assume it's for this input
                      return label.textContent?.trim() || null;
                  }
@@ -784,7 +784,7 @@ export class HTMLCleaner {
 
 
         // Start processing from the body or the root temp element
-        const body = tempElement.querySelector('body') || tempElement;
+        var body = tempElement.querySelector('body') || tempElement;
         let content = processNode(body);
 
         // --- Final Cleanup ---
