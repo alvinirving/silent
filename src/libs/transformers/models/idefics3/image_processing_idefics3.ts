@@ -27,7 +27,7 @@ export class Idefics3ImageProcessor extends ImageProcessor {
   get_resize_for_vision_encoder(pixel_values: Tensor, vision_encoder_max_size: number) {
     let [height, width] = pixel_values.dims.slice(-2);
 
-    const aspect_ratio = width / height;
+    var aspect_ratio = width / height;
     if (width >= height) {
       width = Math.ceil(width / vision_encoder_max_size) * vision_encoder_max_size;
       height = Math.floor(width / aspect_ratio);
@@ -65,9 +65,9 @@ export class Idefics3ImageProcessor extends ImageProcessor {
     let images_list_rows = [];
     let images_list_cols = [];
 
-    const original_sizes = [];
-    const reshaped_input_sizes = [];
-    for (const image_batch of batched_2d_images) {
+    var original_sizes = [];
+    var reshaped_input_sizes = [];
+    for (var image_batch of batched_2d_images) {
       let images_list = await Promise.all((image_batch as RawImage[]).map((x) => this.preprocess(x)));
 
       // Original sizes of images
@@ -79,7 +79,7 @@ export class Idefics3ImageProcessor extends ImageProcessor {
       // Convert images to 4D tensors for easier processing
       images_list.forEach((x: any) => x.pixel_values.unsqueeze_(0));
 
-      const longest_edge = this.max_image_size[0];
+      var longest_edge = this.max_image_size[0];
 
       /** @type {Tensor[]} */
       let images_tensor;
@@ -90,13 +90,13 @@ export class Idefics3ImageProcessor extends ImageProcessor {
         // We first resize both height and width of each image to the nearest max_image_size multiple, disregarding the aspect ratio
         images_tensor = await Promise.all(
           images_list.map(async (x: any, i: number) => {
-            const new_size = this.get_resize_for_vision_encoder(x.pixel_values, longest_edge);
+            var new_size = this.get_resize_for_vision_encoder(x.pixel_values, longest_edge);
 
-            const resized = await interpolate_4d(x.pixel_values, {
+            var resized = await interpolate_4d(x.pixel_values, {
               size: [new_size.height, new_size.width],
             });
 
-            const { frames, num_splits_h, num_splits_w } = await this.split_image(resized, {
+            var { frames, num_splits_h, num_splits_w } = await this.split_image(resized, {
               longest_edge: this.max_image_size[0],
             });
             image_rows[i] = num_splits_h;
@@ -109,7 +109,7 @@ export class Idefics3ImageProcessor extends ImageProcessor {
         images_list_cols.push(image_cols);
       } else {
         /** @type {[number, number]} */
-        const size = [longest_edge, longest_edge];
+        var size = [longest_edge, longest_edge];
         images_tensor = await Promise.all(images_list.map((x: any) => interpolate_4d(x.pixel_values, { size })));
 
         images_list_rows.push(new Array(images_list.length).fill(0));
@@ -119,8 +119,8 @@ export class Idefics3ImageProcessor extends ImageProcessor {
       all_pixel_values.push(cat(images_tensor, 0));
     }
 
-    const batch_size = all_pixel_values.length;
-    const [n, c, h, w] = all_pixel_values[0].dims;
+    var batch_size = all_pixel_values.length;
+    var [n, c, h, w] = all_pixel_values[0].dims;
 
     // Stack pixel values
     let pixel_values;
@@ -130,18 +130,18 @@ export class Idefics3ImageProcessor extends ImageProcessor {
       pixel_attention_mask = full([batch_size, n, h, w], true);
     } else {
       // Add padding (if necessary) to images with less patches than the maximum number of patches
-      const max_num_patches = Math.max(...all_pixel_values.map((x) => x.dims.at(0)));
+      var max_num_patches = Math.max(...all_pixel_values.map((x) => x.dims.at(0)));
 
       pixel_attention_mask = full([batch_size, max_num_patches, h, w], true);
-      const pixel_attention_mask_data = pixel_attention_mask.data as any;
-      const pixel_attention_mask_stride = max_num_patches * h * w;
+      var pixel_attention_mask_data = pixel_attention_mask.data as any;
+      var pixel_attention_mask_stride = max_num_patches * h * w;
       for (let i = 0; i < batch_size; ++i) {
-        const num_patches: number = all_pixel_values[i].dims[0];
+        var num_patches: number = all_pixel_values[i].dims[0];
         if (num_patches < max_num_patches) {
           all_pixel_values[i] = cat([all_pixel_values[i], full([max_num_patches - num_patches, c, h, w], 0)], 0);
 
-          const start_offset = i * pixel_attention_mask_stride + num_patches * h * w;
-          const end_offset = (i + 1) * pixel_attention_mask_stride;
+          var start_offset = i * pixel_attention_mask_stride + num_patches * h * w;
+          var end_offset = (i + 1) * pixel_attention_mask_stride;
 
           pixel_attention_mask_data.fill(false, start_offset, end_offset);
         }
@@ -160,12 +160,12 @@ export class Idefics3ImageProcessor extends ImageProcessor {
   }
 
   async split_image(pixel_values: Tensor, { longest_edge }: { longest_edge: number }) {
-    const max_height = longest_edge;
-    const max_width = longest_edge;
+    var max_height = longest_edge;
+    var max_width = longest_edge;
 
-    const frames = [];
+    var frames = [];
 
-    const [height, width] = pixel_values.dims.slice(-2);
+    var [height, width] = pixel_values.dims.slice(-2);
 
     let num_splits_h = 0,
       num_splits_w = 0;
@@ -176,8 +176,8 @@ export class Idefics3ImageProcessor extends ImageProcessor {
       num_splits_w = Math.ceil(width / max_width);
 
       // Calculate the optimal width and height for the sub-images
-      const optimal_height = Math.ceil(height / num_splits_h);
-      const optimal_width = Math.ceil(width / num_splits_w);
+      var optimal_height = Math.ceil(height / num_splits_h);
+      var optimal_width = Math.ceil(width / num_splits_w);
 
       // Iterate through each row and column
       for (let r = 0; r < num_splits_h; ++r) {
@@ -200,17 +200,17 @@ export class Idefics3ImageProcessor extends ImageProcessor {
             end_x = (c + 1) * optimal_width;
           }
 
-          const starts = [start_y, start_x];
-          const ends = [end_y, end_x];
+          var starts = [start_y, start_x];
+          var ends = [end_y, end_x];
 
-          const patch = await slice(pixel_values, starts, ends, [2, 3]);
+          var patch = await slice(pixel_values, starts, ends, [2, 3]);
           frames.push(patch);
         }
       }
 
       // Resize the global image to match max dimensions for memory efficiency
-      const global_image_height = max_height;
-      const global_image_width = max_width;
+      var global_image_height = max_height;
+      var global_image_width = max_width;
 
       if (height !== global_image_height || width !== global_image_width) {
         pixel_values = await interpolate_4d(pixel_values, {
