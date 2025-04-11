@@ -6,8 +6,8 @@ export class WeSpeakerFeatureExtractor extends FeatureExtractor {
   constructor(config) {
     super(config);
 
-    const sampling_rate = this.config.sampling_rate;
-    const mel_filters = mel_filter_bank(
+    var sampling_rate = this.config.sampling_rate;
+    var mel_filters = mel_filter_bank(
       256, // num_frequency_bins
       this.config.num_mel_bins, // num_mel_filters
       20, // min_frequency
@@ -70,19 +70,19 @@ export class WeSpeakerFeatureExtractor extends FeatureExtractor {
   async _call(audio) {
     validate_audio_inputs(audio, 'WeSpeakerFeatureExtractor');
 
-    const features = (await this._extract_fbank_features(audio)).unsqueeze_(0);
+    var features = (await this._extract_fbank_features(audio)).unsqueeze_(0);
 
     if (this.config.fbank_centering_span === null) {
       // center features with global average
-      const meanData = /** @type {Float32Array} */ features.mean(1).data;
-      const featuresData = /** @type {Float32Array} */ features.data;
-      const [batch_size, num_frames, feature_size] = features.dims;
+      var meanData = /** @type {Float32Array} */ features.mean(1).data;
+      var featuresData = /** @type {Float32Array} */ features.data;
+      var [batch_size, num_frames, feature_size] = features.dims;
 
       for (let i = 0; i < batch_size; ++i) {
-        const offset1 = i * num_frames * feature_size;
-        const offset2 = i * feature_size;
+        var offset1 = i * num_frames * feature_size;
+        var offset2 = i * feature_size;
         for (let j = 0; j < num_frames; ++j) {
-          const offset3 = offset1 + j * feature_size;
+          var offset3 = offset1 + j * feature_size;
           for (let k = 0; k < feature_size; ++k) {
             featuresData[offset3 + k] -= meanData[offset2 + k];
           }
