@@ -12,16 +12,16 @@ export class ConvNextImageProcessor extends ImageProcessor {
   }
 
   async resize(image: any) {
-    let shortest_edge = this.size?.shortest_edge;
+    const shortest_edge = this.size?.shortest_edge;
     if (shortest_edge === undefined) {
       throw new Error(`Size dictionary must contain 'shortest_edge' key.`);
     }
 
     if (shortest_edge < 384) {
       // maintain same ratio, resizing shortest edge to shortest_edge/crop_pct
-      let resize_shortest_edge = Math.floor(shortest_edge / this.crop_pct);
+      const resize_shortest_edge = Math.floor(shortest_edge / this.crop_pct);
 
-      let [newWidth, newHeight] = this.get_resize_output_image_size(image, {
+      const [newWidth, newHeight] = this.get_resize_output_image_size(image, {
         shortest_edge: resize_shortest_edge,
       });
 
