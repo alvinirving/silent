@@ -1,4 +1,4 @@
-const WHISPER_LANGUAGES = [
+var WHISPER_LANGUAGES = [
   ['en', 'english'],
   ['zh', 'chinese'],
   ['de', 'german'],
@@ -101,9 +101,9 @@ const WHISPER_LANGUAGES = [
 ];
 
 // @ts-ignore
-export const WHISPER_LANGUAGE_MAPPING = new Map(WHISPER_LANGUAGES);
+export var WHISPER_LANGUAGE_MAPPING = new Map(WHISPER_LANGUAGES);
 // @ts-ignore
-export const WHISPER_TO_LANGUAGE_CODE_MAPPING = new Map([
+export var WHISPER_TO_LANGUAGE_CODE_MAPPING = new Map([
   ...WHISPER_LANGUAGES.map(([k, v]) => [v, k]),
   ...[
     ['burmese', 'my'],
@@ -138,8 +138,8 @@ export function whisper_language_to_code(language) {
       language_code = language;
     } else {
       // User provided something that is not a language code or name
-      const is_language_code = language.length === 2;
-      const langs = is_language_code ? WHISPER_LANGUAGE_MAPPING.keys() : WHISPER_LANGUAGE_MAPPING.values();
+      var is_language_code = language.length === 2;
+      var langs = is_language_code ? WHISPER_LANGUAGE_MAPPING.keys() : WHISPER_LANGUAGE_MAPPING.values();
 
       throw new Error(`Language "${language}" is not supported. Must be one of: ${JSON.stringify(langs)}`);
     }
