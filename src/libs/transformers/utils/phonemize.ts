@@ -10,10 +10,10 @@ import { phonemize as espeakng } from "phonemizer";
    * @returns {{match: boolean; text: string}[]} The split string.
    */
   function split(text: string, regex: RegExp) {
-    var result = [];
+    const result = [];
     let prev = 0;
-    for (var match of text.matchAll(regex)) {
-      var fullMatch = match[0];
+    for (const match of text.matchAll(regex)) {
+      const fullMatch = match[0];
       if (prev < match.index) {
         result.push({ match: false, text: text.slice(prev, match.index) });
       }
@@ -68,15 +68,15 @@ import { phonemize as espeakng } from "phonemizer";
    * @returns {string} The formatted currency
    */
   function flip_money(match: string) {
-    var bill = match[0] === "$" ? "dollar" : "pound";
+    const bill = match[0] === "$" ? "dollar" : "pound";
     if (isNaN(Number(match.slice(1)))) {
       return `${match.slice(1)} ${bill}s`;
     } else if (!match.includes(".")) {
       let suffix = match.slice(1) === "1" ? "" : "s";
       return `${match.slice(1)} ${bill}${suffix}`;
     }
-    var [b, c] = match.slice(1).split(".");
-    var d = parseInt(c.padEnd(2, "0"), 10);
+    const [b, c] = match.slice(1).split(".");
+    const d = parseInt(c.padEnd(2, "0"), 10);
     let coins = match[0] === "$" ? (d === 1 ? "cent" : "cents") : d === 1 ? "penny" : "pence";
     return `${b} ${bill}${b === "1" ? "" : "s"} and ${d} ${coins}`;
   }
@@ -162,10 +162,10 @@ import { phonemize as espeakng } from "phonemizer";
     return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
   }
 
-  var PUNCTUATION = ';:,.!?¡¿—…"«»“”(){}[]';
-  var PUNCTUATION_PATTERN = new RegExp(`(\\s*[${escapeRegExp(PUNCTUATION)}]+\\s*)+`, "g");
+  const PUNCTUATION = ';:,.!?¡¿—…"«»“”(){}[]';
+  const PUNCTUATION_PATTERN = new RegExp(`(\\s*[${escapeRegExp(PUNCTUATION)}]+\\s*)+`, "g");
 
-  var HINDI_PHONEME_MAP: { [key: string]: string } = {
+  const HINDI_PHONEME_MAP: { [key: string]: string } = {
     // Vowels - Updated to be more accurate and broadly understood
     'अ': 'a',      // a
     'आ': 'aː',     // Long 'a'
@@ -252,7 +252,7 @@ import { phonemize as espeakng } from "phonemizer";
   // }
 
   // Add Spanish phoneme mappings
-  var SPANISH_PHONEME_MAP: { [key: string]: string } = {
+  const SPANISH_PHONEME_MAP: { [key: string]: string } = {
     // Vowels
     'a': 'a',
     'á': 'ˈa',
@@ -296,7 +296,7 @@ import { phonemize as espeakng } from "phonemizer";
 
   function isHinglish(text: string): boolean {
     // Common Hinglish words and patterns
-    var hinglishPatterns = [
+    const hinglishPatterns = [
       /\b(aap|tum|hum|main|mein|ham|yeh|woh|kya|kaun|kaise|kyun|kab|kahan|yahan|wahan)\b/i,
       /\b(hai|hain|ho|hoga|tha|the|thi|thin|raha|rahe|rahi|rahin)\b/i, // Common verb forms
       /\b(ka|ke|ki|ko|se|par|me|mein|pe)\b/i, // Common postpositions
@@ -309,21 +309,21 @@ import { phonemize as espeakng } from "phonemizer";
     ];
     
     // Check for patterns that are strong indicators of Hinglish
-    for (var pattern of hinglishPatterns) {
+    for (const pattern of hinglishPatterns) {
       if (pattern.test(text)) {
         return true;
       }
     }
     
     // Look for common Hindi word endings
-    var hindiEndingPattern = /\b\w+(iye|ogi|ega|enge|engi|ogi|oga|egi|enga|engi)\b/i;
+    const hindiEndingPattern = /\b\w+(iye|ogi|ega|enge|engi|ogi|oga|egi|enga|engi)\b/i;
     if (hindiEndingPattern.test(text)) {
       return true;
     }
     
     // Check for sentences that are likely to be Hinglish
     // Common Hindi sentence structures
-    var commonSentences = [
+    const commonSentences = [
       /aap k(ya|i|e) (kar|ho|hai)/i,
       /kya (ho raha|chal raha|hua)/i,
       /\b(theek|accha) hai\b/i,
@@ -331,7 +331,7 @@ import { phonemize as espeakng } from "phonemizer";
       /\b(namaste|namaskar)\b/i
     ];
     
-    for (var pattern of commonSentences) {
+    for (const pattern of commonSentences) {
       if (pattern.test(text)) {
         return true;
       }
@@ -340,7 +340,7 @@ import { phonemize as espeakng } from "phonemizer";
     return false;
   }
 
-  var HINGLISH_PHONEME_MAP: { [key: string]: string } = {
+  const HINGLISH_PHONEME_MAP: { [key: string]: string } = {
     // Vowels
     'a': 'ə',      // Short 'a' (schwa), inherent in Hindi consonants
     'aa': 'aː',    // Long 'a' (आ), as in "naam"
@@ -392,7 +392,7 @@ import { phonemize as espeakng } from "phonemizer";
 
 function processHinglishText(text: string): string {
   // Expanded list of common Hinglish words with phonetic mappings
-  var commonHinglishWords: { [key: string]: string } = {
+  const commonHinglishWords: { [key: string]: string } = {
     'aap': 'aːp',           // आप (you, formal)
     'tum': 't̪ʊm',         // तुम (you, informal)
     'main': 'mɛ̃',         // मैं (I)
@@ -466,7 +466,7 @@ function processHinglishText(text: string): string {
     'zyada': 'zjaːdaː'     // ज़्यादा (more)
   };
 
-  var words = text.toLowerCase().split(/\s+/);
+  const words = text.toLowerCase().split(/\s+/);
   return words.map(word => {
     if (commonHinglishWords[word]) {
       return commonHinglishWords[word];
@@ -477,7 +477,7 @@ function processHinglishText(text: string): string {
     while (i < word.length) {
       // Check two-character patterns first
       if (i < word.length - 1) {
-        var twoChars = word.substring(i, i + 2);
+        const twoChars = word.substring(i, i + 2);
         if (HINGLISH_PHONEME_MAP[twoChars]) {
           result += HINGLISH_PHONEME_MAP[twoChars];
           i += 2;
@@ -486,7 +486,7 @@ function processHinglishText(text: string): string {
       }
 
       // Handle single characters
-      var char = word[i];
+      const char = word[i];
       result += HINGLISH_PHONEME_MAP[char] || char;
       i++;
     }
@@ -508,13 +508,13 @@ function processHinglishText(text: string): string {
     return text
       // Handle consonant clusters with virama
       .replace(/([क-ह])्([क-ह])/g, (_, c1, c2) => {
-        var p1 = HINDI_PHONEME_MAP[c1] || c1;
-        var p2 = HINDI_PHONEME_MAP[c2] || c2;
+        const p1 = HINDI_PHONEME_MAP[c1] || c1;
+        const p2 = HINDI_PHONEME_MAP[c2] || c2;
         return p1 + p2;
       })
       // Handle inherent 'a' sound after consonants, but not at word end
       .replace(/([क-ह])(?![ािीुूृेैोौ्ंँः]|$)/g, (_, c) => {
-        var phoneme = HINDI_PHONEME_MAP[c] || c;
+        const phoneme = HINDI_PHONEME_MAP[c] || c;
         return phoneme + 'ə';
       })
       // Handle word-final consonants without schwa
@@ -547,28 +547,28 @@ function processHinglishText(text: string): string {
     console.log(`Processing text (${text.length} chars) as: ${targetLanguage}`);
 
     // Check if text is too long - handle with max char limits
-    var MAX_PHONEME_INPUT_LENGTH = 300; // Safe maximum for phonemization
+    const MAX_PHONEME_INPUT_LENGTH = 300; // Safe maximum for phonemization
     
     if (text.length > MAX_PHONEME_INPUT_LENGTH) {
       console.warn(`Text too long (${text.length} chars), processing only the first ${MAX_PHONEME_INPUT_LENGTH} characters`);
       // Truncate at word boundary closest to the limit
-      var truncatedText = text.substring(0, MAX_PHONEME_INPUT_LENGTH).split(' ').slice(0, -1).join(' ');
+      const truncatedText = text.substring(0, MAX_PHONEME_INPUT_LENGTH).split(' ').slice(0, -1).join(' ');
       console.log(`Truncated to: "${truncatedText}"`);
       text = truncatedText;
     }
 
     // 3. Split into chunks, to ensure we preserve punctuation
-    var sections = split(text, PUNCTUATION_PATTERN);
+    const sections = split(text, PUNCTUATION_PATTERN);
 
     // 4. Convert each section to phonemes
-    var ps = (await Promise.all(
+    const ps = (await Promise.all(
       sections.map(async ({ match, text }) => {
         if (match) return text;
         
         switch (targetLanguage) {
           case 'hi': // Handles both Devanagari and Romanized Hindi (Hinglish)
             // Check for Devanagari script
-            var isDevanagari = /[\u0900-\u097F]/.test(text);
+            const isDevanagari = /[\u0900-\u097F]/.test(text);
             
             if (isDevanagari) {
               // For Devanagari script
@@ -652,7 +652,7 @@ function processHinglishText(text: string): string {
     } 
     
     // Ensure the output isn't too long
-    var trimmedResult = processed.trim();
+    const trimmedResult = processed.trim();
     
     // Debug log the phonemization result
     console.log(`Phonemized ${text.length} chars into ${trimmedResult.length} phoneme chars`);
