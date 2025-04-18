@@ -1,0 +1,37 @@
+name: Build and Lint
+
+on:
+  push:
+    branches: [ '**' ]  # Runs on all branches
+  pull_request:
+    branches: [ '**' ]  # Runs on PRs targeting any branch
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    # Main project build and lint
+    - name: Install main dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm run test
+
+    - name: Build main project
+      run: npm run build
+
+    # Need to fix linting issues first
+    # - name: Lint main project
+    #   run: npm run lint

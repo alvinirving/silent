@@ -1,0 +1,214 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: hsl(240 10% 4% / 1);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: none;
+  padding: 0.4em 0.8em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: transparent;
+  color: black;
+  cursor: pointer;
+  transition: background-color 0.25s, color 0.25s;
+  outline: none !important;
+}
+button:hover {
+  background-color: #393939;
+}
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #151515;
+    color: white;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  button {
+    background-color: white;
+    color: #151515;
+  }
+  button:hover {
+    background-color: #dcdcdc;
+  }
+}
+
+.workflow-container {
+  border: 1px solid hsl(240 3.7% 15.9%);
+  background-color: rgba(240, 240, 240, 0.8);
+  padding: 0.5rem;
+  border-radius: 8px;
+  height: auto;
+  overflow-y: visible;
+  background: var(--background);
+  color: var(--foreground);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  transition: none;
+}
+
+@media (prefers-color-scheme: light) {
+  .workflow-container {
+    border: 1px solid hsl(240, 6%, 90%);
+  }
+}
+
+.workflow-content {
+  padding: 1rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.button-text {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.workflow-title {
+  @apply text-base font-semibold mb-1;
+  text-align: left;
+}
+
+.nav-button {
+  border-radius: 8px;
+  border: none;
+  padding: 0.4em 0.8em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: transparent;
+  color: black;
+  cursor: pointer;
+  transition: background-color 0.25s, color 0.25s;
+  width: 30%;
+  margin: 0 5px;
+}
+
+.nav-button:hover {
+  background-color: #ececec;
+}
+
+.nav-button.active {
+  background-color: #ececec;
+}
+
+@media (prefers-color-scheme: dark) {
+  .nav-button {
+    background-color: hsl(240 10% 4% / 1);
+    color: white;
+  }
+  .nav-button:hover {
+    background-color: #333;
+  }
+  .nav-button.active {
+    background-color: #333;
+  }
+}
+
+.dropdown-button {
+  border-radius: 8px;
+  background-color: transparent; /* No fill */
+  color: black; /* Default text color */
+  padding: 0.4em 0.8em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.25s, color 0.25s;
+}
+
+.dropdown-button:hover {
+  background-color: hsl(240, 6%, 90%); /* Light grey background on hover */
+}
+
+@media (prefers-color-scheme: dark) {
+  .dropdown-button {
+    background-color: transparent; /* No fill */
+    color: white; /* White text for dark mode */
+  }
+
+  .dropdown-button:hover {
+    background-color: hsl(240, 10%, 20%); /* Darker grey background on hover */
+  }
+}
+
+.select-trigger {
+  border-radius: 8px;
+  border: 1px solid hsl(240, 6%, 90%); /* Light grey outline */
+  background-color: transparent; /* No fill */
+  color: black; /* Default text color */
+  padding: 0.4em 0.8em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s, color 0.25s;
+}
+
+.select-trigger:hover {
+  border-color: hsl(240, 6%, 90%); /* Keep the same outline color on hover */
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .select-trigger {
+    border: 1px solid hsl(240, 10%, 20%); /* Dark grey outline */
+    color: white; /* White text for dark mode */
+  }
+
+  .select-trigger:hover {
+    border-color: hsl(240, 10%, 20%); /* Keep the same outline color on hover */
+  }
+}

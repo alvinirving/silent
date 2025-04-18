@@ -1,0 +1,75 @@
+---
+title: 'Audio & Speech Recognition Options'
+description: 'Configuration options and parameters for audio and speech recognition with BrowserAI'
+---
+
+# Speech Recognition Options
+
+## Model Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| device | string | 'webgpu' | Device to run model on |
+| onProgress | function | - | Callback for loading progress updates |
+| quantization | string | 'q4' | Model quantization level |
+
+## Available Models
+
+| Model | Description | Size | Languages |
+|-------|-------------|------|-----------|
+| whisper-tiny-en | Lightweight English-only model | ~150MB | English |
+| whisper-base-all | Base multilingual model | ~290MB | 99 languages |
+| whisper-small-all | Enhanced multilingual model | ~490MB | 99 languages |
+
+## Transcription Parameters 
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| language | string | - | Target language code (optional) |
+| task | string | 'transcribe' | Task type ('transcribe' or 'translate') |
+| return_timestamps | boolean | false | Return word-level timestamps |
+
+## Example
+
+```javascript copy
+const browserAI = new BrowserAI();
+
+// Load speech recognition model
+await browserAI.loadModel('whisper-tiny-en', {
+  device: 'webgpu',
+  onProgress: (progress) => {
+    console.log('Loading model:', progress.progress + '%');
+  }
+});
+
+// Transcribe audio from blob/array
+const result = await browserAI.transcribe(audioInput, {
+  language: 'en',
+  return_timestamps: true,
+  chunk_length_s: 30
+});
+
+console.log('Transcription:', result.text);
+// "Hello, how are you today?"
+```
+
+## Recording Audio
+
+BrowserAI provides built-in methods for recording audio:
+
+```javascript copy
+// Start recording
+await browserAI.startRecording();
+
+// Stop and get audio blob
+const audioBlob = await browserAI.stopRecording();
+
+// Transcribe the recorded audio
+const transcription = await browserAI.transcribeAudio(audioBlob);
+console.log(transcription.text);
+```
+
+export const metadata = {
+    title: 'Speech Recognition Options',
+    description: 'Configuration options and parameters for speech recognition with BrowserAI'
+}
